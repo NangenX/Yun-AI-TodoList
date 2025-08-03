@@ -58,14 +58,10 @@
 
     <!-- 右侧区域：AI 分析结果和操作按钮 -->
     <div class="todo-right-section">
-      <!-- AI 分析结果显示 -->
-      <div
-        v-if="todo.aiAnalyzed && (todo.priority || todo.estimatedTime)"
-        class="todo-ai-info-right"
-      >
+      <div class="todo-actions-inline">
         <!-- 优先级显示 -->
         <div
-          v-if="todo.priority"
+          v-if="todo.aiAnalyzed && todo.priority"
           class="priority-indicator clickable"
           :class="`priority-${todo.priority}`"
           :title="t('clickToEditPriority', '点击编辑优先级')"
@@ -74,9 +70,10 @@
           <span class="priority-stars">{{ '★'.repeat(todo.priority) }}</span>
           <span class="priority-text">{{ todo.priority }}星</span>
         </div>
+
         <!-- 时间估算显示 -->
         <div
-          v-if="todo.estimatedTime"
+          v-if="todo.aiAnalyzed && todo.estimatedTime"
           class="time-estimate clickable"
           :title="t('clickToEditTime', '点击编辑时间估算')"
           @click.stop="editTimeEstimate"
@@ -98,8 +95,7 @@
           </svg>
           <span class="time-text">{{ todo.estimatedTime.text }}</span>
         </div>
-      </div>
-      <div class="todo-actions">
+
         <!-- AI 分析按钮 -->
         <button
           v-if="!todo.aiAnalyzed || (!todo.priority && !todo.estimatedTime)"
@@ -131,6 +127,7 @@
           </svg>
         </button>
 
+        <!-- 编辑按钮 -->
         <button
           class="edit-btn"
           :title="t('editTodo', '编辑待办事项')"
@@ -152,6 +149,8 @@
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
           </svg>
         </button>
+
+        <!-- 删除按钮 -->
         <button
           class="delete-btn"
           :title="t('delete')"
@@ -427,13 +426,13 @@ onErrorCaptured(handleError)
 
 /* 右侧区域布局 */
 .todo-right-section {
-  @apply flex flex-col items-end gap-1 ml-auto;
+  @apply flex items-center ml-auto;
   min-width: fit-content;
 }
 
-/* AI 分析结果样式 - 右侧显示 */
-.todo-ai-info-right {
-  @apply flex flex-row items-center gap-2 text-xs;
+/* 内联操作区域 - 所有元素在一行显示 */
+.todo-actions-inline {
+  @apply flex items-center gap-2 text-xs;
   opacity: 0.9;
 }
 
@@ -533,9 +532,11 @@ onErrorCaptured(handleError)
   @apply flex-1 min-w-0;
 }
 
-/* 操作按钮容器 */
-.todo-actions {
-  @apply flex items-center gap-1;
+/* 操作按钮在内联容器中的间距调整 */
+.todo-actions-inline .ai-analyze-btn,
+.todo-actions-inline .edit-btn,
+.todo-actions-inline .delete-btn {
+  @apply ml-1;
 }
 
 /* AI 分析按钮样式 */
@@ -622,9 +623,9 @@ onErrorCaptured(handleError)
   @apply transform scale-105;
 }
 
-.card-todo:hover .edit-btn,
-.card-todo:hover .delete-btn,
-.card-todo:hover .ai-analyze-btn {
+.card-todo:hover .todo-actions-inline .edit-btn,
+.card-todo:hover .todo-actions-inline .delete-btn,
+.card-todo:hover .todo-actions-inline .ai-analyze-btn {
   @apply opacity-100;
 }
 
@@ -634,8 +635,8 @@ onErrorCaptured(handleError)
     @apply flex items-center gap-3 min-w-0;
   }
 
-  .todo-actions {
-    @apply gap-2 ml-3;
+  .todo-actions-inline {
+    @apply gap-1.5;
   }
 }
 
@@ -649,8 +650,8 @@ onErrorCaptured(handleError)
     @apply flex-1 min-w-0;
   }
 
-  .todo-actions {
-    @apply gap-1 ml-2;
+  .todo-actions-inline {
+    @apply gap-1;
   }
 }
 
@@ -775,9 +776,8 @@ onErrorCaptured(handleError)
     align-self: center;
   }
 
-  .todo-ai-info-right {
-    @apply flex flex-col items-end gap-1;
-    margin-right: 0.25rem;
+  .todo-actions-inline {
+    @apply gap-1.5;
   }
 
   .priority-indicator,
@@ -826,16 +826,12 @@ onErrorCaptured(handleError)
   }
 
   .todo-right-section {
-    @apply flex flex-row items-center gap-1;
+    @apply flex items-center;
     margin-left: 0.5rem;
   }
 
-  .todo-ai-info-right {
-    @apply flex flex-row items-center gap-1;
-  }
-
-  .todo-actions {
-    @apply flex items-center gap-0.5;
+  .todo-actions-inline {
+    @apply gap-1;
   }
 
   .ai-analyze-btn,
