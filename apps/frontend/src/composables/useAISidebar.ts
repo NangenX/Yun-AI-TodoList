@@ -1,5 +1,5 @@
 import { safeSetTimeout } from '@/utils/memoryLeakFixes'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref } from 'vue'
 
 /**
  * AI 助手侧边栏状态管理
@@ -317,16 +317,19 @@ export function useAISidebar() {
     updateFullscreenForViewport()
   })
 
-  // 组件卸载时清理
-  onUnmounted(() => {
-    document.removeEventListener('keydown', handleKeydown)
-    window.removeEventListener('resize', handleResize)
-    // 确保恢复背景滚动和拖拽状态
-    document.documentElement.style.overflow = ''
-    document.body.style.overflow = ''
-    document.body.style.cursor = ''
-    document.body.style.userSelect = ''
-  })
+  // 组件卸载时清理 - 只在组件上下文中注册
+  const instance = getCurrentInstance()
+  if (instance) {
+    onUnmounted(() => {
+      document.removeEventListener('keydown', handleKeydown)
+      window.removeEventListener('resize', handleResize)
+      // 确保恢复背景滚动和拖拽状态
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    })
+  }
 
   return {
     isOpen,

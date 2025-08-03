@@ -1,6 +1,13 @@
 import type { Todo } from '@/types/todo'
 import { handleError as logError, logger } from '@/utils/logger'
-import { onBeforeMount, onErrorCaptured, onMounted, onUnmounted, ref } from 'vue'
+import {
+  getCurrentInstance,
+  onBeforeMount,
+  onErrorCaptured,
+  onMounted,
+  onUnmounted,
+  ref,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAIAnalysis } from './useAIAnalysis'
 import { useConfirmDialog } from './useConfirmDialog'
@@ -160,10 +167,14 @@ export function useTodoListState() {
     }
   })
 
-  onUnmounted(() => {
-    document.removeEventListener('visibilitychange', checkPomodoroCompletion)
-    document.removeEventListener('keydown', onKeyDown)
-  })
+  // 只在组件上下文中注册生命周期钩子
+  const instance = getCurrentInstance()
+  if (instance) {
+    onUnmounted(() => {
+      document.removeEventListener('visibilitychange', checkPomodoroCompletion)
+      document.removeEventListener('keydown', onKeyDown)
+    })
+  }
 
   return {
     todoListRef,

@@ -1,4 +1,4 @@
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ThemeValue } from '../types/theme'
 import { configurePWAThemeColor } from '../utils/pwa-config'
 import { useUserPreferences } from './useUserPreferences'
@@ -109,10 +109,14 @@ export function useTheme() {
     updateTheme()
   })
 
-  onUnmounted(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.removeListener(handleSystemThemeChange)
-  })
+  // 只在组件上下文中注册生命周期钩子
+  const instance = getCurrentInstance()
+  if (instance) {
+    onUnmounted(() => {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaQuery.removeListener(handleSystemThemeChange)
+    })
+  }
 
   return {
     theme,

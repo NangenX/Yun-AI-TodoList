@@ -1,7 +1,7 @@
 import { AI_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
 import type { Todo, TodoPriority, UpdateTodoDto } from '@shared/types/todo'
 import axios from 'axios'
-import { computed, nextTick, onUnmounted, ref } from 'vue'
+import { computed, getCurrentInstance, nextTick, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
 import { logger } from '../utils/logger'
@@ -1006,12 +1006,15 @@ ${todoTexts}
     },
   }
 
-  // 组件卸载时自动清理
-  onUnmounted(() => {
-    if (typeof result.cleanup === 'function') {
-      result.cleanup()
-    }
-  })
+  // 组件卸载时自动清理 - 只在组件上下文中注册
+  const instance = getCurrentInstance()
+  if (instance) {
+    onUnmounted(() => {
+      if (typeof result.cleanup === 'function') {
+        result.cleanup()
+      }
+    })
+  }
 
   return result
 }
