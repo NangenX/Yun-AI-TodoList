@@ -239,7 +239,7 @@
                 '--tw-ring-color': 'var(--settings-primary)',
                 border: '1px solid var(--settings-input-border)',
               }"
-              @change="loadPreset"
+              @change="onPresetChange"
             >
               <option value="">选择预设配置...</option>
               <option v-for="preset in savedPresets" :key="preset.id" :value="preset.id">
@@ -251,22 +251,10 @@
             <div v-if="selectedPreset" class="flex gap-2">
               <button
                 type="button"
-                class="flex-1 text-xs px-2 py-1 rounded transition-colors"
-                :style="{
-                  backgroundColor: 'var(--settings-primary-ultra-light)',
-                  color: 'var(--settings-primary)',
-                  border: '1px solid var(--settings-primary-soft)',
-                }"
-                @click="loadPreset"
-              >
-                加载配置
-              </button>
-              <button
-                type="button"
                 class="text-xs px-2 py-1 rounded transition-colors delete-btn"
                 @click="deletePreset"
               >
-                删除
+                删除预设
               </button>
             </div>
           </div>
@@ -337,7 +325,7 @@
             color: var(--text-color);
             border: none;
           "
-          @click="$emit('save')"
+          @click="handleSave"
           @mouseenter="
             !($event.target as HTMLButtonElement).disabled &&
             (($event.target as HTMLButtonElement).style.backgroundColor =
@@ -662,6 +650,39 @@ const loadPreset = () => {
   }
 }
 
+// 预设选择变化时自动加载配置
+const onPresetChange = () => {
+  loadPreset()
+}
+
+// 处理保存操作
+const handleSave = () => {
+  // 如果选中了预设，更新该预设
+  if (selectedPreset.value) {
+    updateSelectedPreset()
+  }
+  // 触发原有的保存事件
+  emit('save')
+}
+
+// 更新选中的预设
+const updateSelectedPreset = () => {
+  if (!selectedPreset.value) return
+
+  const presetIndex = savedPresets.value.findIndex((p) => p.id === selectedPreset.value)
+  if (presetIndex >= 0) {
+    // 更新现有预设的配置
+    savedPresets.value[presetIndex] = {
+      ...savedPresets.value[presetIndex],
+      provider: props.localProvider,
+      apiKey: props.localApiKey,
+      baseUrl: props.localBaseUrl,
+      model: props.localModel,
+    }
+    savePresets()
+  }
+}
+
 // 删除预设
 const deletePreset = () => {
   if (!selectedPreset.value) return
@@ -690,12 +711,11 @@ const checkCurrentPreset = () => {
 
   if (matchingPreset) {
     selectedPreset.value = matchingPreset.id
-  } else {
-    selectedPreset.value = ''
   }
+  // 移除自动清空预设选择的逻辑，让用户手动控制预设选择
 }
 
-// 监听配置变化，实时更新预设选择
+// 监听配置变化，仅在匹配到预设时更新选择
 watch(
   () => [props.localProvider, props.localApiKey, props.localBaseUrl, props.localModel],
   () => {
