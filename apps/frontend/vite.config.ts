@@ -222,7 +222,7 @@ export default defineConfig({
       includeManifestIcons: true,
     }),
   ],
-  base: './',
+  base: process.env.NODE_ENV === 'production' ? '/Yun-AI-TodoList/' : './',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

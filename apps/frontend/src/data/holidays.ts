@@ -402,16 +402,26 @@ export const allHolidays2026: Holiday[] = [
 export const holidaysByDate2025: Record<string, Holiday[]> = {}
 export const holidaysByDate2026: Record<string, Holiday[]> = {}
 
-allHolidays2025.forEach((holiday) => {
-  if (!holidaysByDate2025[holiday.date]) {
-    holidaysByDate2025[holiday.date] = []
-  }
-  holidaysByDate2025[holiday.date].push(holiday)
-})
+// 初始化2025年节假日索引
+function initializeHolidaysByDate2025() {
+  allHolidays2025.forEach((holiday) => {
+    if (!holidaysByDate2025[holiday.date]) {
+      holidaysByDate2025[holiday.date] = []
+    }
+    holidaysByDate2025[holiday.date].push(holiday)
+  })
+}
 
-allHolidays2026.forEach((holiday) => {
-  if (!holidaysByDate2026[holiday.date]) {
-    holidaysByDate2026[holiday.date] = []
-  }
-  holidaysByDate2026[holiday.date].push(holiday)
-})
+// 初始化2026年节假日索引
+function initializeHolidaysByDate2026() {
+  allHolidays2026.forEach((holiday) => {
+    if (!holidaysByDate2026[holiday.date]) {
+      holidaysByDate2026[holiday.date] = []
+    }
+    holidaysByDate2026[holiday.date].push(holiday)
+  })
+}
+
+// 立即初始化
+initializeHolidaysByDate2025()
+initializeHolidaysByDate2026()
