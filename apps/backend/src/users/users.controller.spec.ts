@@ -21,9 +21,11 @@ describe('UsersController', () => {
     preferences: {
       theme: 'auto' as const,
       language: 'zh-CN',
-      priorityAnalysis: true,
-      timeEstimation: true,
-      subtaskSplitting: true,
+      aiAnalysisConfig: {
+        enablePriorityAnalysis: true,
+        enableTimeEstimation: true,
+        enableSubtaskSplitting: true,
+      },
     },
     createdAt: '2023-01-01T00:00:00.000Z',
     updatedAt: '2023-01-01T00:00:00.000Z',

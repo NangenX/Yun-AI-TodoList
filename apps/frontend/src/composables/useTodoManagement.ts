@@ -28,6 +28,15 @@ export function useTodoManagement() {
   // AI 分析功能
   const { analyzeSingleTodo, analysisConfig } = useAIAnalysis()
 
+  // 检查是否启用了任何 AI 分析功能
+  const isAIAnalysisEnabled = computed(() => {
+    return (
+      analysisConfig.value.enablePriorityAnalysis ||
+      analysisConfig.value.enableTimeEstimation ||
+      analysisConfig.value.enableSubtaskSplitting
+    )
+  })
+
   // 本地状态管理（避免只读属性赋值问题）
   const isAnalyzing = ref(false)
   const analysisProgress = ref(0)
@@ -592,12 +601,12 @@ ${todoTexts}
 
     logger.info(
       'Todo added successfully, checking auto analysis config',
-      { autoAnalyze: analysisConfig.value.autoAnalyzeNewTodos },
+      { autoAnalyze: isAIAnalysisEnabled.value },
       'TodoManagement'
     )
 
-    // 如果启用了自动分析新待办事项，则自动触发 AI 分析
-    if (analysisConfig.value.autoAnalyzeNewTodos) {
+    // 如果启用了任何 AI 分析功能，则自动触发 AI 分析
+    if (isAIAnalysisEnabled.value) {
       try {
         // 找到刚添加的 Todo（最新的一个）
         const newTodo = todos.value
@@ -646,7 +655,7 @@ ${todoTexts}
         logger.warn('Error in auto AI analysis', error, 'TodoManagement')
       }
     } else {
-      logger.info('Auto analysis feature is disabled', {}, 'TodoManagement')
+      logger.info('AI analysis features are disabled', {}, 'TodoManagement')
     }
 
     return { needsSplitting: false }
@@ -669,7 +678,7 @@ ${todoTexts}
       estimatedMinutes: number
     }> = []
 
-    if (originalTask && analysisConfig.value.autoAnalyzeNewTodos) {
+    if (originalTask && isAIAnalysisEnabled.value) {
       try {
         const { analyzeSubtasksDetails } = await import('@/services/aiAnalysisService')
         subtaskDetails = await analyzeSubtasksDetails(subtasks, originalTask)
@@ -767,8 +776,8 @@ ${todoTexts}
         await nextTick()
       }
 
-      // 如果启用了自动分析，为新添加的子任务进行批量分析
-      if (analysisConfig.value.autoAnalyzeNewTodos) {
+      // 如果启用了任何 AI 分析功能，为新添加的子任务进行批量分析
+      if (isAIAnalysisEnabled.value) {
         try {
           // 找到最新添加的子任务
           const newTodos = todos.value
@@ -903,8 +912,8 @@ ${todoTexts}
       if (success) {
         showSuccess(t('todoUpdated', '待办事项已更新'))
 
-        // 如果启用了自动分析，触发 AI 分析
-        if (analysisConfig.value.autoAnalyzeNewTodos) {
+        // 如果启用了任何 AI 分析功能，触发 AI 分析
+        if (isAIAnalysisEnabled.value) {
           const updatedTodo = todos.value.find((todo) => todo.id === id)
           if (updatedTodo && !updatedTodo.completed) {
             try {

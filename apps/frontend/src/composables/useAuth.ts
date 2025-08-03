@@ -45,7 +45,7 @@ export function useAuth() {
   /**
    * 清除认证状态
    */
-  const clearAuthState = () => {
+  const clearAuthState = async () => {
     authState.user = null
     authState.accessToken = null
     authState.refreshToken = null
@@ -54,13 +54,23 @@ export function useAuth() {
     // 使用令牌管理器清除令牌
     tokenManager.clearTokens()
 
+    // 清理用户偏好设置
+    try {
+      const { useUserPreferences } = await import('./useUserPreferences')
+      const { cleanup } = useUserPreferences()
+      cleanup()
+      console.log('User preferences cleaned up')
+    } catch (error) {
+      console.warn('Failed to cleanup user preferences:', error)
+    }
+
     console.log('Auth state cleared')
   }
 
   /**
    * 从存储中加载认证状态
    */
-  const loadAuthState = (): boolean => {
+  const loadAuthState = async (): Promise<boolean> => {
     try {
       // 使用 tokenManager 获取令牌信息
       const tokenInfo = tokenManager.getTokenInfo()
@@ -84,12 +94,12 @@ export function useAuth() {
         } else {
           // 令牌过期，清除状态
           console.log('Token expired, clearing auth state')
-          clearAuthState()
+          await clearAuthState()
         }
       }
     } catch (error) {
       console.error('Failed to load auth state:', error)
-      clearAuthState()
+      await clearAuthState()
     }
 
     return false
@@ -98,7 +108,7 @@ export function useAuth() {
   /**
    * 保存认证状态到 localStorage
    */
-  const saveAuthState = (authResponse: AuthResponse) => {
+  const saveAuthState = async (authResponse: AuthResponse) => {
     try {
       authState.user = authResponse.user
       authState.accessToken = authResponse.accessToken
@@ -112,6 +122,16 @@ export function useAuth() {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(authResponse.user))
 
       console.log('Auth state saved to storage')
+
+      // 异步初始化用户偏好设置
+      try {
+        const { useUserPreferences } = await import('./useUserPreferences')
+        const { initialize } = useUserPreferences()
+        await initialize()
+        console.log('User preferences initialized')
+      } catch (error) {
+        console.warn('Failed to initialize user preferences:', error)
+      }
     } catch (error) {
       console.error('Failed to save auth state:', error)
     }
@@ -132,12 +152,12 @@ export function useAuth() {
       const response = await authApi.refreshToken(authState.refreshToken)
 
       // 保存新的认证状态
-      saveAuthState(response)
+      await saveAuthState(response)
 
       return true
     } catch (error) {
       console.error('Failed to refresh token:', error)
-      clearAuthState()
+      await clearAuthState()
       return false
     }
   }
@@ -158,7 +178,7 @@ export function useAuth() {
       })
 
       // 保存认证状态（默认记住登录状态）
-      saveAuthState(response)
+      await saveAuthState(response)
     } catch (error) {
       console.error('Login failed:', error)
       throw error
@@ -212,7 +232,7 @@ export function useAuth() {
       const response = await authApi.register(userData)
 
       // 保存认证状态（注册后自动登录）
-      saveAuthState(response)
+      await saveAuthState(response)
     } catch (error) {
       console.error('Registration failed:', error)
       throw error
@@ -247,11 +267,11 @@ export function useAuth() {
       await authApi.logout()
 
       // 清除本地状态
-      clearAuthState()
+      await clearAuthState()
     } catch (error) {
       console.error('Logout failed:', error)
       // 即使 API 调用失败，也要清除本地状态
-      clearAuthState()
+      await clearAuthState()
     }
   }
 
@@ -343,8 +363,8 @@ export function useAuth() {
   /**
    * 初始化认证状态
    */
-  const initAuth = () => {
-    loadAuthState()
+  const initAuth = async () => {
+    await loadAuthState()
 
     // 监听令牌刷新事件
     window.addEventListener('tokenRefreshed', (event: Event) => {
@@ -354,8 +374,8 @@ export function useAuth() {
     })
 
     // 监听令牌刷新失败事件
-    window.addEventListener('tokenRefreshFailed', () => {
-      clearAuthState()
+    window.addEventListener('tokenRefreshFailed', async () => {
+      await clearAuthState()
       console.log('Auth state cleared after token refresh failure')
     })
   }

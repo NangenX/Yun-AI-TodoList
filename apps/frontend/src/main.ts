@@ -5,7 +5,7 @@ import { registerSW } from 'virtual:pwa-register'
 import 'virtual:uno.css'
 import { createApp } from 'vue'
 import App from './App.vue'
-import i18n from './i18n/index'
+import i18n, { setUserPreferencesManager } from './i18n/index'
 import router from './router/index.ts'
 import './styles/enhancements.css'
 import './styles/variables.css'
@@ -28,9 +28,40 @@ const updateSW = registerSW({
   },
 })
 
-// 初始化 PWA 功能
-initPWA().catch((error) => {
-  logger.error('PWA 初始化失败', error, 'PWA')
+// 应用初始化函数
+async function initializeApp() {
+  try {
+    // 初始化 PWA 功能
+    await initPWA()
+
+    // 初始化认证状态和用户偏好设置
+    const { useAuth } = await import('./composables/useAuth')
+    const { useUserPreferences } = await import('./composables/useUserPreferences')
+
+    const { initAuth, isAuthenticated } = useAuth()
+    const userPreferences = useUserPreferences()
+
+    // 设置 i18n 的用户偏好设置管理器
+    setUserPreferencesManager(userPreferences)
+
+    // 初始化认证状态
+    await initAuth()
+
+    // 如果用户已认证，初始化用户偏好设置
+    if (isAuthenticated.value) {
+      await userPreferences.initialize()
+      logger.info('用户偏好设置已初始化', undefined, 'App')
+    }
+
+    logger.info('应用初始化完成', undefined, 'App')
+  } catch (error) {
+    logger.error('应用初始化失败', error, 'App')
+  }
+}
+
+// 启动应用
+initializeApp().catch((error) => {
+  logger.error('应用启动失败', error, 'App')
 })
 
 createApp(App).use(router).use(i18n).mount('#app')

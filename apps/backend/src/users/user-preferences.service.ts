@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { UserPreferences } from '@shared/types'
+import { ThemeValue } from '@shared/types/user'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import { ThemePreferencesDto, UpdateUserPreferencesDto } from './dto/user-preferences.dto'
-import { ThemeValue } from '@shared/types/user'
 
 /**
  * 用户偏好设置服务
@@ -268,10 +268,12 @@ export class UserPreferencesService {
   ): UserPreferences {
     return {
       theme: (prismaPrefs.theme as ThemeValue) || 'light',
-      language: prismaPrefs.language as string,
-      priorityAnalysis: prismaPrefs.priorityAnalysis as boolean,
-      timeEstimation: prismaPrefs.timeEstimation as boolean,
-      subtaskSplitting: prismaPrefs.subtaskSplitting as boolean,
+      language: (prismaPrefs.language as string) || 'zh',
+      aiAnalysisConfig: {
+        enablePriorityAnalysis: (prismaPrefs.priorityAnalysis as boolean) ?? true,
+        enableTimeEstimation: (prismaPrefs.timeEstimation as boolean) ?? true,
+        enableSubtaskSplitting: (prismaPrefs.subtaskSplitting as boolean) ?? false,
+      },
     }
   }
 }

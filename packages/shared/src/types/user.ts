@@ -42,9 +42,11 @@ export interface PublicUser {
 export interface UserPreferences {
   theme: ThemeValue
   language: string
-  priorityAnalysis: boolean
-  timeEstimation: boolean
-  subtaskSplitting: boolean
+  aiAnalysisConfig: {
+    enablePriorityAnalysis: boolean
+    enableTimeEstimation: boolean
+    enableSubtaskSplitting: boolean
+  }
 }
 
 export interface CreateUserDto {

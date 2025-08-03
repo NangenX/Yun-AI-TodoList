@@ -93,6 +93,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuth } from '../composables/useAuth'
 import { useSettingsState } from '../composables/useSettingsState'
 import { useStorageMode } from '../composables/useStorageMode'
+import { useUserPreferences } from '../composables/useUserPreferences'
 import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 import ApiKeySection from './settings/ApiKeySection.vue'
 
@@ -105,6 +106,7 @@ import ThemeSection from './settings/ThemeSection.vue'
 const { t } = useI18n()
 const { isAuthenticated } = useAuth()
 const { initializeStorageMode } = useStorageMode()
+const { refreshFromServer } = useUserPreferences()
 
 const {
   showApiKey,
@@ -117,9 +119,13 @@ const {
   showSuccessToast,
 } = useSettingsState()
 
-// Initialize storage mode on component mount
+// Initialize storage mode and refresh user preferences on component mount
 onMounted(async () => {
-  if (isAuthenticated.value) await initializeStorageMode()
+  if (isAuthenticated.value) {
+    await initializeStorageMode()
+    // 从服务器刷新用户偏好设置以确保显示最新数据
+    await refreshFromServer()
+  }
 })
 
 defineOptions({

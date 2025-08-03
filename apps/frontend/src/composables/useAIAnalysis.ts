@@ -2,9 +2,10 @@ import { analyzeTodo, reanalyzeTodo } from '@/services/aiAnalysisService'
 import { checkAIAvailability, getAIStatusMessage } from '@/services/aiConfigService'
 import type { AIAnalysisConfig } from '@/types/todo'
 import type { TimeEstimate, Todo, TodoPriority } from '@shared/types/todo'
-import { readonly, ref } from 'vue'
+import { computed, readonly, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useErrorHandler } from './useErrorHandler'
+import { useUserPreferences } from './useUserPreferences'
 
 /**
  * AI 分析相关的功能
@@ -39,12 +40,23 @@ export function useAIAnalysis() {
   const isAIAvailable = ref(true)
   const aiStatusMessage = ref('')
 
-  // AI 配置
-  const analysisConfig = ref<AIAnalysisConfig>({
-    autoAnalyzeNewTodos: true,
+  const { preferences, updatePreferences, isReady } = useUserPreferences()
+
+  // 本地 AI 配置状态
+  const localAnalysisConfig = ref<AIAnalysisConfig>({
     enablePriorityAnalysis: true,
     enableTimeEstimation: true,
     enableSubtaskSplitting: false,
+  })
+
+  // 计算当前 AI 分析配置
+  const analysisConfig = computed(() => {
+    // 如果用户偏好设置已加载，使用偏好设置中的配置
+    if (isReady.value && preferences.value?.aiAnalysisConfig) {
+      return preferences.value.aiAnalysisConfig
+    }
+    // 否则使用本地配置状态
+    return localAnalysisConfig.value
   })
 
   // 从 localStorage 加载配置
@@ -53,7 +65,7 @@ export function useAIAnalysis() {
       const saved = localStorage.getItem('aiAnalysisConfig')
       if (saved) {
         const config = JSON.parse(saved)
-        analysisConfig.value = { ...analysisConfig.value, ...config }
+        localAnalysisConfig.value = { ...localAnalysisConfig.value, ...config }
       }
     } catch (error) {
       console.warn('Failed to load AI analysis config:', error)
@@ -61,9 +73,9 @@ export function useAIAnalysis() {
   }
 
   // 保存配置到 localStorage
-  const saveAnalysisConfig = () => {
+  const saveAnalysisConfig = (config: AIAnalysisConfig) => {
     try {
-      localStorage.setItem('aiAnalysisConfig', JSON.stringify(analysisConfig.value))
+      localStorage.setItem('aiAnalysisConfig', JSON.stringify(config))
     } catch (error) {
       console.warn('Failed to save AI analysis config:', error)
     }
@@ -71,6 +83,21 @@ export function useAIAnalysis() {
 
   // 初始化时加载配置
   loadAnalysisConfig()
+
+  // 监听用户偏好设置变化，同步 AI 分析配置
+  watch(
+    () => preferences.value?.aiAnalysisConfig,
+    (newConfig) => {
+      if (newConfig) {
+        const fullConfig: AIAnalysisConfig = {
+          ...localAnalysisConfig.value,
+          ...newConfig,
+        }
+        localAnalysisConfig.value = fullConfig
+        saveAnalysisConfig(fullConfig)
+      }
+    }
+  )
 
   // 分析功能开关
   const isAnalysisEnabled = ref(true)
@@ -87,9 +114,34 @@ export function useAIAnalysis() {
    * 设置 AI 分析配置
    * @param config - AI 分析配置
    */
-  const setAnalysisConfig = (config: Partial<AIAnalysisConfig>) => {
-    analysisConfig.value = { ...analysisConfig.value, ...config }
-    saveAnalysisConfig()
+  const setAnalysisConfig = async (config: Partial<AIAnalysisConfig>) => {
+    const newConfig: AIAnalysisConfig = {
+      enablePriorityAnalysis: analysisConfig.value.enablePriorityAnalysis,
+      enableTimeEstimation: analysisConfig.value.enableTimeEstimation,
+      enableSubtaskSplitting: analysisConfig.value.enableSubtaskSplitting,
+      ...config,
+    }
+
+    // 立即更新本地状态
+    localAnalysisConfig.value = newConfig
+    saveAnalysisConfig(newConfig)
+
+    // 如果用户偏好设置系统已准备好，同步到服务器
+    if (isReady.value) {
+      try {
+        // 同步完整的 AI 分析配置
+        const updateData = {
+          aiAnalysisConfig: {
+            enablePriorityAnalysis: newConfig.enablePriorityAnalysis,
+            enableTimeEstimation: newConfig.enableTimeEstimation,
+            enableSubtaskSplitting: newConfig.enableSubtaskSplitting,
+          },
+        }
+        await updatePreferences(updateData)
+      } catch (error) {
+        console.warn('Failed to sync AI analysis config:', error)
+      }
+    }
   }
 
   /**

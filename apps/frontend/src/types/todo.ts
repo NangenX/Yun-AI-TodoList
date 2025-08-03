@@ -1,14 +1,14 @@
 // Re-export shared types to ensure consistency across the frontend
 export type {
   CreateTodoDto,
+  TimeEstimate,
   Todo,
   TodoFilter,
+  TodoPriority,
   TodoSortField,
   TodoSortOptions,
   TodoStats,
   UpdateTodoDto,
-  TimeEstimate,
-  TodoPriority,
 } from '@shared/types/todo'
 
 // Import Todo type for use in interfaces
@@ -113,7 +113,6 @@ export interface AIAnalysisResult {
 }
 
 export interface AIAnalysisConfig {
-  autoAnalyzeNewTodos: boolean // 是否自动分析新添加的 Todo
   enablePriorityAnalysis: boolean // 是否启用重要等级分析
   enableTimeEstimation: boolean // 是否启用时间估算
   enableSubtaskSplitting: boolean // 是否启用 AI 拆分子任务

@@ -173,9 +173,11 @@ export class UsersService {
       preferences: {
         theme: (prefs.theme as ThemeValue) || 'light',
         language: (prefs.language as string) || 'zh-CN',
-        priorityAnalysis: (prefs.priorityAnalysis as boolean) ?? true,
-        timeEstimation: (prefs.timeEstimation as boolean) ?? true,
-        subtaskSplitting: (prefs.subtaskSplitting as boolean) ?? true,
+        aiAnalysisConfig: {
+          enablePriorityAnalysis: (prefs.priorityAnalysis as boolean) ?? true,
+          enableTimeEstimation: (prefs.timeEstimation as boolean) ?? true,
+          enableSubtaskSplitting: (prefs.subtaskSplitting as boolean) ?? false,
+        },
       },
       createdAt: (prismaUser.createdAt as Date).toISOString(),
       updatedAt: (prismaUser.updatedAt as Date).toISOString(),
