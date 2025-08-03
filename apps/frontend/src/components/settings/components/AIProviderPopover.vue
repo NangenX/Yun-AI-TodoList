@@ -1,8 +1,17 @@
 <template>
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div
+    class="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    :style="{
+      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    }"
+  >
     <div
-      class="bg-settings-card-bg rounded-2xl border border-settings-card-border w-full max-w-md transform transition-all duration-300 ease-out scale-100 opacity-100"
-      style="box-shadow: var(--settings-card-shadow)"
+      class="rounded-2xl border w-full max-w-md transform transition-all duration-300 ease-out scale-100 opacity-100"
+      :style="{
+        backgroundColor: 'var(--settings-card-bg-solid)',
+        borderColor: 'var(--settings-card-border-enhanced)',
+        boxShadow: 'var(--settings-card-shadow-enhanced)',
+      }"
     >
       <!-- 头部 -->
       <div class="p-6 pb-4">
@@ -20,10 +29,11 @@
         <!-- 安全提示 -->
         <div
           class="rounded-lg p-3 mb-6"
-          style="
-            background-color: var(--settings-primary-ultra-light);
-            border: 1px solid var(--settings-primary-soft);
-          "
+          :style="{
+            backgroundColor: 'var(--settings-primary-ultra-light)',
+            border: '1px solid var(--settings-primary-soft)',
+            backdropFilter: 'blur(8px)',
+          }"
         >
           <div class="flex items-start gap-2">
             <svg
@@ -56,7 +66,7 @@
               :value="localApiKey"
               class="w-full px-3 py-2 pr-10 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
               :style="{
-                backgroundColor: 'var(--settings-input-bg)',
+                backgroundColor: 'var(--settings-input-bg-enhanced)',
                 borderColor: 'var(--settings-input-border)',
                 color: 'var(--text-color)',
                 '--placeholder-color': 'var(--text-secondary-color)',
@@ -109,7 +119,7 @@
             :value="localProvider"
             class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
             :style="{
-              backgroundColor: 'var(--settings-input-bg)',
+              backgroundColor: 'var(--settings-input-bg-enhanced)',
               borderColor: 'var(--settings-input-border)',
               color: 'var(--text-color)',
               '--tw-ring-color': 'var(--settings-primary)',
@@ -143,7 +153,7 @@
             :value="localBaseUrl"
             class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
             :style="{
-              backgroundColor: 'var(--settings-input-bg)',
+              backgroundColor: 'var(--settings-input-bg-enhanced)',
               borderColor: 'var(--settings-input-border)',
               color: 'var(--text-color)',
               '--tw-ring-color': 'var(--settings-primary)',
@@ -172,7 +182,7 @@
               :list="`models-${localProvider}`"
               class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
               :style="{
-                backgroundColor: 'var(--settings-input-bg)',
+                backgroundColor: 'var(--settings-input-bg-enhanced)',
                 borderColor: 'var(--settings-input-border)',
                 color: 'var(--text-color)',
                 '--tw-ring-color': 'var(--settings-primary)',
@@ -461,8 +471,9 @@ select {
 
 /* 选择框选项样式 */
 select option {
-  background-color: var(--settings-input-bg);
+  background-color: var(--settings-input-bg-enhanced);
   color: var(--text-color);
+  border: none;
 }
 
 /* 聚焦状态样式 */
@@ -470,6 +481,20 @@ input:focus,
 select:focus {
   border-color: var(--settings-input-focus-border) !important;
   box-shadow: var(--settings-input-focus-shadow) !important;
+}
+
+/* 浅色模式增强 */
+@media (prefers-color-scheme: light) {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* 深色模式增强 */
+@media (prefers-color-scheme: dark) {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+  }
 }
 
 /* 响应式调整 */
