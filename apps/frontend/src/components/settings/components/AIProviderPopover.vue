@@ -208,6 +208,70 @@
           <p class="text-xs text-text-secondary mt-1">输入模型名称，可从下拉列表选择常用模型</p>
         </div>
 
+        <!-- 配置预设管理 -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-medium text-text">配置预设</label>
+            <button
+              v-if="canSavePreset"
+              type="button"
+              class="text-xs px-2 py-1 rounded transition-colors"
+              :style="{
+                backgroundColor: 'var(--settings-primary-ultra-light)',
+                color: 'var(--settings-primary)',
+                border: '1px solid var(--settings-primary-soft)',
+              }"
+              @click="showSavePresetDialog = true"
+            >
+              保存预设
+            </button>
+          </div>
+
+          <!-- 预设选择 -->
+          <div v-if="savedPresets.length > 0" class="space-y-2">
+            <select
+              v-model="selectedPreset"
+              class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+              :style="{
+                backgroundColor: 'var(--settings-input-bg-enhanced)',
+                borderColor: 'var(--settings-input-border)',
+                color: 'var(--text-color)',
+                '--tw-ring-color': 'var(--settings-primary)',
+                border: '1px solid var(--settings-input-border)',
+              }"
+              @change="loadPreset"
+            >
+              <option value="">选择预设配置...</option>
+              <option v-for="preset in savedPresets" :key="preset.id" :value="preset.id">
+                {{ preset.name }} ({{ getProviderDisplayName(preset.provider) }})
+              </option>
+            </select>
+
+            <!-- 预设操作按钮 -->
+            <div v-if="selectedPreset" class="flex gap-2">
+              <button
+                type="button"
+                class="flex-1 text-xs px-2 py-1 rounded transition-colors"
+                :style="{
+                  backgroundColor: 'var(--settings-primary-ultra-light)',
+                  color: 'var(--settings-primary)',
+                  border: '1px solid var(--settings-primary-soft)',
+                }"
+                @click="loadPreset"
+              >
+                加载配置
+              </button>
+              <button
+                type="button"
+                class="text-xs px-2 py-1 rounded transition-colors delete-btn"
+                @click="deletePreset"
+              >
+                删除
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- 提示链接 -->
         <div v-if="getProviderDocUrl()" class="text-center">
           <a
@@ -289,10 +353,80 @@
         </button>
       </div>
     </div>
+
+    <!-- 保存预设对话框 -->
+    <div
+      v-if="showSavePresetDialog"
+      class="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-60 p-4"
+      :style="{
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      }"
+      @click.self="showSavePresetDialog = false"
+    >
+      <div
+        class="rounded-xl border w-full max-w-sm transform transition-all duration-300 ease-out scale-100 opacity-100"
+        :style="{
+          backgroundColor: 'var(--settings-card-bg-solid)',
+          borderColor: 'var(--settings-card-border-enhanced)',
+          boxShadow: 'var(--settings-card-shadow-enhanced)',
+        }"
+      >
+        <div class="p-4">
+          <h4 class="text-lg font-semibold text-text mb-3">保存配置预设</h4>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-text mb-1">预设名称</label>
+              <input
+                v-model="presetName"
+                type="text"
+                class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                :style="{
+                  backgroundColor: 'var(--settings-input-bg-enhanced)',
+                  borderColor: 'var(--settings-input-border)',
+                  color: 'var(--text-color)',
+                  '--tw-ring-color': 'var(--settings-primary)',
+                  border: '1px solid var(--settings-input-border)',
+                }"
+                placeholder="输入预设名称"
+                @keyup.enter="savePreset"
+              />
+            </div>
+            <div class="flex gap-2">
+              <button
+                type="button"
+                class="flex-1 px-3 py-2 rounded-lg transition-all font-medium"
+                :style="{
+                  color: 'var(--text-secondary-color)',
+                  border: '1px solid var(--settings-input-border)',
+                  backgroundColor: 'var(--settings-button-secondary-bg)',
+                }"
+                @click="showSavePresetDialog = false"
+              >
+                取消
+              </button>
+              <button
+                :disabled="!presetName.trim()"
+                type="button"
+                class="flex-1 px-3 py-2 rounded-lg transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                :style="{
+                  backgroundColor: 'var(--settings-button-primary-bg)',
+                  color: 'var(--text-color)',
+                  border: 'none',
+                }"
+                @click="savePreset"
+              >
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 interface Props {
@@ -314,10 +448,29 @@ interface Emits {
   (e: 'clear'): void
 }
 
+interface APIPreset {
+  id: string
+  name: string
+  provider: string
+  apiKey: string
+  baseUrl: string
+  model: string
+  createdAt: number
+}
+
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
+
+// 预设管理状态
+const savedPresets = ref<APIPreset[]>([])
+const selectedPreset = ref('')
+const showSavePresetDialog = ref(false)
+const presetName = ref('')
+
+// 本地存储键
+const PRESETS_STORAGE_KEY = 'ai_api_presets'
 
 // 提供商配置
 const providerConfigs = {
@@ -433,6 +586,132 @@ const getProviderName = () => {
   const config = providerConfigs[props.localProvider as keyof typeof providerConfigs]
   return config?.name || ''
 }
+
+// 获取提供商显示名称（用于预设列表）
+const getProviderDisplayName = (provider: string) => {
+  const config = providerConfigs[provider as keyof typeof providerConfigs]
+  return config?.name || provider
+}
+
+// 检查是否可以保存预设
+const canSavePreset = computed(() => {
+  return props.localApiKey.trim() !== '' && props.localProvider !== ''
+})
+
+// 加载预设列表
+const loadPresets = () => {
+  try {
+    const stored = localStorage.getItem(PRESETS_STORAGE_KEY)
+    if (stored) {
+      savedPresets.value = JSON.parse(stored)
+    }
+  } catch (error) {
+    console.error('Failed to load presets:', error)
+    savedPresets.value = []
+  }
+}
+
+// 保存预设列表
+const savePresets = () => {
+  try {
+    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(savedPresets.value))
+  } catch (error) {
+    console.error('Failed to save presets:', error)
+  }
+}
+
+// 保存新预设
+const savePreset = () => {
+  if (!presetName.value.trim() || !canSavePreset.value) return
+
+  const newPreset: APIPreset = {
+    id: Date.now().toString(),
+    name: presetName.value.trim(),
+    provider: props.localProvider,
+    apiKey: props.localApiKey,
+    baseUrl: props.localBaseUrl,
+    model: props.localModel,
+    createdAt: Date.now(),
+  }
+
+  // 检查是否已存在同名预设
+  const existingIndex = savedPresets.value.findIndex((p) => p.name === newPreset.name)
+  if (existingIndex >= 0) {
+    // 更新现有预设
+    savedPresets.value[existingIndex] = newPreset
+  } else {
+    // 添加新预设
+    savedPresets.value.push(newPreset)
+  }
+
+  savePresets()
+  presetName.value = ''
+  showSavePresetDialog.value = false
+}
+
+// 加载预设配置
+const loadPreset = () => {
+  if (!selectedPreset.value) return
+
+  const preset = savedPresets.value.find((p) => p.id === selectedPreset.value)
+  if (preset) {
+    emit('update:localProvider', preset.provider)
+    emit('update:localApiKey', preset.apiKey)
+    emit('update:localBaseUrl', preset.baseUrl)
+    emit('update:localModel', preset.model)
+  }
+}
+
+// 删除预设
+const deletePreset = () => {
+  if (!selectedPreset.value) return
+
+  savedPresets.value = savedPresets.value.filter((p) => p.id !== selectedPreset.value)
+  savePresets()
+  selectedPreset.value = ''
+}
+
+// 检查当前配置是否匹配某个预设
+const checkCurrentPreset = () => {
+  const currentConfig = {
+    provider: props.localProvider,
+    apiKey: props.localApiKey,
+    baseUrl: props.localBaseUrl,
+    model: props.localModel,
+  }
+
+  const matchingPreset = savedPresets.value.find(
+    (preset) =>
+      preset.provider === currentConfig.provider &&
+      preset.apiKey === currentConfig.apiKey &&
+      preset.baseUrl === currentConfig.baseUrl &&
+      preset.model === currentConfig.model
+  )
+
+  if (matchingPreset) {
+    selectedPreset.value = matchingPreset.id
+  } else {
+    selectedPreset.value = ''
+  }
+}
+
+// 监听配置变化，实时更新预设选择
+watch(
+  () => [props.localProvider, props.localApiKey, props.localBaseUrl, props.localModel],
+  () => {
+    checkCurrentPreset()
+  },
+  { deep: true }
+)
+
+// 组件挂载时加载预设
+onMounted(() => {
+  loadPresets()
+  // 延迟检查当前预设，确保预设列表已加载
+  setTimeout(() => {
+    checkCurrentPreset()
+  }, 0)
+})
 
 defineOptions({
   name: 'AIProviderPopover',

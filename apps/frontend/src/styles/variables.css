@@ -42,6 +42,8 @@
   --link-hover-color: #6ba092;
   --input-focus-color: #7db3a5;
   --error-color: #e57373; /* 更柔和的错误色 */
+  --error-ultra-light: rgba(229, 115, 115, 0.06);
+  --error-soft: rgba(229, 115, 115, 0.1);
   --text-secondary-color: #8a9ba8;
   --hover-bg-color: rgba(125, 179, 165, 0.08);
   --primary-color: #7db3a5;
@@ -126,6 +128,8 @@
   --link-hover-color: #6ba092;
   --input-focus-color: #7db3a5;
   --error-color: #f87171; /* 更柔和的错误色 */
+  --error-ultra-light: rgba(248, 113, 113, 0.08);
+  --error-soft: rgba(248, 113, 113, 0.12);
   --text-secondary-color: #9ca3af;
   --hover-bg-color: rgba(125, 179, 165, 0.12);
   --primary-color: #7db3a5;
