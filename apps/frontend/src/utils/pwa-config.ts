@@ -21,28 +21,30 @@ export interface PWAConfig {
  * 获取优化的 PWA 配置
  */
 export function getOptimizedPWAConfig(): PWAConfig {
+  const basePath = (import.meta.env as any).PROD ? '/Yun-AI-TodoList/' : './'
+
   return {
     manifestIcons: [
       {
-        src: './pwa-192x192.png',
+        src: `${basePath}pwa-192x192.png`,
         sizes: '192x192',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: './pwa-512x512.png',
+        src: `${basePath}pwa-512x512.png`,
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: './pwa-512x512.png',
+        src: `${basePath}pwa-512x512.png`,
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
       },
       {
-        src: './apple-touch-icon.png',
+        src: `${basePath}apple-touch-icon.png`,
         sizes: '180x180',
         type: 'image/png',
         purpose: 'any',

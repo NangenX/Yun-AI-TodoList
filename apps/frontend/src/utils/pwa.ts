@@ -206,7 +206,15 @@ export async function initPWA(): Promise<void> {
       logger.warn('部分 PWA 图标文件无法访问', undefined, 'PWA')
     }
 
-    precacheResources(['/', '/manifest.webmanifest', '/pwa-192x192.png', '/pwa-512x512.png'])
+    const basePath = window.location.pathname.includes('/Yun-AI-TodoList/')
+      ? '/Yun-AI-TodoList/'
+      : '/'
+    precacheResources([
+      basePath,
+      `${basePath}manifest.webmanifest`,
+      `${basePath}pwa-192x192.png`,
+      `${basePath}pwa-512x512.png`,
+    ])
   }
 
   logger.info(
