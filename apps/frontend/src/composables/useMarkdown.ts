@@ -4,7 +4,7 @@ import katex from 'katex'
 import type { MarkedOptions } from 'marked'
 import { marked } from 'marked'
 // 使用动态导入避免初始化问题
-let mermaid: any = null
+let mermaid: typeof import('mermaid').default | null = null
 
 // 全局缩放函数 - 确保在全局作用域中可访问
 declare global {
