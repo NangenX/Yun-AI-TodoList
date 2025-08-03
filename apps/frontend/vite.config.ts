@@ -36,17 +36,17 @@ export default defineConfig({
         screenshots: [
           {
             src: './screenshot-wide.png',
-            sizes: '1280x720',
+            sizes: '3396x1966',
             type: 'image/png',
             form_factor: 'wide',
-            label: 'Desktop view of Yun AI TodoList',
+            label: 'Desktop view of Yun AI TodoList - Settings Page',
           },
           {
             src: './screenshot-narrow.png',
-            sizes: '750x1334',
+            sizes: '1596x1722',
             type: 'image/png',
             form_factor: 'narrow',
-            label: 'Mobile view of Yun AI TodoList',
+            label: 'Mobile view of Yun AI TodoList - Homepage',
           },
         ],
         icons: [
