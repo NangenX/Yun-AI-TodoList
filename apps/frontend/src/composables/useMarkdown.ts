@@ -250,6 +250,10 @@ const getLanguageDisplayName = (lang: string): string => {
 }
 
 export function useMarkdown() {
+  // Mermaid 初始化状态管理
+  let mermaidInitialized = false
+  let currentMermaidTheme: 'default' | 'dark' | null = null
+
   // 获取当前主题
   const getCurrentTheme = (): 'default' | 'dark' => {
     if (typeof document !== 'undefined') {
@@ -261,147 +265,86 @@ export function useMarkdown() {
 
   // 初始化 Mermaid 配置
   const initializeMermaid = (theme: 'default' | 'dark' = 'default') => {
-    const isDark = theme === 'dark'
-    // 动态获取 CSS 变量值，确保主题一致性
-    const computedStyle = getComputedStyle(document.documentElement)
-    const textColor =
-      computedStyle.getPropertyValue('--text-color').trim() || (isDark ? '#ffffff' : '#000000')
-    const backgroundColor =
-      computedStyle.getPropertyValue('--bg-color').trim() || (isDark ? '#1a1a1a' : '#ffffff')
-    const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#79b4a6'
-    const fontStack =
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
+    // 避免重复初始化相同主题
+    if (mermaidInitialized && currentMermaidTheme === theme) {
+      return
+    }
 
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: theme,
-      securityLevel: 'loose',
-      // 支持中文字体
-      fontFamily: fontStack,
-      // 图表尺寸配置
-      flowchart: {
-        nodeSpacing: 50,
-        rankSpacing: 60,
-        padding: 20,
-      },
-      sequence: {
-        width: 150,
-        height: 65,
-        boxMargin: 10,
-        boxTextMargin: 5,
-        noteMargin: 10,
-        messageMargin: 35,
-      },
-      gantt: {
-        numberSectionStyles: 4,
-      },
-      journey: {
-        diagramMarginX: 50,
-        diagramMarginY: 10,
-      },
-      timeline: {
-        diagramMarginX: 50,
-        diagramMarginY: 10,
-      },
-      mindmap: {
-        padding: 10,
-      },
-      gitGraph: {
-        mainBranchName: 'main',
-      },
-      themeVariables: {
-        // 基础颜色 - 使用动态 CSS 变量
-        primaryColor: primaryColor,
-        primaryBorderColor: primaryColor,
-        primaryTextColor: textColor,
+    try {
+      const isDark = theme === 'dark'
+      // 动态获取 CSS 变量值，确保主题一致性
+      const computedStyle = getComputedStyle(document.documentElement)
+      const textColor =
+        computedStyle.getPropertyValue('--text-color').trim() || (isDark ? '#ffffff' : '#000000')
+      const backgroundColor =
+        computedStyle.getPropertyValue('--bg-color').trim() || (isDark ? '#1a1a1a' : '#ffffff')
+      const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#79b4a6'
+      const fontStack =
+        '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
 
-        // 文字颜色设置 - 更全面的配置
-        textColor: textColor,
-        nodeTextColor: textColor,
-        edgeLabelBackground: backgroundColor,
-
-        // 线条和边框
-        lineColor: textColor,
-        edgeColor: textColor,
-
-        // 背景色
-        background: backgroundColor,
-        mainBkg: backgroundColor,
-        secondBkg: isDark ? '#2a2a2a' : '#f9f9f9',
-        tertiaryColor: backgroundColor,
-
-        // 节点样式
-        nodeBkg:
-          computedStyle.getPropertyValue('--card-bg-color').trim() ||
-          (isDark ? '#2a2a2a' : '#ffffff'),
-        nodeBorder: primaryColor,
-
-        // 确保标签文字可见
-        labelColor: textColor,
-        labelBoxBkgColor: backgroundColor,
-        labelBoxBorderColor: primaryColor,
-
-        // 流程图特定设置
-        clusterBkg:
-          computedStyle.getPropertyValue('--card-bg-color').trim() ||
-          (isDark ? '#2a2a2a' : '#f9f9f9'),
-        clusterBorder: primaryColor,
-
-        // 修复可能的黄色背景问题
-        c0: backgroundColor,
-        c1: backgroundColor,
-        c2: backgroundColor,
-        c3: backgroundColor,
-        c4: backgroundColor,
-        c5: backgroundColor,
-        c6: backgroundColor,
-        c7: backgroundColor,
-
-        // 字体设置 - 支持中文
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: theme,
+        securityLevel: 'loose',
+        // 支持中文字体
         fontFamily: fontStack,
-        fontSize: '14px',
-        fontWeight: 'normal',
+        // 图表尺寸配置
+        flowchart: {
+          nodeSpacing: 50,
+          rankSpacing: 60,
+          padding: 20,
+        },
+        sequence: {
+          width: 150,
+          height: 65,
+          boxMargin: 10,
+          boxTextMargin: 5,
+          noteMargin: 10,
+          messageMargin: 35,
+        },
+        gantt: {
+          numberSectionStyles: 4,
+        },
+        journey: {
+          diagramMarginX: 50,
+          diagramMarginY: 10,
+        },
+        timeline: {
+          diagramMarginX: 50,
+          diagramMarginY: 10,
+        },
+        mindmap: {
+          padding: 10,
+        },
+        gitGraph: {
+          mainBranchName: 'main',
+          showBranches: true,
+          showCommitLabel: true,
+          rotateCommitLabel: true,
+        },
+        themeVariables: {
+          primaryColor: primaryColor,
+          primaryTextColor: textColor,
+          primaryBorderColor: primaryColor,
+          lineColor: textColor,
+          secondaryColor: backgroundColor,
+          tertiaryColor: backgroundColor,
+          background: backgroundColor,
+          mainBkg: backgroundColor,
+          secondBkg: backgroundColor,
+          tertiaryBkg: backgroundColor,
+        },
+      })
 
-        // 确保所有文字元素都使用正确的字体和颜色
-        nodeFontFamily: fontStack,
-        edgeLabelFontFamily: fontStack,
-        labelFontFamily: fontStack,
-
-        // 添加更多文字颜色配置确保兼容性
-        cScale0: textColor,
-        cScale1: textColor,
-        cScale2: textColor,
-        cScale3: textColor,
-        cScale4: textColor,
-        cScale5: textColor,
-        cScale6: textColor,
-        cScale7: textColor,
-        cScale8: textColor,
-        cScale9: textColor,
-        cScale10: textColor,
-        cScale11: textColor,
-
-        // 序列图文字颜色
-        actorTextColor: textColor,
-        noteTextColor: textColor,
-        loopTextColor: textColor,
-
-        // 甘特图文字颜色
-        taskTextColor: textColor,
-        taskTextOutsideColor: textColor,
-        activeTaskTextColor: textColor,
-
-        // 类图文字颜色
-        classText: textColor,
-
-        // 状态图文字颜色
-        labelTextColor: textColor,
-      },
-      // 确保 SVG 渲染正确
-      htmlLabels: false, // 使用 SVG 文本而不是 HTML
-      wrap: true,
-      maxTextSize: 90000,
-    })
+      // 更新初始化状态
+      mermaidInitialized = true
+      currentMermaidTheme = theme
+    } catch (error) {
+      console.error('Mermaid 初始化失败:', error)
+      // 重置状态，允许下次重试
+      mermaidInitialized = false
+      currentMermaidTheme = null
+    }
   }
 
   // 预处理 LaTeX 数学公式
