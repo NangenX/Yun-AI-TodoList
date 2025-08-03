@@ -94,6 +94,7 @@
           :key="todo.id"
           :todo="todo"
           :is-draggable="isDragEnabled"
+          :is-drag-interactive="isDragInteractive"
           :is-dragging="isDragging && draggedItem?.id === todo.id"
           :is-analyzing="isAnalyzing"
           @toggle="toggleTodo"
@@ -216,15 +217,14 @@ const hasUnanalyzedTodos = computed(() => {
   return todos.value.some((todo) => !todo.completed && !todo.aiAnalyzed)
 })
 
-// 拖拽排序功能 - 在 AI 排序过程中和批量分析期间禁用拖拽
+// 拖拽排序功能 - 始终显示拖拽手柄以保持布局一致性
 const isDragEnabled = computed(
   () =>
-    filter.value === 'active' &&
-    filteredTodos.value.length > 1 &&
-    !isSorting.value &&
-    !isGenerating.value &&
-    !isBatchAnalyzing.value
+    filter.value === 'active' && !isSorting.value && !isGenerating.value && !isBatchAnalyzing.value
 )
+
+// 拖拽交互性 - 只有多个 todo 时才允许拖拽交互
+const isDragInteractive = computed(() => isDragEnabled.value && filteredTodos.value.length > 1)
 
 // 处理任务添加，包含拆分逻辑
 const handleAddTodo = async (text: string) => {
@@ -350,9 +350,9 @@ const { isDragging, draggedItem, enableDragSort, disableDragSort } = useTodoDrag
   todoListRef
 )
 
-// 监听拖拽启用状态
+// 监听拖拽交互状态
 watch(
-  isDragEnabled,
+  isDragInteractive,
   (enabled) => {
     if (enabled) {
       nextTick(() => {

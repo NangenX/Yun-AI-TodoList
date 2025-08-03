@@ -13,7 +13,12 @@
     <div
       v-if="isDraggable"
       class="todo-drag-handle"
-      :title="t('dragToReorder', '拖拽重新排序')"
+      :class="{ 'todo-drag-handle-disabled': !isDragInteractive }"
+      :title="
+        isDragInteractive
+          ? t('dragToReorder', '拖拽重新排序')
+          : t('dragDisabled', '需要多个待办事项才能拖拽排序')
+      "
       @click.stop
     >
       <svg
@@ -191,11 +196,13 @@ const props = withDefaults(
   defineProps<{
     todo: Todo
     isDraggable?: boolean
+    isDragInteractive?: boolean
     isDragging?: boolean
     isAnalyzing?: boolean
   }>(),
   {
     isDraggable: false,
+    isDragInteractive: false,
     isDragging: false,
     isAnalyzing: false,
   }
@@ -709,6 +716,18 @@ onErrorCaptured(handleError)
 
 .todo-drag-handle:active {
   @apply cursor-grabbing;
+}
+
+.todo-drag-handle-disabled {
+  @apply opacity-20 cursor-not-allowed;
+}
+
+.todo-drag-handle-disabled:hover {
+  @apply opacity-20 bg-transparent;
+}
+
+.todo-drag-handle-disabled:active {
+  @apply cursor-not-allowed;
 }
 
 /* 拖拽状态样式 */
