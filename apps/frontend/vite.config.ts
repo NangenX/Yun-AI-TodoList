@@ -297,6 +297,8 @@ export default defineConfig({
           objectShorthand: true,
           reservedNamesAsProps: false,
         },
+        // 确保模块加载顺序
+        inlineDynamicImports: false,
         // 优化代码分割策略
         manualChunks: (id) => {
           // 第三方库分组
@@ -314,8 +316,11 @@ export default defineConfig({
             if (id.includes('chart.js') || id.includes('chartjs')) {
               return 'chart-libs'
             }
-            // 编辑器库
-            if (id.includes('marked') || id.includes('highlight.js') || id.includes('mermaid')) {
+            // 编辑器库 - 分离 mermaid 以避免初始化问题
+            if (id.includes('mermaid')) {
+              return 'mermaid-lib'
+            }
+            if (id.includes('marked') || id.includes('highlight.js')) {
               return 'editor-libs'
             }
             // 工具库
@@ -439,6 +444,9 @@ export default defineConfig({
       '@yun-ai-todolist/shared/types',
       '@yun-ai-todolist/shared/utils',
       '@yun-ai-todolist/shared/constants',
+      'mermaid',
+      'marked',
+      'highlight.js',
     ],
     exclude: [
       // 排除 MCP SDK 的 Node.js 特定模块
@@ -447,5 +455,10 @@ export default defineConfig({
     ],
     // 强制重新构建依赖
     force: process.env.NODE_ENV === 'development',
+    // 为 mermaid 添加特殊的 esbuild 选项
+    esbuildOptions: {
+      target: 'es2020',
+      format: 'esm',
+    },
   },
 })

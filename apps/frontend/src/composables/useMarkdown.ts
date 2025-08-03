@@ -3,7 +3,8 @@ import hljs from 'highlight.js'
 import katex from 'katex'
 import type { MarkedOptions } from 'marked'
 import { marked } from 'marked'
-import mermaid from 'mermaid'
+// 使用动态导入避免初始化问题
+let mermaid: any = null
 
 // 全局缩放函数 - 确保在全局作用域中可访问
 declare global {
@@ -263,14 +264,25 @@ export function useMarkdown() {
     return 'default'
   }
 
+  // 动态加载 mermaid
+  const loadMermaid = async () => {
+    if (!mermaid) {
+      const mermaidModule = await import('mermaid')
+      mermaid = mermaidModule.default
+    }
+    return mermaid
+  }
+
   // 初始化 Mermaid 配置
-  const initializeMermaid = (theme: 'default' | 'dark' = 'default') => {
+  const initializeMermaid = async (theme: 'default' | 'dark' = 'default') => {
     // 避免重复初始化相同主题
     if (mermaidInitialized && currentMermaidTheme === theme) {
       return
     }
 
     try {
+      // 确保 mermaid 已加载
+      await loadMermaid()
       const isDark = theme === 'dark'
       // 动态获取 CSS 变量值，确保主题一致性
       const computedStyle = getComputedStyle(document.documentElement)
@@ -427,7 +439,7 @@ export function useMarkdown() {
 
     // 根据当前主题重新初始化 Mermaid
     const currentTheme = getCurrentTheme()
-    initializeMermaid(currentTheme)
+    await initializeMermaid(currentTheme)
 
     let processedMarkdown = markdown
 
@@ -436,8 +448,9 @@ export function useMarkdown() {
         const diagramCode = match[1]
         const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
 
-        // 同步等待 Mermaid 渲染完成
-        const { svg } = await mermaid.render(id, diagramCode)
+        // 确保 mermaid 已加载并渲染
+        const mermaidInstance = await loadMermaid()
+        const { svg } = await mermaidInstance.render(id, diagramCode)
 
         // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
         const optimizedSvg = svg
