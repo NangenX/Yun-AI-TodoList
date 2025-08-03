@@ -1,9 +1,11 @@
 import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ThemeValue } from '../types/theme'
 import { configurePWAThemeColor } from '../utils/pwa-config'
+import { useAuth } from './useAuth'
 import { useUserPreferences } from './useUserPreferences'
 
 export function useTheme() {
+  const { isAuthenticated } = useAuth()
   const { preferences, updatePreferences, isReady } = useUserPreferences()
   // 本地主题状态，不在初始化时从 localStorage 读取，等待 preferences 加载
   const localTheme = ref<ThemeValue>('auto')
@@ -16,10 +18,17 @@ export function useTheme() {
       if (preferences.value?.theme) {
         return preferences.value.theme
       }
-      // 如果偏好设置不可用，使用本地主题状态
-      if (localTheme.value !== 'auto' || !isReady.value) {
+
+      // 如果用户已登录但偏好设置还在加载中，使用本地主题状态
+      if (isAuthenticated.value && !isReady.value) {
         return localTheme.value
       }
+
+      // 如果本地主题不是默认值，使用本地主题
+      if (localTheme.value !== 'auto') {
+        return localTheme.value
+      }
+
       // 最后的后备方案：从 localStorage 读取或使用默认值
       return (localStorage.getItem('theme') as ThemeValue) || 'auto'
     },
