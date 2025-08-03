@@ -98,7 +98,6 @@ export class TodosService {
 
     const where: Record<string, unknown> = {
       userId,
-      deletedAt: null,
     }
 
     if (cursor) {
@@ -109,7 +108,6 @@ export class TodosService {
       const searchResults = (await this.prisma.$queryRaw`
         SELECT id FROM todos
         WHERE "userId" = ${userId}
-          AND "deletedAt" IS NULL
           AND (
             to_tsvector('english', title) @@ plainto_tsquery('english', ${search})
             OR to_tsvector('english', COALESCE(description, '')) @@ plainto_tsquery('english', ${search})
@@ -243,7 +241,6 @@ export class TodosService {
       where: {
         id,
         userId,
-        deletedAt: null,
       },
     })
 
@@ -259,7 +256,6 @@ export class TodosService {
       where: {
         id,
         userId,
-        deletedAt: null,
       },
     })
 
@@ -306,26 +302,7 @@ export class TodosService {
       where: {
         id,
         userId,
-        deletedAt: null,
       },
-    })
-
-    if (!existingTodo) {
-      throw new NotFoundException('Todo 不存在')
-    }
-
-    await this.prisma.todo.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-        version: existingTodo.version + 1,
-      },
-    })
-  }
-
-  async hardDelete(userId: string, id: string): Promise<void> {
-    const existingTodo = await this.prisma.todo.findFirst({
-      where: { id, userId },
     })
 
     if (!existingTodo) {
@@ -368,7 +345,6 @@ export class TodosService {
         where: {
           id: { in: todoIds },
           userId,
-          deletedAt: null,
         },
       })
 
@@ -395,7 +371,6 @@ export class TodosService {
         where: {
           id: { in: todoIds },
           userId,
-          deletedAt: null,
         },
       })
 
@@ -403,40 +378,13 @@ export class TodosService {
         throw new NotFoundException('部分待办事项不存在或无权访问')
       }
 
-      await tx.todo.updateMany({
+      await tx.todo.deleteMany({
         where: {
           id: { in: todoIds },
           userId,
         },
-        data: {
-          deletedAt: new Date(),
-        },
       })
     })
-  }
-
-  async restore(userId: string, id: string): Promise<Todo> {
-    const existingTodo = await this.prisma.todo.findFirst({
-      where: {
-        id,
-        userId,
-        deletedAt: { not: null },
-      },
-    })
-
-    if (!existingTodo) {
-      throw new NotFoundException('Todo 不存在或未被删除')
-    }
-
-    const todo = await this.prisma.todo.update({
-      where: { id },
-      data: {
-        deletedAt: null,
-        version: existingTodo.version + 1,
-      },
-    })
-
-    return this.mapPrismaTodoToTodo(todo)
   }
 
   async reorder(userId: string, reorderDto: ReorderTodosDto): Promise<void> {
@@ -541,7 +489,7 @@ export class TodosService {
             COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= ${todayStart} AND "dueDate" <= ${todayEnd}) as due_today,
             COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= NOW() AND "dueDate" <= ${weekEnd}) as due_this_week
           FROM todos
-          WHERE "userId" = ${userId} AND "deletedAt" IS NULL
+          WHERE "userId" = ${userId}
         `
 
         const result = stats[0]

@@ -61,7 +61,6 @@ describe('TodosService', () => {
     order: 1,
     priority: 3,
     dueDate: null,
-    deletedAt: null,
   }
 
   beforeEach(async () => {
@@ -199,7 +198,6 @@ describe('TodosService', () => {
         where: {
           id: mockTodo.id,
           userId: mockUser.id,
-          deletedAt: null,
         },
       })
     })
@@ -254,20 +252,14 @@ describe('TodosService', () => {
     it('应该成功删除待办事项', async () => {
       // Arrange
       mockPrismaService.todo.findFirst.mockResolvedValue(mockTodo)
-      mockPrismaService.todo.update.mockResolvedValue({
-        ...mockTodo,
-        deletedAt: new Date(),
-      })
+      mockPrismaService.todo.delete.mockResolvedValue(mockTodo)
 
       // Act
       await service.remove(mockUser.id, mockTodo.id)
 
       // Assert
-      expect(prismaService.todo.update).toHaveBeenCalledWith({
+      expect(prismaService.todo.delete).toHaveBeenCalledWith({
         where: { id: mockTodo.id },
-        data: expect.objectContaining({
-          deletedAt: expect.any(Date),
-        }),
       })
     })
 

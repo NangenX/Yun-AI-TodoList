@@ -132,12 +132,8 @@ export class UsersService {
 
   async delete(id: string): Promise<void> {
     try {
-      await this.prisma.user.update({
+      await this.prisma.user.delete({
         where: { id },
-        data: {
-          deletedAt: new Date(),
-          accountStatus: 'deleted',
-        },
       })
     } catch (error) {
       throw new Error(

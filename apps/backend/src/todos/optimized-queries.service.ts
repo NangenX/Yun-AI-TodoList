@@ -15,7 +15,6 @@ export class OptimizedTodosService {
       SELECT id, title, description, completed, priority, "createdAt"
       FROM todos
       WHERE user_id = ${userId}
-        AND deleted_at IS NULL
         AND (
           to_tsvector('english', title) @@ plainto_tsquery('english', ${searchQuery})
           OR to_tsvector('english', COALESCE(description, '')) @@ plainto_tsquery('english', ${searchQuery})
@@ -36,7 +35,6 @@ export class OptimizedTodosService {
   async getTodosCursorPagination(userId: string, cursor?: string, limit = 20, completed?: boolean) {
     const where: Record<string, unknown> = {
       userId,
-      deletedAt: null,
     }
 
     if (completed !== undefined) {
@@ -77,7 +75,6 @@ export class OptimizedTodosService {
         where: {
           id: { in: todoIds },
           userId,
-          deletedAt: null,
         },
       })
 
@@ -120,7 +117,7 @@ export class OptimizedTodosService {
         COUNT(*) FILTER (WHERE priority >= 4) as high_priority,
         COUNT(*) FILTER (WHERE due_date < NOW() AND completed = false) as overdue
       FROM todos
-      WHERE user_id = ${userId} AND deleted_at IS NULL
+      WHERE user_id = ${userId}
     `
 
     const result = stats[0]
