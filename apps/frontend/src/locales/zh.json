@@ -91,6 +91,8 @@
   "askAiAssistant": "询问 AI 助手... (按 Shift + Enter 换行，Enter 发送)",
   "send": "发送",
   "stop": "停止",
+  "listening": "开始语音输入",
+  "stopListening": "停止语音输入",
   "close": "关闭",
   "today": "今天",
 

@@ -377,8 +377,6 @@ export function useAuth() {
 
         // 执行健康检查
         await Promise.all([checkStorageHealth(), checkServerHealth()])
-
-        console.log('健康检查已完成')
       } catch (error) {
         console.warn('健康检查失败:', error)
       }

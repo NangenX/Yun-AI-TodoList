@@ -54,8 +54,12 @@ export class UserPreferencesApi {
    */
   static async getUserPreferences(): Promise<UserPreferences> {
     try {
-      const response = await httpClient.get<UserPreferences>('/api/v1/user-preferences')
-      return response
+      const response = await httpClient.get<{
+        success: boolean
+        data: UserPreferences
+        timestamp: string
+      }>('/api/v1/user-preferences')
+      return response.data
     } catch (error) {
       throw new ApiError('Failed to get user preferences', 500, 'GET_USER_PREFERENCES_ERROR', {
         originalError: error,
@@ -68,11 +72,12 @@ export class UserPreferencesApi {
    */
   static async updateThemeLanguage(data: ThemeLanguageUpdateDto): Promise<UserPreferences> {
     try {
-      const response = await httpClient.patch<UserPreferences>(
-        '/api/v1/user-preferences/theme',
-        data
-      )
-      return response
+      const response = await httpClient.patch<{
+        success: boolean
+        data: UserPreferences
+        timestamp: string
+      }>('/api/v1/user-preferences/theme', data)
+      return response.data
     } catch (error) {
       throw new ApiError(
         'Failed to update theme and language preferences',
@@ -88,11 +93,12 @@ export class UserPreferencesApi {
    */
   static async updateAIAnalysisConfig(data: AIAnalysisConfigUpdateDto): Promise<UserPreferences> {
     try {
-      const response = await httpClient.patch<UserPreferences>(
-        '/api/v1/user-preferences/ai-analysis',
-        data
-      )
-      return response
+      const response = await httpClient.patch<{
+        success: boolean
+        data: UserPreferences
+        timestamp: string
+      }>('/api/v1/user-preferences/ai-analysis', data)
+      return response.data
     } catch (error) {
       throw new ApiError(
         'Failed to update AI analysis preferences',
@@ -108,8 +114,11 @@ export class UserPreferencesApi {
    */
   static async updateUserPreferences(data: UserPreferencesUpdateDto): Promise<UserPreferences> {
     try {
-      const response = await httpClient.patch<UserPreferences>('/api/v1/users/preferences', data)
-      return response
+      const response = await httpClient.patch<{ preferences: UserPreferences; message: string }>(
+        '/api/v1/users/preferences',
+        data
+      )
+      return response.preferences
     } catch (error) {
       throw new ApiError(
         'Failed to update user preferences',

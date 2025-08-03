@@ -70,9 +70,6 @@ export function useUserPreferences() {
       const serverPreferences = await UserPreferencesApi.getUserPreferences()
       preferences.value = serverPreferences
 
-      // 减少日志输出，只在必要时显示
-      // console.log('Loaded preferences from server:', serverPreferences)
-
       // 保存到本地存储
       saveToLocalStorage(serverPreferences)
 
@@ -152,7 +149,9 @@ export function useUserPreferences() {
         if (updates.theme !== undefined || updates.language !== undefined) {
           serverUpdateData.theme = {
             ...(updates.theme !== undefined && { theme: updates.theme }),
-            ...(updates.language !== undefined && { language: updates.language }),
+          }
+          if (updates.language !== undefined) {
+            serverUpdateData.language = updates.language
           }
         }
 
@@ -195,9 +194,21 @@ export function useUserPreferences() {
   /**
    * 初始化用户偏好设置
    */
-  const initialize = async (): Promise<void> => {
-    // 防止重复初始化或在加载过程中重复调用
-    if (isInitialized.value || isLoading.value) {
+  const initialize = async (forceRefresh = false): Promise<void> => {
+    // 防止在加载过程中重复调用，但允许强制刷新
+    if (isLoading.value && !forceRefresh) {
+      return
+    }
+
+    // 如果已初始化且不是强制刷新，对于认证用户仍然从服务器加载最新数据
+    if (isInitialized.value && !forceRefresh && isAuthenticated.value) {
+      // 认证用户：总是尝试从服务器获取最新数据以确保数据同步
+      await loadFromServer()
+      return
+    }
+
+    // 如果已初始化且不是强制刷新，对于未认证用户直接返回
+    if (isInitialized.value && !forceRefresh && !isAuthenticated.value) {
       return
     }
 
@@ -253,7 +264,6 @@ export function useUserPreferences() {
       isAuthenticated,
       async (newValue, oldValue) => {
         // 减少日志噪音，只在必要时输出状态变化
-        // console.log('Auth status changed:', { newValue, oldValue })
 
         // 初始化条件：用户已认证且尚未初始化且未在加载中
         // 添加额外检查：确保这是一个真正的状态变化
@@ -265,15 +275,9 @@ export function useUserPreferences() {
         ) {
           // 区分不同的初始化场景
           // 减少日志输出，静默初始化用户偏好设置
-          // if (oldValue === false) {
-          //   console.log('User logged in, initializing preferences...')
-          // } else if (oldValue === undefined) {
-          //   console.log('User already logged in on page load, initializing preferences...')
-          // }
           await initialize()
         } else if (newValue === false && oldValue === true) {
           // 用户登出：从 true 变为 false
-          console.log('User logged out, cleaning up preferences...')
           cleanup()
         }
       },

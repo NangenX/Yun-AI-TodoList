@@ -94,6 +94,8 @@
   "askAiAssistant": "Ask AI assistant... (Press Shift + Enter for new line, Enter to send)",
   "send": "Send",
   "stop": "Stop",
+  "listening": "Start listening",
+  "stopListening": "Stop listening",
   "close": "Close",
   "today": "Today",
 

@@ -1,24 +1,27 @@
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ThemeValue } from '../types/theme'
 import { configurePWAThemeColor } from '../utils/pwa-config'
 import { useUserPreferences } from './useUserPreferences'
 
 export function useTheme() {
   const { preferences, updatePreferences, isReady } = useUserPreferences()
-
-  // 本地主题状态，优先使用用户偏好设置，否则使用本地存储
-  const localTheme = ref<ThemeValue>((localStorage.getItem('theme') as ThemeValue) || 'auto')
+  // 本地主题状态，不在初始化时从 localStorage 读取，等待 preferences 加载
+  const localTheme = ref<ThemeValue>('auto')
   const systemTheme = ref<'light' | 'dark'>(getSystemTheme())
 
   // 计算当前主题值
   const theme = computed({
     get: () => {
-      // 如果用户偏好设置已加载，使用偏好设置中的主题
-      if (isReady.value && preferences.value?.theme) {
+      // 优先使用用户偏好设置中的主题
+      if (preferences.value?.theme) {
         return preferences.value.theme
       }
-      // 否则使用本地主题状态
-      return localTheme.value
+      // 如果偏好设置不可用，使用本地主题状态
+      if (localTheme.value !== 'auto' || !isReady.value) {
+        return localTheme.value
+      }
+      // 最后的后备方案：从 localStorage 读取或使用默认值
+      return (localStorage.getItem('theme') as ThemeValue) || 'auto'
     },
     set: async (newTheme: ThemeValue) => {
       // 立即更新本地状态
@@ -35,6 +38,18 @@ export function useTheme() {
       }
     },
   })
+
+  watch(
+    () => preferences.value,
+    (newPreferences) => {
+      if (newPreferences?.theme) {
+        localTheme.value = newPreferences.theme
+        localStorage.setItem('theme', newPreferences.theme)
+        updateTheme()
+      }
+    },
+    { deep: true }
+  )
 
   function getSystemTheme() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -82,17 +97,6 @@ export function useTheme() {
       updateTheme()
     },
     { immediate: true }
-  )
-
-  // 监听用户偏好设置变化，同步主题
-  watch(
-    () => preferences.value?.theme,
-    (newTheme) => {
-      if (newTheme && newTheme !== localTheme.value) {
-        localTheme.value = newTheme
-        localStorage.setItem('theme', newTheme)
-      }
-    }
   )
 
   const handleSystemThemeChange = (e: MediaQueryListEvent) => {

@@ -33,22 +33,6 @@ export default defineConfig({
         start_url: './',
         lang: 'zh-CN',
         categories: ['productivity', 'utilities', 'lifestyle'],
-        screenshots: [
-          {
-            src: './screenshot-wide.png',
-            sizes: '1280x720',
-            type: 'image/png',
-            form_factor: 'wide',
-            label: 'Desktop view of Yun AI TodoList',
-          },
-          {
-            src: './screenshot-narrow.png',
-            sizes: '750x1334',
-            type: 'image/png',
-            form_factor: 'narrow',
-            label: 'Mobile view of Yun AI TodoList',
-          },
-        ],
         icons: [
           {
             src: './pwa-192x192.png',

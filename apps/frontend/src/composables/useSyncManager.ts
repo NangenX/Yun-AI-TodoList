@@ -211,10 +211,15 @@ export function useSyncManager() {
     }
   }
 
-  // 清理资源
-  onUnmounted(() => {
-    destroy()
-  })
+  // 清理资源 - 只在组件上下文中注册
+  try {
+    onUnmounted(() => {
+      destroy()
+    })
+  } catch {
+    // 如果不在组件上下文中，忽略onUnmounted注册
+    // 调用者需要手动调用destroy方法
+  }
 
   return {
     // 状态
