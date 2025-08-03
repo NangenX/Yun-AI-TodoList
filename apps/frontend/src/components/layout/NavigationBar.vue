@@ -120,8 +120,8 @@ import router from '../../router'
 const { t } = useI18n()
 const { isAuthenticated, user, logout } = useAuth()
 const { success, error } = useNotifications()
-const { networkStatus, checkStorageHealth, initializeStorageMode } = useStorageMode()
-const { initialize, checkServerHealth, networkStatusText } = useSyncManager()
+const { networkStatus, checkStorageHealth } = useStorageMode()
+const { checkServerHealth, networkStatusText } = useSyncManager()
 
 // 用户菜单状态
 const showUserMenu = ref(false)

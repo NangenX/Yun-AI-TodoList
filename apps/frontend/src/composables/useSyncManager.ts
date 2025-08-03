@@ -4,7 +4,7 @@
  */
 
 import type { NetworkStatus, StorageConfig } from '@shared/types'
-import { computed, onUnmounted, reactive, readonly, ref, toRef } from 'vue'
+import { computed, getCurrentInstance, onUnmounted, reactive, readonly, ref, toRef } from 'vue'
 
 import { useAuth } from './useAuth'
 
@@ -212,14 +212,13 @@ export function useSyncManager() {
   }
 
   // 清理资源 - 只在组件上下文中注册
-  try {
+  const instance = getCurrentInstance()
+  if (instance) {
     onUnmounted(() => {
       destroy()
     })
-  } catch {
-    // 如果不在组件上下文中，忽略onUnmounted注册
-    // 调用者需要手动调用destroy方法
   }
+  // 如果不在组件上下文中，调用者需要手动调用destroy方法
 
   return {
     // 状态
