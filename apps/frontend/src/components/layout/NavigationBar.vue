@@ -64,6 +64,40 @@
             <div class="user-email">{{ user?.email }}</div>
           </div>
         </div>
+
+        <!-- 存储状态信息 -->
+        <div class="menu-divider"></div>
+        <div class="storage-status">
+          <div class="storage-header">
+            <i class="i-carbon-cloud text-sm"></i>
+            <span class="storage-title">云端存储</span>
+          </div>
+          <div class="status-info">
+            <div class="status-indicator" :class="getConnectionStatusClass()">
+              <div class="indicator-dot"></div>
+              <span class="indicator-text">{{ getConnectionStatusText() }}</span>
+            </div>
+            <div v-if="networkStatus.lastCheckTime" class="check-time">
+              <span class="check-text"
+                >上次检查：{{ formatTime(networkStatus.lastCheckTime) }}</span
+              >
+            </div>
+          </div>
+          <button :disabled="isCheckingHealth" class="health-check-btn" @click="checkHealth">
+            <i class="i-carbon-checkmark-outline text-xs"></i>
+            {{ isCheckingHealth ? '检查中...' : '健康检查' }}
+          </button>
+          <div
+            class="health-status"
+            :class="{
+              'text-green-500': healthStatus === true,
+              'text-red-500': healthStatus === false,
+            }"
+          >
+            {{ getHealthStatusText() }}
+          </div>
+        </div>
+
         <div class="menu-divider"></div>
         <button class="menu-item" @click="handleLogout">
           <i class="i-carbon-logout text-sm mr-2"></i>
@@ -75,22 +109,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useNotifications } from '../../composables/useNotifications'
+import { useStorageMode } from '../../composables/useStorageMode'
+import { useSyncManager } from '../../composables/useSyncManager'
 import router from '../../router'
 
 const { t } = useI18n()
 const { isAuthenticated, user, logout } = useAuth()
 const { success, error } = useNotifications()
+const { networkStatus, checkStorageHealth, initializeStorageMode } = useStorageMode()
+const { initialize, checkServerHealth, networkStatusText } = useSyncManager()
 
 // 用户菜单状态
 const showUserMenu = ref(false)
 const userMenuRef = ref<HTMLElement>()
+const isCheckingHealth = ref(false)
+const healthStatus = ref<boolean | null>(null)
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
+}
+
+// 存储状态相关计算属性
+const getConnectionStatusClass = () => {
+  if (!networkStatus.value.isOnline) return 'status-offline'
+  if (!networkStatus.value.isServerReachable) return 'status-error'
+  if (networkStatus.value.consecutiveFailures > 0) return 'status-warning'
+  return 'status-online'
+}
+
+const getConnectionStatusText = () => {
+  return networkStatusText.value || t('unknown')
+}
+
+const getHealthStatusText = () => {
+  if (healthStatus.value === null) return t('unknown')
+  return healthStatus.value ? t('healthy') : t('unhealthy')
+}
+
+const formatTime = (time: string | Date) => {
+  const date = typeof time === 'string' ? new Date(time) : time
+  return date.toLocaleString()
+}
+
+const checkHealth = async () => {
+  isCheckingHealth.value = true
+  try {
+    healthStatus.value = await checkStorageHealth()
+    await checkServerHealth()
+  } catch (error) {
+    console.error('Health check failed:', error)
+    healthStatus.value = false
+  } finally {
+    isCheckingHealth.value = false
+  }
 }
 
 const handleLogout = async () => {
@@ -106,7 +181,7 @@ const handleLogout = async () => {
 }
 
 // 点击外部关闭用户菜单
-onMounted(() => {
+onMounted(async () => {
   const handleClickOutside = (event: Event) => {
     if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
       showUserMenu.value = false
@@ -362,5 +437,84 @@ defineOptions({
 
 [data-theme='dark'] .menu-item {
   @apply text-text-dark hover:bg-bg-secondary-dark;
+}
+
+/* 存储状态样式 */
+.storage-status {
+  @apply px-4 py-3;
+}
+
+.storage-header {
+  @apply flex items-center gap-2 mb-2;
+}
+
+.storage-title {
+  @apply text-sm font-medium text-text;
+}
+
+.status-info {
+  @apply mb-3;
+}
+
+.status-indicator {
+  @apply flex items-center gap-2 mb-1;
+}
+
+.indicator-dot {
+  @apply w-2 h-2 rounded-full;
+}
+
+.indicator-text {
+  @apply text-xs text-text-secondary;
+}
+
+.check-time {
+  @apply ml-4;
+}
+
+.check-text {
+  @apply text-xs text-text-secondary;
+}
+
+.health-check-btn {
+  @apply w-full flex items-center justify-center gap-1 px-3 py-1.5 text-xs bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-2;
+}
+
+.health-status {
+  @apply text-xs text-center font-medium;
+}
+
+/* 状态指示器颜色 */
+.status-online .indicator-dot {
+  @apply bg-green-500;
+}
+
+.status-warning .indicator-dot {
+  @apply bg-yellow-500;
+}
+
+.status-error .indicator-dot {
+  @apply bg-red-500;
+}
+
+.status-offline .indicator-dot {
+  @apply bg-gray-500;
+}
+
+/* 深色主题适配 */
+[data-theme='dark'] .storage-title {
+  @apply text-text-dark;
+}
+
+[data-theme='dark'] .indicator-text {
+  @apply text-text-secondary-dark;
+}
+
+[data-theme='dark'] .check-text {
+  @apply text-text-secondary-dark;
+}
+
+[data-theme='dark'] .health-check-btn {
+  @apply bg-primary/20 hover:bg-primary/30;
 }
 </style>

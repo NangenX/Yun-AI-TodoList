@@ -357,6 +357,33 @@ export function useAuth() {
   const initAuth = async () => {
     await loadAuthState()
 
+    // 如果用户已登录，执行健康检查
+    if (authState.isAuthenticated) {
+      try {
+        // 动态导入健康检查相关模块，避免循环依赖
+        const [{ useStorageMode }, { useSyncManager }] = await Promise.all([
+          import('./useStorageMode'),
+          import('./useSyncManager'),
+        ])
+
+        const { checkStorageHealth, initializeStorageMode } = useStorageMode()
+        const { checkServerHealth, initialize } = useSyncManager()
+
+        // 初始化存储模式
+        await initializeStorageMode()
+
+        // 初始化同步管理器
+        await initialize()
+
+        // 执行健康检查
+        await Promise.all([checkStorageHealth(), checkServerHealth()])
+
+        console.log('健康检查已完成')
+      } catch (error) {
+        console.warn('健康检查失败:', error)
+      }
+    }
+
     // 监听令牌刷新事件
     window.addEventListener('tokenRefreshed', (event: Event) => {
       const { user } = (event as CustomEvent).detail

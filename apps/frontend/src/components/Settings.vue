@@ -58,14 +58,6 @@
           <AIAnalysisSection />
         </div>
 
-        <!-- 第三行：存储设置 -->
-        <div
-          class="settings-card settings-card-storage settings-card-full"
-          data-category="featured"
-        >
-          <StorageSection />
-        </div>
-
         <!-- 第四行：系统提示词 -->
         <div
           class="settings-card settings-card-prompts settings-card-full"
@@ -99,7 +91,6 @@ import ApiKeySection from './settings/ApiKeySection.vue'
 
 import LanguageSection from './settings/LanguageSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
-import StorageSection from './settings/StorageSection.vue'
 import SystemPromptsSection from './settings/SystemPromptsSection.vue'
 import ThemeSection from './settings/ThemeSection.vue'
 
