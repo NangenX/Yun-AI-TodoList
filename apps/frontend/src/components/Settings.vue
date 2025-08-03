@@ -58,7 +58,7 @@
           <AIAnalysisSection />
         </div>
 
-        <!-- 第四行：系统提示词 -->
+        <!-- 第三行：系统提示词（独占整行）-->
         <div
           class="settings-card settings-card-prompts settings-card-full"
           data-category="advanced"
@@ -306,7 +306,7 @@ defineOptions({
 
 /* 系统提示词卡片占满整行 */
 .settings-card-full {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1 !important;
 }
 
 /* 设置卡片基础样式 */
@@ -352,7 +352,7 @@ defineOptions({
 
 /* 第三行：系统提示词独占一行 */
 .settings-card:nth-child(7) {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1 !important;
 }
 
 .settings-card::before {
@@ -514,10 +514,6 @@ defineOptions({
     var(--settings-primary-soft) 0%,
     var(--settings-card-hover-bg) 100%
   );
-}
-
-.settings-card-full {
-  grid-column: 1 / -1;
 }
 
 /* 背景装饰 */
