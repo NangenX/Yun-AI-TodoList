@@ -5,6 +5,7 @@ import type { MarkedOptions } from 'marked'
 import { marked } from 'marked'
 // 使用动态导入避免初始化问题
 let mermaid: typeof import('mermaid').default | null = null
+let mermaidLoadPromise: Promise<typeof import('mermaid').default> | null = null
 
 // 全局缩放函数 - 确保在全局作用域中可访问
 declare global {
@@ -264,13 +265,29 @@ export function useMarkdown() {
     return 'default'
   }
 
-  // 动态加载 mermaid
+  // 动态加载 mermaid - 使用单例模式避免重复加载
   const loadMermaid = async () => {
-    if (!mermaid) {
-      const mermaidModule = await import('mermaid')
-      mermaid = mermaidModule.default
+    if (mermaid) {
+      return mermaid
     }
-    return mermaid
+
+    if (mermaidLoadPromise) {
+      return await mermaidLoadPromise
+    }
+
+    mermaidLoadPromise = (async () => {
+      try {
+        const mermaidModule = await import('mermaid')
+        mermaid = mermaidModule.default
+        return mermaid
+      } catch (error) {
+        console.error('Failed to load mermaid:', error)
+        mermaidLoadPromise = null
+        throw error
+      }
+    })()
+
+    return await mermaidLoadPromise
   }
 
   // 初始化 Mermaid 配置
@@ -283,6 +300,11 @@ export function useMarkdown() {
     try {
       // 确保 mermaid 已加载
       const mermaidInstance = await loadMermaid()
+
+      // 确保 mermaidInstance 存在且有 initialize 方法
+      if (!mermaidInstance || typeof mermaidInstance.initialize !== 'function') {
+        throw new Error('Mermaid instance is invalid or missing initialize method')
+      }
       const isDark = theme === 'dark'
       // 动态获取 CSS 变量值，确保主题一致性
       const computedStyle = getComputedStyle(document.documentElement)
@@ -356,6 +378,13 @@ export function useMarkdown() {
       // 重置状态，允许下次重试
       mermaidInitialized = false
       currentMermaidTheme = null
+      mermaid = null
+      mermaidLoadPromise = null
+
+      // 抛出错误以便上层处理
+      throw new Error(
+        `Mermaid initialization failed: ${error instanceof Error ? error.message : String(error)}`
+      )
     }
   }
 
@@ -437,9 +466,17 @@ export function useMarkdown() {
       return markdown
     }
 
-    // 根据当前主题重新初始化 Mermaid
-    const currentTheme = getCurrentTheme()
-    await initializeMermaid(currentTheme)
+    try {
+      // 根据当前主题重新初始化 Mermaid
+      const currentTheme = getCurrentTheme()
+      await initializeMermaid(currentTheme)
+    } catch (error) {
+      console.warn('Mermaid initialization failed, falling back to code blocks:', error)
+      // 降级处理：将 mermaid 代码块转换为普通代码块
+      return markdown.replace(mermaidRegex, (match, code) => {
+        return `\`\`\`text\n${code.trim()}\n\`\`\``
+      })
+    }
 
     let processedMarkdown = markdown
 
@@ -450,6 +487,12 @@ export function useMarkdown() {
 
         // 确保 mermaid 已加载并渲染
         const mermaidInstance = await loadMermaid()
+
+        // 验证 mermaidInstance 和 render 方法
+        if (!mermaidInstance || typeof mermaidInstance.render !== 'function') {
+          throw new Error('Mermaid instance is invalid or missing render method')
+        }
+
         const { svg } = await mermaidInstance.render(id, diagramCode)
 
         // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
@@ -486,7 +529,15 @@ export function useMarkdown() {
         processedMarkdown = processedMarkdown.replace(match[0], wrappedSvg)
       } catch (error: unknown) {
         console.error('Mermaid rendering error:', error)
-        const errorHtml = `<div class="mermaid-container"><pre class="mermaid-error">图表渲染失败: ${error instanceof Error ? error.message : String(error)}</pre></div>`
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        const errorHtml = `
+          <div class="mermaid-error">
+            <strong>Mermaid 图表渲染失败</strong><br>
+            <small>错误信息: ${errorMessage}</small><br><br>
+            <strong>原始代码:</strong><br>
+            <pre><code>${match[1].trim()}</code></pre>
+          </div>
+        `
         processedMarkdown = processedMarkdown.replace(match[0], errorHtml)
       }
     }
