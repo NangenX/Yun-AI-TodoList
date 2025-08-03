@@ -278,7 +278,7 @@ export class UserPreferencesService {
       aiAnalysisConfig: {
         enablePriorityAnalysis: (prismaPrefs.enablePriorityAnalysis as boolean) ?? true,
         enableTimeEstimation: (prismaPrefs.enableTimeEstimation as boolean) ?? true,
-        enableSubtaskSplitting: (prismaPrefs.enableSubtaskSplitting as boolean) ?? true,
+        enableSubtaskSplitting: (prismaPrefs.enableSubtaskSplitting as boolean) ?? false,
       },
     }
   }
