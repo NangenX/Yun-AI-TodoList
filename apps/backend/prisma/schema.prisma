@@ -33,16 +33,16 @@ model User {
 
 /// 用户偏好设置表 - 简化版，只保留核心字段
 model UserPreferences {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  theme            String   @default("light") /// 主题设置：light/dark
-  language         String   @default("zh-CN") /// 语言设置：zh-CN/en-US等
-  priorityAnalysis Boolean  @default(true) /// 优先级分析
-  timeEstimation   Boolean  @default(true) /// 时间估算
-  subtaskSplitting Boolean  @default(true) /// 子任务拆分
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  theme                  String   @default("light") /// 主题设置：light/dark/auto
+  language               String   @default("zh") /// 语言设置：zh/en
+  enablePriorityAnalysis Boolean  @default(true) /// 优先级分析
+  enableTimeEstimation   Boolean  @default(true) /// 时间估算
+  enableSubtaskSplitting Boolean  @default(true) /// 子任务拆分
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "idx_user_preferences_user_id")
   @@map("user_preferences")

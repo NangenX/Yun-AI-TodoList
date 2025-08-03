@@ -20,7 +20,7 @@ describe('UsersController', () => {
     emailVerified: true,
     preferences: {
       theme: 'auto' as const,
-      language: 'zh-CN',
+      language: 'zh' as const,
       aiAnalysisConfig: {
         enablePriorityAnalysis: true,
         enableTimeEstimation: true,

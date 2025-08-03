@@ -159,9 +159,9 @@ export function useUserPreferences() {
         // 处理 AI 分析配置更新
         if (updates.aiAnalysisConfig) {
           serverUpdateData.ai = {
-            priorityAnalysis: updates.aiAnalysisConfig.enablePriorityAnalysis,
-            timeEstimation: updates.aiAnalysisConfig.enableTimeEstimation,
-            subtaskSplitting: updates.aiAnalysisConfig.enableSubtaskSplitting,
+            enablePriorityAnalysis: updates.aiAnalysisConfig.enablePriorityAnalysis,
+            enableTimeEstimation: updates.aiAnalysisConfig.enableTimeEstimation,
+            enableSubtaskSplitting: updates.aiAnalysisConfig.enableSubtaskSplitting,
           }
         }
 

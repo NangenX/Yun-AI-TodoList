@@ -2,6 +2,8 @@ import { ApiError, httpClient } from './api'
 
 /**
  * 用户偏好设置接口
+ * 注意：此接口已移至 @shared/types，这里保留是为了向后兼容
+ * 建议直接从 @shared/types 导入 UserPreferences
  */
 export interface UserPreferences {
   theme: 'light' | 'dark' | 'auto'

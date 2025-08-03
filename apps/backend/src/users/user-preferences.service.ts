@@ -177,17 +177,22 @@ export class UserPreferencesService {
    */
   async updateAIAnalysisConfig(
     userId: string,
-    config: { priorityAnalysis?: boolean; timeEstimation?: boolean; subtaskSplitting?: boolean }
+    config: {
+      enablePriorityAnalysis?: boolean
+      enableTimeEstimation?: boolean
+      enableSubtaskSplitting?: boolean
+    }
   ): Promise<UserPreferences> {
     try {
       this.logger.debug(`更新用户 AI 分析配置: ${userId}`, config)
 
       const updateData: Record<string, unknown> = {}
-      if (config.priorityAnalysis !== undefined)
-        updateData.priorityAnalysis = config.priorityAnalysis
-      if (config.timeEstimation !== undefined) updateData.timeEstimation = config.timeEstimation
-      if (config.subtaskSplitting !== undefined)
-        updateData.subtaskSplitting = config.subtaskSplitting
+      if (config.enablePriorityAnalysis !== undefined)
+        updateData.enablePriorityAnalysis = config.enablePriorityAnalysis
+      if (config.enableTimeEstimation !== undefined)
+        updateData.enableTimeEstimation = config.enableTimeEstimation
+      if (config.enableSubtaskSplitting !== undefined)
+        updateData.enableSubtaskSplitting = config.enableSubtaskSplitting
 
       const preferences = await this.updatePreferences(userId, updateData)
 
@@ -222,9 +227,9 @@ export class UserPreferencesService {
 
       if (updateDto.ai) {
         preferences = await this.updateAIAnalysisConfig(userId, {
-          priorityAnalysis: updateDto.ai.priorityAnalysis,
-          timeEstimation: updateDto.ai.timeEstimation,
-          subtaskSplitting: updateDto.ai.subtaskSplitting,
+          enablePriorityAnalysis: updateDto.ai.enablePriorityAnalysis,
+          enableTimeEstimation: updateDto.ai.enableTimeEstimation,
+          enableSubtaskSplitting: updateDto.ai.enableSubtaskSplitting,
         })
       }
 
@@ -266,13 +271,14 @@ export class UserPreferencesService {
   private mapPrismaPreferencesToUserPreferences(
     prismaPrefs: Record<string, unknown>
   ): UserPreferences {
+    const language = prismaPrefs.language as string
     return {
       theme: (prismaPrefs.theme as ThemeValue) || 'light',
-      language: (prismaPrefs.language as string) || 'zh',
+      language: (language === 'en' ? 'en' : 'zh') as 'zh' | 'en',
       aiAnalysisConfig: {
-        enablePriorityAnalysis: (prismaPrefs.priorityAnalysis as boolean) ?? true,
-        enableTimeEstimation: (prismaPrefs.timeEstimation as boolean) ?? true,
-        enableSubtaskSplitting: (prismaPrefs.subtaskSplitting as boolean) ?? false,
+        enablePriorityAnalysis: (prismaPrefs.enablePriorityAnalysis as boolean) ?? true,
+        enableTimeEstimation: (prismaPrefs.enableTimeEstimation as boolean) ?? true,
+        enableSubtaskSplitting: (prismaPrefs.enableSubtaskSplitting as boolean) ?? true,
       },
     }
   }

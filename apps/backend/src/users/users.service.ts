@@ -172,11 +172,11 @@ export class UsersService {
       emailVerified: (prismaUser.emailVerified as boolean) ?? false,
       preferences: {
         theme: (prefs.theme as ThemeValue) || 'light',
-        language: (prefs.language as string) || 'zh-CN',
+        language: ((prefs.language as string) === 'en' ? 'en' : 'zh') as 'zh' | 'en',
         aiAnalysisConfig: {
-          enablePriorityAnalysis: (prefs.priorityAnalysis as boolean) ?? true,
-          enableTimeEstimation: (prefs.timeEstimation as boolean) ?? true,
-          enableSubtaskSplitting: (prefs.subtaskSplitting as boolean) ?? false,
+          enablePriorityAnalysis: (prefs.enablePriorityAnalysis as boolean) ?? true,
+          enableTimeEstimation: (prefs.enableTimeEstimation as boolean) ?? true,
+          enableSubtaskSplitting: (prefs.enableSubtaskSplitting as boolean) ?? false,
         },
       },
       createdAt: (prismaUser.createdAt as Date).toISOString(),

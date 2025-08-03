@@ -23,17 +23,17 @@ export class AIAnalysisConfigDto {
   @ApiProperty({ description: '优先级分析', example: true })
   @IsOptional()
   @IsBoolean()
-  priorityAnalysis?: boolean
+  enablePriorityAnalysis?: boolean
 
   @ApiProperty({ description: '时间估算', example: true })
   @IsOptional()
   @IsBoolean()
-  timeEstimation?: boolean
+  enableTimeEstimation?: boolean
 
   @ApiProperty({ description: '子任务拆分', example: true })
   @IsOptional()
   @IsBoolean()
-  subtaskSplitting?: boolean
+  enableSubtaskSplitting?: boolean
 }
 
 /**

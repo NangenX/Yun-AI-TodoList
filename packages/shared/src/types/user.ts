@@ -41,7 +41,7 @@ export interface PublicUser {
 
 export interface UserPreferences {
   theme: ThemeValue
-  language: string
+  language: 'zh' | 'en'
   aiAnalysisConfig: {
     enablePriorityAnalysis: boolean
     enableTimeEstimation: boolean
