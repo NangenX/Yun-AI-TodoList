@@ -241,7 +241,7 @@ const getLanguageDisplayName = (lang: string): string => {
     if (langInfo?.name) {
       return langInfo.name
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // 静默处理错误，使用降级方案
     console.warn(`无法获取语言 ${normalizedLang} 的详细信息`, error)
   }
@@ -282,7 +282,7 @@ export function useMarkdown() {
 
     try {
       // 确保 mermaid 已加载
-      await loadMermaid()
+      const mermaidInstance = await loadMermaid()
       const isDark = theme === 'dark'
       // 动态获取 CSS 变量值，确保主题一致性
       const computedStyle = getComputedStyle(document.documentElement)
@@ -294,7 +294,7 @@ export function useMarkdown() {
       const fontStack =
         '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
 
-      mermaid.initialize({
+      mermaidInstance.initialize({
         startOnLoad: false,
         theme: theme,
         securityLevel: 'loose',
@@ -351,7 +351,7 @@ export function useMarkdown() {
       // 更新初始化状态
       mermaidInitialized = true
       currentMermaidTheme = theme
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Mermaid 初始化失败:', error)
       // 重置状态，允许下次重试
       mermaidInitialized = false
@@ -395,7 +395,7 @@ export function useMarkdown() {
           strict: false,
         })
         return `<div class="math-block">${html}</div>`
-      } catch (error) {
+      } catch (error: unknown) {
         // 在错误处理中使用 match 而不是 formula
         console.warn('LaTeX block formula render error:', error)
         return `<div class="math-error">数学公式渲染错误: ${match.slice(2, -2)}</div>`
@@ -413,7 +413,7 @@ export function useMarkdown() {
             strict: false,
           })
           return `<span class="math-inline">${html}</span>`
-        } catch (error) {
+        } catch (error: unknown) {
           console.warn('LaTeX inline formula render error:', error)
           return `<span class="math-error">数学公式渲染错误: ${formula}</span>`
         }
@@ -460,10 +460,13 @@ export function useMarkdown() {
           )
           .replace(/width="[^"]*"/, 'width="100%"')
           .replace(/height="[^"]*"/, 'height="auto"')
-          .replace(/<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"]*"[^>]*>/g, (match) => {
-            // 只移除全尺寸的画布背景矩形
-            return match.replace(/fill="[^"]*"/, 'fill="transparent"')
-          })
+          .replace(
+            /<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"]*"[^>]*>/g,
+            (match: string) => {
+              // 只移除全尺寸的画布背景矩形
+              return match.replace(/fill="[^"]*"/, 'fill="transparent"')
+            }
+          )
           // 确保所有文本元素可见，使用 CSS 变量保持主题一致性
           .replace(/<text([^>]*)>/g, '<text$1 fill="var(--text-color)" stroke="none">')
           .replace(/fill="none"/g, 'fill="var(--text-color)"')
@@ -481,7 +484,7 @@ export function useMarkdown() {
 
         // 替换原始的 mermaid 代码块
         processedMarkdown = processedMarkdown.replace(match[0], wrappedSvg)
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Mermaid rendering error:', error)
         const errorHtml = `<div class="mermaid-container"><pre class="mermaid-error">图表渲染失败: ${error instanceof Error ? error.message : String(error)}</pre></div>`
         processedMarkdown = processedMarkdown.replace(match[0], errorHtml)
@@ -530,7 +533,7 @@ export function useMarkdown() {
     highlight: function (code: string, lang: string) {
       try {
         return hljs.highlight(code, { language: lang }).value
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error highlighting code:', err)
         return code
       }
@@ -597,7 +600,7 @@ export function useMarkdown() {
       await navigator.clipboard.writeText(code)
 
       updateButtonState(copyButton, 'success')
-    } catch (error) {
+    } catch (error: unknown) {
       console.warn('Clipboard API 失败，尝试降级方案:', error)
 
       // 降级方案：使用 document.execCommand
@@ -620,7 +623,7 @@ export function useMarkdown() {
         } else {
           throw new Error('execCommand 复制失败')
         }
-      } catch (fallbackError) {
+      } catch (fallbackError: unknown) {
         console.error('所有复制方案都失败:', fallbackError)
         updateButtonState(copyButton, 'error')
       }
@@ -883,7 +886,7 @@ export function useMarkdown() {
       })
 
       return cleanHtml
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Markdown rendering error:', error)
       return `<p>渲染失败: ${error}</p>`
     }
