@@ -2,12 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 import type { CreateUserDto, UpdateUserDto, User } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
+import { ThemeValue } from '@shared/types/user'
 import { ChangePasswordDto } from './dto/change-password.dto'
-import {
-  Theme,
-  StorageMode,
-  ConflictResolutionStrategy,
-} from '../settings/dto/update-preferences.dto'
 
 @Injectable()
 export class UsersService {
@@ -175,35 +171,11 @@ export class UsersService {
       avatarUrl: prismaUser.avatarUrl as string | undefined,
       emailVerified: (prismaUser.emailVerified as boolean) ?? false,
       preferences: {
-        theme: (prefs.theme as Theme) || 'light',
+        theme: (prefs.theme as ThemeValue) || 'light',
         language: (prefs.language as string) || 'zh-CN',
-        aiConfig: {
-          enabled: (prefs.aiEnabled as boolean) ?? true,
-          autoAnalyze: (prefs.autoAnalyze as boolean) ?? true,
-          priorityAnalysis: (prefs.priorityAnalysis as boolean) ?? true,
-          timeEstimation: (prefs.timeEstimation as boolean) ?? true,
-          subtaskSplitting: (prefs.subtaskSplitting as boolean) ?? true,
-          modelConfig: {
-            model: (prefs.aiModel as string) || 'deepseek-chat',
-            temperature: (prefs.aiTemperature as number) ?? 0.3,
-            maxTokens: (prefs.aiMaxTokens as number) || 1000,
-          },
-        },
-        notifications: {
-          desktop: (prefs.desktopNotifications as boolean) ?? true,
-          email: (prefs.emailNotifications as boolean) ?? false,
-          dueReminder: (prefs.dueReminder as boolean) ?? true,
-          reminderMinutes: (prefs.reminderMinutes as number) || 30,
-        },
-        storageConfig: {
-          mode: (prefs.storageMode as StorageMode) || 'hybrid',
-          autoSync: (prefs.autoSync as boolean | undefined) ?? true,
-          syncInterval: (prefs.syncInterval as number) || 5,
-          offlineMode: (prefs.offlineMode as boolean | undefined) ?? true,
-          conflictResolution: (prefs.conflictResolution as ConflictResolutionStrategy) || 'merge',
-          retryAttempts: (prefs.retryAttempts as number) || 3,
-          requestTimeout: (prefs.requestTimeout as number) || 10000,
-        },
+        priorityAnalysis: (prefs.priorityAnalysis as boolean) ?? true,
+        timeEstimation: (prefs.timeEstimation as boolean) ?? true,
+        subtaskSplitting: (prefs.subtaskSplitting as boolean) ?? true,
       },
       createdAt: (prismaUser.createdAt as Date).toISOString(),
       updatedAt: (prismaUser.updatedAt as Date).toISOString(),

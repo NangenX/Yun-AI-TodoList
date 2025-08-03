@@ -16,42 +16,17 @@ describe('UsersController', () => {
     id: 'user-1',
     email: 'test@example.com',
     username: 'testuser',
-    password: 'hashedpassword',
     avatarUrl: undefined,
     emailVerified: true,
     preferences: {
       theme: 'auto' as const,
       language: 'zh-CN',
-      aiConfig: {
-        enabled: true,
-        autoAnalyze: true,
-        priorityAnalysis: true,
-        timeEstimation: true,
-        subtaskSplitting: true,
-        modelConfig: {
-          model: 'deepseek-chat',
-          temperature: 0.3,
-          maxTokens: 1000,
-        },
-      },
-      notifications: {
-        desktop: true,
-        email: false,
-        dueReminder: true,
-        reminderMinutes: 30,
-      },
-      storageConfig: {
-        mode: 'hybrid' as const,
-        autoSync: true,
-        syncInterval: 5,
-        offlineMode: true,
-        conflictResolution: 'merge' as const,
-        retryAttempts: 3,
-        requestTimeout: 10000,
-      },
+      priorityAnalysis: true,
+      timeEstimation: true,
+      subtaskSplitting: true,
     },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
+    createdAt: '2023-01-01T00:00:00.000Z',
+    updatedAt: '2023-01-01T00:00:00.000Z',
   }
 
   const mockUsersService = {

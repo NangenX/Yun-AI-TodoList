@@ -31,47 +31,20 @@ model User {
   @@map("users")
 }
 
-/// 用户偏好设置表 - 存储所有用户配置信息（简化版）
+/// 用户偏好设置表 - 简化版，只保留核心字段
 model UserPreferences {
-  id                   String   @id @default(cuid())
-  userId               String   @unique
-  theme                String   @default("light") /// 主题设置：light/dark
-  language             String   @default("zh-CN") /// 语言设置：zh-CN/en-US等
-
-  // AI 配置
-  aiEnabled            Boolean  @default(true) /// AI功能是否启用
-  aiModel              String   @default("deepseek-chat") /// AI模型选择
-  aiTemperature        Float    @default(0.3) /// AI温度参数 (0-2)
-  aiMaxTokens          Int      @default(1000) /// AI最大token数
-  autoAnalyze          Boolean  @default(true) /// 自动分析任务
-  priorityAnalysis     Boolean  @default(true) /// 优先级分析
-  timeEstimation       Boolean  @default(true) /// 时间估算
-  subtaskSplitting     Boolean  @default(true) /// 子任务拆分
-
-  // 通知配置
-  desktopNotifications Boolean  @default(true) /// 桌面通知
-  emailNotifications   Boolean  @default(false) /// 邮件通知
-  dueReminder          Boolean  @default(true) /// 到期提醒
-  reminderMinutes      Int      @default(30) /// 提醒提前时间（分钟）
-
-
-
-  // 存储配置
-  storageMode          String   @default("hybrid") /// 存储模式
-  autoSync             Boolean  @default(true) /// 自动同步
-  syncInterval         Int      @default(5) /// 同步间隔（分钟）
-  offlineMode          Boolean  @default(true) /// 离线模式
-  conflictResolution   String   @default("merge") /// 冲突解决策略
-  retryAttempts        Int      @default(3) /// 重试次数
-  requestTimeout       Int      @default(10000) /// 请求超时时间（毫秒）
-
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  theme            String   @default("light") /// 主题设置：light/dark
+  language         String   @default("zh-CN") /// 语言设置：zh-CN/en-US等
+  priorityAnalysis Boolean  @default(true) /// 优先级分析
+  timeEstimation   Boolean  @default(true) /// 时间估算
+  subtaskSplitting Boolean  @default(true) /// 子任务拆分
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "idx_user_preferences_user_id")
-  @@index([theme], map: "idx_user_preferences_theme")
-  @@index([language], map: "idx_user_preferences_language")
   @@map("user_preferences")
 }
 

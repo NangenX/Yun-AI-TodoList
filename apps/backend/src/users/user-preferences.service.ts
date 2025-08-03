@@ -2,18 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import type { UserPreferences } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
-import {
-  ConflictResolutionStrategy,
-  StorageMode,
-  Theme,
-} from '../settings/dto/update-preferences.dto'
-import {
-  AIConfigDto,
-  NotificationConfigDto,
-  StorageConfigDto,
-  ThemePreferencesDto,
-  UpdateUserPreferencesDto,
-} from './dto/user-preferences.dto'
+import { ThemePreferencesDto, UpdateUserPreferencesDto } from './dto/user-preferences.dto'
+import { ThemeValue } from '@shared/types/user'
 
 /**
  * 用户偏好设置服务
@@ -151,107 +141,60 @@ export class UserPreferencesService {
     }
   }
 
-  // ==========================================
-  // AI 配置管理
-  // ==========================================
+  /**
+   * 获取用户主题设置
+   */
+  async getUserTheme(userId: string): Promise<string> {
+    const preferences = await this.findByUserId(userId)
+    return preferences?.theme || 'light'
+  }
 
   /**
-   * 更新 AI 配置
+   * 获取用户语言设置
    */
-  async updateAIConfig(userId: string, aiConfig: AIConfigDto): Promise<UserPreferences> {
-    try {
-      this.logger.debug(`更新用户 AI 配置: ${userId}`, aiConfig)
+  async getUserLanguage(userId: string): Promise<string> {
+    const preferences = await this.findByUserId(userId)
+    return preferences?.language || 'zh-CN'
+  }
 
-      const updateData: Record<string, unknown> = {}
-      if (aiConfig.enabled !== undefined) updateData.aiEnabled = aiConfig.enabled
-      if (aiConfig.autoAnalyze !== undefined) updateData.autoAnalyze = aiConfig.autoAnalyze
-      if (aiConfig.priorityAnalysis !== undefined)
-        updateData.priorityAnalysis = aiConfig.priorityAnalysis
-      if (aiConfig.timeEstimation !== undefined) updateData.timeEstimation = aiConfig.timeEstimation
-      if (aiConfig.subtaskSplitting !== undefined)
-        updateData.subtaskSplitting = aiConfig.subtaskSplitting
-      if (aiConfig.model !== undefined) updateData.aiModel = aiConfig.model
-      if (aiConfig.temperature !== undefined) updateData.aiTemperature = aiConfig.temperature
-      if (aiConfig.maxTokens !== undefined) updateData.aiMaxTokens = aiConfig.maxTokens
+  /**
+   * 切换主题（在 light 和 dark 之间切换）
+   */
+  async toggleTheme(userId: string): Promise<UserPreferences> {
+    const currentPrefs = await this.findByUserId(userId)
+    const currentTheme = currentPrefs?.theme || 'light'
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light'
 
-      const preferences = await this.updatePreferences(userId, updateData)
-
-      this.logger.log(`成功更新用户 ${userId} 的 AI 配置`)
-      return preferences
-    } catch (error) {
-      this.logger.error(`更新 AI 配置失败: ${userId}`, error)
-      throw error
-    }
+    return this.updateThemeAndLanguage(userId, { theme: newTheme })
   }
 
   // ==========================================
-  // 通知配置管理
+  // AI 分析功能配置管理
   // ==========================================
 
   /**
-   * 更新通知配置
+   * 更新 AI 分析功能配置
    */
-  async updateNotificationConfig(
+  async updateAIAnalysisConfig(
     userId: string,
-    notificationConfig: NotificationConfigDto
+    config: { priorityAnalysis?: boolean; timeEstimation?: boolean; subtaskSplitting?: boolean }
   ): Promise<UserPreferences> {
     try {
-      this.logger.debug(`更新用户通知配置: ${userId}`, notificationConfig)
+      this.logger.debug(`更新用户 AI 分析配置: ${userId}`, config)
 
       const updateData: Record<string, unknown> = {}
-      if (notificationConfig.desktop !== undefined)
-        updateData.desktopNotifications = notificationConfig.desktop
-      if (notificationConfig.email !== undefined)
-        updateData.emailNotifications = notificationConfig.email
-      if (notificationConfig.dueReminder !== undefined)
-        updateData.dueReminder = notificationConfig.dueReminder
-      if (notificationConfig.reminderMinutes !== undefined)
-        updateData.reminderMinutes = notificationConfig.reminderMinutes
+      if (config.priorityAnalysis !== undefined)
+        updateData.priorityAnalysis = config.priorityAnalysis
+      if (config.timeEstimation !== undefined) updateData.timeEstimation = config.timeEstimation
+      if (config.subtaskSplitting !== undefined)
+        updateData.subtaskSplitting = config.subtaskSplitting
 
       const preferences = await this.updatePreferences(userId, updateData)
 
-      this.logger.log(`成功更新用户 ${userId} 的通知配置`)
+      this.logger.log(`成功更新用户 ${userId} 的 AI 分析配置`)
       return preferences
     } catch (error) {
-      this.logger.error(`更新通知配置失败: ${userId}`, error)
-      throw error
-    }
-  }
-
-  // ==========================================
-  // 存储配置管理
-  // ==========================================
-
-  /**
-   * 更新存储配置
-   */
-  async updateStorageConfig(
-    userId: string,
-    storageConfig: StorageConfigDto
-  ): Promise<UserPreferences> {
-    try {
-      this.logger.debug(`更新用户存储配置: ${userId}`, storageConfig)
-
-      const updateData: Record<string, unknown> = {}
-      if (storageConfig.mode !== undefined) updateData.storageMode = storageConfig.mode
-      if (storageConfig.autoSync !== undefined) updateData.autoSync = storageConfig.autoSync
-      if (storageConfig.syncInterval !== undefined)
-        updateData.syncInterval = storageConfig.syncInterval
-      if (storageConfig.offlineMode !== undefined)
-        updateData.offlineMode = storageConfig.offlineMode
-      if (storageConfig.conflictResolution !== undefined)
-        updateData.conflictResolution = storageConfig.conflictResolution
-      if (storageConfig.retryAttempts !== undefined)
-        updateData.retryAttempts = storageConfig.retryAttempts
-      if (storageConfig.requestTimeout !== undefined)
-        updateData.requestTimeout = storageConfig.requestTimeout
-
-      const preferences = await this.updatePreferences(userId, updateData)
-
-      this.logger.log(`成功更新用户 ${userId} 的存储配置`)
-      return preferences
-    } catch (error) {
-      this.logger.error(`更新存储配置失败: ${userId}`, error)
+      this.logger.error(`更新 AI 分析配置失败: ${userId}`, error)
       throw error
     }
   }
@@ -270,52 +213,20 @@ export class UserPreferencesService {
     try {
       this.logger.debug(`批量更新用户偏好设置: ${userId}`, updateDto)
 
-      const updateData: Record<string, unknown> = {}
+      // 分别处理各个配置模块
+      let preferences = await this.ensureUserPreferences(userId)
 
-      // 主题和语言
-      if (updateDto.theme?.theme !== undefined) updateData.theme = updateDto.theme.theme
-      if (updateDto.theme?.language !== undefined) updateData.language = updateDto.theme.language
+      if (updateDto.theme) {
+        preferences = await this.updateThemeAndLanguage(userId, updateDto.theme)
+      }
 
-      // AI 配置
-      if (updateDto.ai?.enabled !== undefined) updateData.aiEnabled = updateDto.ai.enabled
-      if (updateDto.ai?.autoAnalyze !== undefined) updateData.autoAnalyze = updateDto.ai.autoAnalyze
-      if (updateDto.ai?.priorityAnalysis !== undefined)
-        updateData.priorityAnalysis = updateDto.ai.priorityAnalysis
-      if (updateDto.ai?.timeEstimation !== undefined)
-        updateData.timeEstimation = updateDto.ai.timeEstimation
-      if (updateDto.ai?.subtaskSplitting !== undefined)
-        updateData.subtaskSplitting = updateDto.ai.subtaskSplitting
-      if (updateDto.ai?.model !== undefined) updateData.aiModel = updateDto.ai.model
-      if (updateDto.ai?.temperature !== undefined)
-        updateData.aiTemperature = updateDto.ai.temperature
-      if (updateDto.ai?.maxTokens !== undefined) updateData.aiMaxTokens = updateDto.ai.maxTokens
-
-      // 通知配置
-      if (updateDto.notifications?.desktop !== undefined)
-        updateData.desktopNotifications = updateDto.notifications.desktop
-      if (updateDto.notifications?.email !== undefined)
-        updateData.emailNotifications = updateDto.notifications.email
-      if (updateDto.notifications?.dueReminder !== undefined)
-        updateData.dueReminder = updateDto.notifications.dueReminder
-      if (updateDto.notifications?.reminderMinutes !== undefined)
-        updateData.reminderMinutes = updateDto.notifications.reminderMinutes
-
-      // 存储配置
-      if (updateDto.storage?.mode !== undefined) updateData.storageMode = updateDto.storage.mode
-      if (updateDto.storage?.autoSync !== undefined)
-        updateData.autoSync = updateDto.storage.autoSync
-      if (updateDto.storage?.syncInterval !== undefined)
-        updateData.syncInterval = updateDto.storage.syncInterval
-      if (updateDto.storage?.offlineMode !== undefined)
-        updateData.offlineMode = updateDto.storage.offlineMode
-      if (updateDto.storage?.conflictResolution !== undefined)
-        updateData.conflictResolution = updateDto.storage.conflictResolution
-      if (updateDto.storage?.retryAttempts !== undefined)
-        updateData.retryAttempts = updateDto.storage.retryAttempts
-      if (updateDto.storage?.requestTimeout !== undefined)
-        updateData.requestTimeout = updateDto.storage.requestTimeout
-
-      const preferences = await this.updatePreferences(userId, updateData)
+      if (updateDto.ai) {
+        preferences = await this.updateAIAnalysisConfig(userId, {
+          priorityAnalysis: updateDto.ai.priorityAnalysis,
+          timeEstimation: updateDto.ai.timeEstimation,
+          subtaskSplitting: updateDto.ai.subtaskSplitting,
+        })
+      }
 
       this.logger.log(`成功批量更新用户 ${userId} 的偏好设置`)
       return preferences
@@ -356,36 +267,11 @@ export class UserPreferencesService {
     prismaPrefs: Record<string, unknown>
   ): UserPreferences {
     return {
-      theme: prismaPrefs.theme as Theme,
+      theme: (prismaPrefs.theme as ThemeValue) || 'light',
       language: prismaPrefs.language as string,
-      aiConfig: {
-        enabled: prismaPrefs.aiEnabled as boolean,
-        autoAnalyze: prismaPrefs.autoAnalyze as boolean,
-        priorityAnalysis: prismaPrefs.priorityAnalysis as boolean,
-        timeEstimation: prismaPrefs.timeEstimation as boolean,
-        subtaskSplitting: prismaPrefs.subtaskSplitting as boolean,
-        modelConfig: {
-          model: prismaPrefs.aiModel as string,
-          temperature: prismaPrefs.aiTemperature as number,
-          maxTokens: prismaPrefs.aiMaxTokens as number,
-        },
-      },
-
-      notifications: {
-        desktop: prismaPrefs.desktopNotifications as boolean,
-        email: prismaPrefs.emailNotifications as boolean,
-        dueReminder: prismaPrefs.dueReminder as boolean,
-        reminderMinutes: prismaPrefs.reminderMinutes as number,
-      },
-      storageConfig: {
-        mode: prismaPrefs.storageMode as StorageMode,
-        autoSync: prismaPrefs.autoSync as boolean,
-        syncInterval: prismaPrefs.syncInterval as number,
-        offlineMode: prismaPrefs.offlineMode as boolean,
-        conflictResolution: prismaPrefs.conflictResolution as ConflictResolutionStrategy,
-        retryAttempts: prismaPrefs.retryAttempts as number,
-        requestTimeout: prismaPrefs.requestTimeout as number,
-      },
+      priorityAnalysis: prismaPrefs.priorityAnalysis as boolean,
+      timeEstimation: prismaPrefs.timeEstimation as boolean,
+      subtaskSplitting: prismaPrefs.subtaskSplitting as boolean,
     }
   }
 }

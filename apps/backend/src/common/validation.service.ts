@@ -54,27 +54,6 @@ export class ValidationService {
   }
 
   /**
-   * 验证AI温度参数
-   */
-  validateAITemperature(temperature: number): boolean {
-    return temperature >= 0.0 && temperature <= 2.0
-  }
-
-  /**
-   * 验证AI最大令牌数
-   */
-  validateAIMaxTokens(maxTokens: number): boolean {
-    return maxTokens >= 100 && maxTokens <= 8000
-  }
-
-  /**
-   * 验证提醒时间（分钟）
-   */
-  validateReminderMinutes(minutes: number): boolean {
-    return minutes > 0 && minutes <= 10080 // 最多一周
-  }
-
-  /**
    * 验证文件大小（字节）
    */
   validateFileSize(size: number): boolean {
@@ -141,29 +120,6 @@ export class ValidationService {
 
     if (data.accountStatus && !this.validateAccountStatus(data.accountStatus as string)) {
       throw new BadRequestException('账户状态不正确')
-    }
-  }
-
-  /**
-   * 综合验证用户偏好数据
-   */
-  validateUserPreferencesData(data: Record<string, unknown>): void {
-    if (
-      data.aiTemperature !== undefined &&
-      !this.validateAITemperature(data.aiTemperature as number)
-    ) {
-      throw new BadRequestException('AI温度参数必须在0.0-2.0之间')
-    }
-
-    if (data.aiMaxTokens !== undefined && !this.validateAIMaxTokens(data.aiMaxTokens as number)) {
-      throw new BadRequestException('AI最大令牌数必须在100-8000之间')
-    }
-
-    if (
-      data.reminderMinutes !== undefined &&
-      !this.validateReminderMinutes(data.reminderMinutes as number)
-    ) {
-      throw new BadRequestException('提醒时间必须为正数且不超过一周')
     }
   }
 

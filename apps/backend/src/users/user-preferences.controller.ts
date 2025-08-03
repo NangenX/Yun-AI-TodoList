@@ -3,13 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import type { User, UserPreferences } from '@shared/types'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
-import {
-  UpdateUserPreferencesDto,
-  ThemePreferencesDto,
-  AIConfigDto,
-  NotificationConfigDto,
-  StorageConfigDto,
-} from './dto/user-preferences.dto'
+import { AIAnalysisConfigDto, ThemePreferencesDto } from './dto/user-preferences.dto'
 import { UserPreferencesService } from './user-preferences.service'
 
 @ApiTags('user-preferences')
@@ -40,43 +34,13 @@ export class UserPreferencesController {
     return this.userPreferencesService.updateThemeAndLanguage(user.id, themePrefs)
   }
 
-  @Patch('ai')
-  @ApiOperation({ summary: '更新 AI 配置' })
+  @Patch('ai-analysis')
+  @ApiOperation({ summary: '更新 AI 分析功能配置' })
   @ApiResponse({ status: 200, description: '更新成功' })
-  async updateAIConfig(
+  async updateAIAnalysisConfig(
     @CurrentUser() user: User,
-    @Body() aiConfig: AIConfigDto
+    @Body() aiAnalysisConfig: AIAnalysisConfigDto
   ): Promise<UserPreferences> {
-    return this.userPreferencesService.updateAIConfig(user.id, aiConfig)
-  }
-
-  @Patch('notifications')
-  @ApiOperation({ summary: '更新通知配置' })
-  @ApiResponse({ status: 200, description: '更新成功' })
-  async updateNotificationConfig(
-    @CurrentUser() user: User,
-    @Body() notificationConfig: NotificationConfigDto
-  ): Promise<UserPreferences> {
-    return this.userPreferencesService.updateNotificationConfig(user.id, notificationConfig)
-  }
-
-  @Patch('storage')
-  @ApiOperation({ summary: '更新存储配置' })
-  @ApiResponse({ status: 200, description: '更新成功' })
-  async updateStorageConfig(
-    @CurrentUser() user: User,
-    @Body() storageConfig: StorageConfigDto
-  ): Promise<UserPreferences> {
-    return this.userPreferencesService.updateStorageConfig(user.id, storageConfig)
-  }
-
-  @Patch('bulk')
-  @ApiOperation({ summary: '批量更新偏好设置' })
-  @ApiResponse({ status: 200, description: '更新成功' })
-  async updateBulkPreferences(
-    @CurrentUser() user: User,
-    @Body() updateDto: UpdateUserPreferencesDto
-  ): Promise<UserPreferences> {
-    return this.userPreferencesService.updateBulkPreferences(user.id, updateDto)
+    return this.userPreferencesService.updateAIAnalysisConfig(user.id, aiAnalysisConfig)
   }
 }

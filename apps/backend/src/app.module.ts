@@ -9,7 +9,7 @@ import { AuthModule } from './auth/auth.module'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { CommonModule } from './common/common.module'
 import { DatabaseModule } from './database/database.module'
-import { SettingsModule } from './settings/settings.module'
+
 import { TodosModule } from './todos/todos.module'
 import { UsersModule } from './users/users.module'
 import { VerificationModule } from './verification/verification.module'
@@ -66,8 +66,7 @@ import { configValidationSchema } from './config/config.validation'
     AuthModule, // 重新启用认证模块
     UsersModule, // 重新启用用户模块
     TodosModule, // 重新启用待办事项模块
-    SettingsModule, // 重新启用设置模块
-    // AIAnalysisModule, // 临时禁用以避免编译错误
+
     VerificationModule, // 独立的验证码模块，不依赖 Prisma
   ],
   controllers: [AppController],

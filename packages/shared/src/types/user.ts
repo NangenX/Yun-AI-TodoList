@@ -42,9 +42,9 @@ export interface PublicUser {
 export interface UserPreferences {
   theme: ThemeValue
   language: string
-  aiConfig: UserAIAnalysisConfig
-  notifications: NotificationSettings
-  storageConfig: StorageConfig
+  priorityAnalysis: boolean
+  timeEstimation: boolean
+  subtaskSplitting: boolean
 }
 
 export interface CreateUserDto {
