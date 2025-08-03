@@ -21,7 +21,8 @@ export interface PWAConfig {
  * 获取优化的 PWA 配置
  */
 export function getOptimizedPWAConfig(): PWAConfig {
-  const basePath = (import.meta.env as any).PROD ? '/Yun-AI-TodoList/' : './'
+  // 在生产环境中使用绝对路径，开发环境使用相对路径
+  const basePath = process.env.NODE_ENV === 'production' ? '/Yun-AI-TodoList/' : './'
 
   return {
     manifestIcons: [
