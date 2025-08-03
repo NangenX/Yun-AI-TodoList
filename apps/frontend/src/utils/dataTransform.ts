@@ -58,7 +58,7 @@ export function serverToLocalTodo(serverTodo: ServerTodo): LocalTodo {
 /**
  * 批量转换本地 Todo 列表为服务器格式
  */
-export function localTodosToServer(localTodos: LocalTodo[]): CreateTodoDto[] {
+export function localTodosToServer(localTodos: LocalTodo[]): Array<CreateTodoDto | UpdateTodoDto> {
   return localTodos.map(localToServerTodo)
 }
 
@@ -88,8 +88,6 @@ export function createUpdateTodoDto(localTodo: LocalTodo): UpdateTodoDto {
  * 数据合并策略
  */
 export interface MergeStrategy {
-  // 冲突解决策略
-  conflictResolution: 'local' | 'server' | 'latest' | 'manual'
   // 是否保留本地未同步的数据
   preserveLocalChanges: boolean
   // 是否删除服务器上不存在的本地数据
@@ -100,7 +98,6 @@ export interface MergeStrategy {
  * 默认合并策略
  */
 export const DEFAULT_MERGE_STRATEGY: MergeStrategy = {
-  conflictResolution: 'latest',
   preserveLocalChanges: true,
   deleteLocalOrphans: false,
 }
@@ -199,7 +196,7 @@ export function mergeTodoData(
 function resolveTodoConflict(
   localTodo: LocalTodo,
   serverTodo: LocalTodo,
-  strategy: MergeStrategy
+  _strategy: MergeStrategy
 ): {
   result: LocalTodo
   conflict: boolean
@@ -223,29 +220,10 @@ function resolveTodoConflict(
     }
   }
 
-  // 有冲突，根据策略解决
-  let result: LocalTodo
-
-  switch (strategy.conflictResolution) {
-    case 'local':
-      result = localTodo
-      break
-    case 'server':
-      result = serverTodo
-      break
-    case 'latest': {
-      // 比较更新时间
-      const localTime = new Date(localTodo.updatedAt || localTodo.createdAt).getTime()
-      const serverTime = new Date(serverTodo.updatedAt || serverTodo.createdAt).getTime()
-      result = serverTime > localTime ? serverTodo : localTodo
-      break
-    }
-    case 'manual':
-    default:
-      // 手动解决，暂时使用本地数据
-      result = localTodo
-      break
-  }
+  // 有冲突，使用最新时间策略解决
+  const localTime = new Date(localTodo.updatedAt || localTodo.createdAt).getTime()
+  const serverTime = new Date(serverTodo.updatedAt || serverTodo.createdAt).getTime()
+  const result = serverTime > localTime ? serverTodo : localTodo
 
   return {
     result,

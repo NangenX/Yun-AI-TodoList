@@ -64,42 +64,9 @@ class TestDataFactory {
       preferences: {
         theme: 'light',
         language: 'zh-CN',
-        aiConfig: {
-          enabled: true,
-          autoAnalyze: false,
-          priorityAnalysis: true,
-          timeEstimation: true,
-          subtaskSplitting: false,
-          modelConfig: {
-            model: 'gpt-3.5-turbo',
-            temperature: 0.7,
-            maxTokens: 1000,
-          },
-        },
-        searchConfig: {
-          defaultLanguage: 'zh-CN',
-          safeSearch: true,
-          defaultResultCount: 10,
-          engineConfig: {
-            engine: 'google',
-            region: 'cn',
-          },
-        },
-        notifications: {
-          desktop: true,
-          email: false,
-          dueReminder: true,
-          reminderMinutes: 30,
-        },
-        storageConfig: {
-          mode: 'hybrid',
-          retryAttempts: 3,
-          requestTimeout: 5000,
-          autoSync: true,
-          syncInterval: 5,
-          offlineMode: true,
-          conflictResolution: 'ask-user',
-        },
+        priorityAnalysis: true,
+        timeEstimation: true,
+        subtaskSplitting: false,
       },
       ...overrides,
     }

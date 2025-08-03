@@ -1,20 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createApp, ref } from 'vue'
+import type { Todo, CreateTodoDto, UpdateTodoDto } from '@yun-ai-todolist/shared'
 
 // Mock data
-const mockTodos: any[] = []
+const mockTodos: Todo[] = []
 let mockNextId = 1
-let app: any = null
+let app: ReturnType<typeof createApp> | null = null
 
 // Mock storage service
 const mockStorageService = {
   getTodos: vi.fn().mockImplementation(() => {
     return Promise.resolve({ success: true, data: mockTodos })
   }),
-  saveTodos: vi.fn().mockImplementation((todoList: any[]) => {
+  saveTodos: vi.fn().mockImplementation((todoList: Todo[]) => {
     mockTodos.splice(0, mockTodos.length, ...todoList)
     return Promise.resolve({ success: true })
   }),
-  createTodo: vi.fn().mockImplementation((dto: any) => {
+  createTodo: vi.fn().mockImplementation((dto: CreateTodoDto) => {
     const newTodo = {
       id: `todo-${mockNextId++}`,
       title: dto.title,
@@ -26,7 +28,7 @@ const mockStorageService = {
     mockTodos.push(newTodo)
     return Promise.resolve({ success: true, data: newTodo })
   }),
-  updateTodo: vi.fn().mockImplementation((id: string, updates: any) => {
+  updateTodo: vi.fn().mockImplementation((id: string, updates: UpdateTodoDto) => {
     const index = mockTodos.findIndex((todo) => todo.id === id)
     if (index !== -1) {
       mockTodos[index] = { ...mockTodos[index], ...updates, updatedAt: new Date().toISOString() }
@@ -77,17 +79,13 @@ vi.mock('@/composables/useStorageMode', () => ({
     currentMode: ref('local'), // 确保有默认值
     config: ref({
       mode: 'local',
-      autoSync: true,
-      syncInterval: 5,
-      offlineMode: true,
-      conflictResolution: 'merge',
     }),
     switchStorageMode: vi.fn().mockResolvedValue(true),
   }),
 }))
 
 describe('useTodos', () => {
-  let todoInstance: any
+  let todoInstance: ReturnType<typeof import('../useTodos').useTodos>
 
   beforeEach(async () => {
     // 创建 Vue 应用实例用于测试
@@ -119,7 +117,7 @@ describe('useTodos', () => {
     if (app) {
       try {
         app.unmount()
-      } catch (_error) {
+      } catch {
         // 忽略卸载错误
       }
       app = null
@@ -134,7 +132,7 @@ describe('useTodos', () => {
   })
 
   it('should add a todo', async () => {
-    const _result = await todoInstance.addTodo({ title: 'Test todo' })
+    await todoInstance.addTodo({ title: 'Test todo' })
 
     expect(todoInstance.todos.value).toHaveLength(1)
     expect(todoInstance.todos.value[0].title).toBe('Test todo')

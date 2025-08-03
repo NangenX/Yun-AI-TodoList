@@ -5,7 +5,6 @@
 
 import type { NetworkStatus, StorageConfig, StorageMode } from '@shared/types'
 import { computed, reactive, readonly, toRef, watch } from 'vue'
-import { httpClient } from '../services/api'
 import { LocalStorageService } from '../services/storage/LocalStorageService'
 import { RemoteStorageService } from '../services/storage/RemoteStorageService'
 import { TodoStorageService } from '../services/storage/TodoStorageService'
@@ -44,7 +43,7 @@ function createLocalStorageService(): TodoStorageService {
  * 云端存储管理 Composable
  */
 export function useStorageMode() {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated } = useAuth()
 
   // 响应式状态
   const currentMode = readonly(toRef(storageState, 'currentMode'))
@@ -230,21 +229,11 @@ export function useStorageMode() {
    */
   const loadStorageConfig = async (): Promise<void> => {
     try {
-      if (isAuthenticated.value && user.value?.preferences?.storageConfig) {
-        // 从用户偏好设置加载
-        const userConfig = user.value.preferences.storageConfig
-        storageState.config = {
-          ...storageState.config,
-          retryAttempts: userConfig.retryAttempts || storageState.config.retryAttempts,
-          requestTimeout: userConfig.requestTimeout || storageState.config.requestTimeout,
-        }
-      } else {
-        // 从本地存储加载
-        const savedConfig = localStorage.getItem('cloud_storage_config')
-        if (savedConfig) {
-          const config = JSON.parse(savedConfig)
-          storageState.config = { ...storageState.config, ...config }
-        }
+      // 注意：storageConfig 字段已从后端移除，现在只从本地存储加载
+      const savedConfig = localStorage.getItem('cloud_storage_config')
+      if (savedConfig) {
+        const config = JSON.parse(savedConfig)
+        storageState.config = { ...storageState.config, ...config }
       }
     } catch (error) {
       console.error('Failed to load storage config:', error)
@@ -273,28 +262,7 @@ export function useStorageMode() {
    */
   const syncStorageConfigToServer = async (): Promise<void> => {
     try {
-      const updateDto = {
-        storageConfig: {
-          mode: storageState.config.mode,
-          autoSync: true, // 默认启用自动同步
-          syncInterval: 5, // 默认同步间隔
-          offlineMode: false, // 云端存储模式下默认不启用离线模式
-          conflictResolution: storageState.config.conflictResolution || 'merge',
-          retryAttempts: storageState.config.retryAttempts,
-          requestTimeout: storageState.config.requestTimeout,
-        },
-      }
-
-      const response = await httpClient.patch<{ success: boolean; message: string }>(
-        '/api/v1/users/preferences',
-        updateDto
-      )
-
-      if (response.success) {
-        console.log('存储配置已同步到服务器')
-      } else {
-        console.warn('同步存储配置到服务器失败')
-      }
+      console.log('存储配置同步已跳过（后端已移除 storageConfig 字段）')
     } catch (error) {
       console.error('同步存储配置到服务器时发生错误:', error)
       // 不抛出错误，因为本地保存已经成功

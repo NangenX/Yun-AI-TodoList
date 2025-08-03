@@ -56,7 +56,6 @@ export interface SyncConfig {
   batchSize: number
   retryAttempts: number
   retryDelay: number
-  enableConflictResolution: boolean
 }
 
 /**
@@ -67,7 +66,6 @@ const DEFAULT_SYNC_CONFIG: SyncConfig = {
   batchSize: 50,
   retryAttempts: 3,
   retryDelay: 1000,
-  enableConflictResolution: true,
 }
 
 /**
