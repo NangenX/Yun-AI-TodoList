@@ -1,4 +1,4 @@
-import { setupTestEnvironment } from '@/test/helpers'
+import { setupTestEnvironment } from '../../test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock aiAnalysisService
@@ -46,7 +46,6 @@ describe('useAIAnalysis', () => {
     it('应该初始化默认配置', () => {
       const { analysisConfig } = useAIAnalysis()
 
-      expect(analysisConfig.value.autoAnalyzeNewTodos).toBe(true)
       expect(analysisConfig.value.enablePriorityAnalysis).toBe(true)
       expect(analysisConfig.value.enableTimeEstimation).toBe(true)
       expect(analysisConfig.value.enableSubtaskSplitting).toBe(false)

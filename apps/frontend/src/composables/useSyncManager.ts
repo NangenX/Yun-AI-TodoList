@@ -55,6 +55,9 @@ export function useSyncManager() {
     return '较差'
   })
 
+  // 存储网络监听器的清理函数
+  let networkListenersCleanup: (() => void) | null = null
+
   /**
    * 初始化网络状态管理器
    */
@@ -68,7 +71,7 @@ export function useSyncManager() {
       }
 
       // 设置网络状态监听
-      setupNetworkListeners()
+      networkListenersCleanup = setupNetworkListeners()
 
       // 开始定期健康检查
       startHealthCheck()
@@ -77,7 +80,6 @@ export function useSyncManager() {
       await checkServerHealth()
 
       globalNetworkState.isInitialized = true
-      console.log('网络状态管理器初始化成功')
     } catch (error) {
       console.error('Failed to initialize network manager:', error)
       throw error
@@ -155,11 +157,13 @@ export function useSyncManager() {
   /**
    * 设置网络状态监听器
    */
-  const setupNetworkListeners = (): void => {
+  const setupNetworkListeners = (): (() => void) => {
     const handleOnline = () => {
       isOnline.value = true
       globalNetworkState.networkStatus.isOnline = true
-      console.log('网络已连接')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('网络已连接')
+      }
       // 网络恢复时立即检查服务器健康状态
       checkServerHealth()
     }
@@ -169,17 +173,19 @@ export function useSyncManager() {
       globalNetworkState.networkStatus.isOnline = false
       globalNetworkState.networkStatus.isServerReachable = false
       globalNetworkState.networkStatus.consecutiveFailures++
-      console.log('网络已断开')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('网络已断开')
+      }
     }
 
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    // 清理函数
-    onUnmounted(() => {
+    // 返回清理函数，而不是在这里直接使用 onUnmounted
+    return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
-    })
+    }
   }
 
   /**
@@ -188,6 +194,12 @@ export function useSyncManager() {
   const destroy = (): void => {
     // 停止健康检查
     stopHealthCheck()
+
+    // 清理网络监听器
+    if (networkListenersCleanup) {
+      networkListenersCleanup()
+      networkListenersCleanup = null
+    }
 
     // 重置状态
     globalNetworkState.isInitialized = false

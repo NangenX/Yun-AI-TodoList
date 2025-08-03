@@ -48,7 +48,6 @@ import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
 import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAISidebar } from './composables/useAISidebar'
 import { useAppState } from './composables/useAppState'
-import { useAuth } from './composables/useAuth'
 import { useTheme } from './composables/useTheme'
 import { useToast } from './composables/useToast'
 import { getPlatformClasses } from './utils/platform'
@@ -57,8 +56,7 @@ const { theme, systemTheme, initTheme } = useTheme()
 
 const { showApiKeyReminder, closeReminder, goToSettings } = useAppState()
 
-// 认证状态管理
-const { initAuth } = useAuth()
+// 认证状态管理已在 main.ts 中初始化
 
 // AI 侧边栏状态管理
 const {
@@ -90,8 +88,7 @@ onMounted(() => {
     // 初始化主题
     initTheme()
 
-    // 初始化认证状态（恢复登录状态）
-    initAuth()
+    // 认证状态已在 main.ts 中初始化，无需重复调用
 
     // 设置 Toast 实例
     if (toastRef.value) {

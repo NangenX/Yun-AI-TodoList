@@ -81,7 +81,6 @@ export function useStorageMode() {
       await updateNetworkStatus()
 
       storageState.isInitialized = true
-      console.log('Cloud storage initialized successfully')
     } catch (error) {
       console.error('Failed to initialize cloud storage:', error)
       throw error // 纯云端模式下，初始化失败应该抛出错误

@@ -7,7 +7,7 @@ type SupportedLocale = 'en' | 'zh'
 // 用户偏好设置管理器接口
 interface UserPreferencesManager {
   isReady?: { value: boolean }
-  updatePreferences: (preferences: { language: SupportedLocale }) => Promise<void>
+  updatePreferences: (preferences: { language: SupportedLocale }) => Promise<boolean>
 }
 
 // 用户偏好设置管理器（延迟导入避免循环依赖）

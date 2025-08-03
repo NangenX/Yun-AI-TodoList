@@ -18,8 +18,10 @@ let deferredPrompt: BeforeInstallPromptEvent | null = null
 
 // 监听安装提示事件
 window.addEventListener('beforeinstallprompt', (e: Event) => {
-  // 阻止默认的安装提示
-  e.preventDefault()
+  // 只在生产环境中阻止默认的安装提示，避免开发环境警告
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    e.preventDefault()
+  }
   deferredPrompt = e as BeforeInstallPromptEvent
   canInstall.value = true
   logger.info('PWA 安装提示已准备就绪', undefined, 'PWA')

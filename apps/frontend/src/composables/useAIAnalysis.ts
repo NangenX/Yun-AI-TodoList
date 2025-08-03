@@ -95,8 +95,10 @@ export function useAIAnalysis() {
         }
         localAnalysisConfig.value = fullConfig
         saveAnalysisConfig(fullConfig)
+        console.log('AI analysis config synced from preferences:', fullConfig)
       }
-    }
+    },
+    { immediate: true, deep: true }
   )
 
   // 分析功能开关

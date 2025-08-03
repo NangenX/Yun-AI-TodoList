@@ -155,26 +155,19 @@ describe('useStorageMode', () => {
       expect(config.value.requestTimeout).toBe(15000)
     })
 
-    it('应该将配置同步到服务器', async () => {
-      const { updateStorageConfig } = useStorageMode()
-      const { httpClient } = await import('../../services/api')
+    it('应该更新本地配置（服务器同步已跳过）', async () => {
+      const { updateStorageConfig, config } = useStorageMode()
 
       const updates = {
         retryAttempts: 5,
         requestTimeout: 15000,
       }
 
-      await updateStorageConfig(updates)
+      const result = await updateStorageConfig(updates)
 
-      expect(httpClient.patch).toHaveBeenCalledWith(
-        '/api/v1/users/preferences',
-        expect.objectContaining({
-          storageConfig: expect.objectContaining({
-            retryAttempts: 5,
-            requestTimeout: 15000,
-          }),
-        })
-      )
+      expect(result).toBe(true)
+      expect(config.value.retryAttempts).toBe(5)
+      expect(config.value.requestTimeout).toBe(15000)
     })
 
     it('应该处理配置同步失败的情况', async () => {

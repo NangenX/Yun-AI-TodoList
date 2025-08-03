@@ -38,7 +38,7 @@ async function initializeApp() {
     const { useAuth } = await import('./composables/useAuth')
     const { useUserPreferences } = await import('./composables/useUserPreferences')
 
-    const { initAuth, isAuthenticated } = useAuth()
+    const { initAuth } = useAuth()
     const userPreferences = useUserPreferences()
 
     // 设置 i18n 的用户偏好设置管理器
@@ -47,13 +47,10 @@ async function initializeApp() {
     // 初始化认证状态
     await initAuth()
 
-    // 如果用户已认证，初始化用户偏好设置
-    if (isAuthenticated.value) {
-      await userPreferences.initialize()
-      logger.info('用户偏好设置已初始化', undefined, 'App')
-    }
+    // 用户偏好设置会通过 watch 监听器自动初始化
+    // logger.info('认证状态已初始化', undefined, 'App')
 
-    logger.info('应用初始化完成', undefined, 'App')
+    // logger.info('应用初始化完成', undefined, 'App')
   } catch (error) {
     logger.error('应用初始化失败', error, 'App')
   }

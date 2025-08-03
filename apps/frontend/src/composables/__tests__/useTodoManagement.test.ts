@@ -1,4 +1,4 @@
-import { setupTestEnvironment } from '@/test/helpers'
+import { setupTestEnvironment } from '../../test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/composables/useTodos', () => ({
@@ -24,6 +24,15 @@ vi.mock('vue-i18n', () => ({
   })),
 }))
 
+// Mock Vue 生命周期钩子以避免测试警告
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    onUnmounted: vi.fn(),
+  }
+})
+
 import { useTodoManagement } from '../useTodoManagement'
 
 describe('useTodoManagement', () => {
@@ -36,9 +45,9 @@ describe('useTodoManagement', () => {
     testEnv = setupTestEnvironment()
     vi.clearAllMocks()
 
-    const { useTodos } = await import('@/composables/useTodos')
-    const { useErrorHandler } = await import('@/composables/useErrorHandler')
-    const { getAIResponse } = await import('@/services/deepseekService')
+    const { useTodos } = await import('../useTodos')
+    const { useErrorHandler } = await import('../useErrorHandler')
+    const { getAIResponse } = await import('../../services/deepseekService')
 
     mockUseTodos = useTodos as any
     mockUseErrorHandler = useErrorHandler as any

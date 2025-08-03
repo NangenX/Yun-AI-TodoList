@@ -32,6 +32,15 @@ vi.mock('vue-i18n', async () => {
   }
 })
 
+// Mock Vue 生命周期钩子以避免测试警告
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    onUnmounted: vi.fn(),
+  }
+})
+
 describe('useTodoManagement - sortActiveTodosWithAI', () => {
   let mockUseTodos: any
   let mockUseErrorHandler: any

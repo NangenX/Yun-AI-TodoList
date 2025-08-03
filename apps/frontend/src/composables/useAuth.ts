@@ -3,8 +3,8 @@
  * 管理用户登录状态、令牌存储、自动登录等功能
  */
 
-import { reactive, readonly, toRef } from 'vue'
 import type { AuthResponse, CreateUserDto, LoginDto, PublicUser } from '@shared/types'
+import { reactive, readonly, toRef } from 'vue'
 import { authApi } from '../services/authApi'
 import { tokenManager } from '../utils/tokenManager'
 
@@ -89,7 +89,6 @@ export function useAuth() {
           authState.user = user
           authState.isAuthenticated = true
 
-          console.log('Auth state loaded from storage')
           return true
         } else {
           // 令牌过期，清除状态
@@ -123,15 +122,7 @@ export function useAuth() {
 
       console.log('Auth state saved to storage')
 
-      // 异步初始化用户偏好设置
-      try {
-        const { useUserPreferences } = await import('./useUserPreferences')
-        const { initialize } = useUserPreferences()
-        await initialize()
-        console.log('User preferences initialized')
-      } catch (error) {
-        console.warn('Failed to initialize user preferences:', error)
-      }
+      // 用户偏好设置会通过监听器自动初始化，无需手动调用
     } catch (error) {
       console.error('Failed to save auth state:', error)
     }

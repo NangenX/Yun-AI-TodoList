@@ -1,4 +1,4 @@
-import { setupTestEnvironment } from '@/test/helpers'
+import { setupTestEnvironment } from '../../test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useTodoManagement } from '../useTodoManagement'
 
@@ -33,6 +33,15 @@ vi.mock('vue-i18n', () => ({
     },
   })),
 }))
+
+// Mock Vue 生命周期钩子以避免测试警告
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    onUnmounted: vi.fn(),
+  }
+})
 
 describe('useTodoManagement - 简化测试', () => {
   let testEnv: ReturnType<typeof setupTestEnvironment>

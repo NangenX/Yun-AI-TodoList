@@ -111,19 +111,9 @@ onMounted(() => {
   // 监听网络状态变化，智能启动/停止定时器
   watch(
     () => networkStatus.value.lastCheckTime,
-    (newTime, oldTime) => {
-      // 只在开发环境且值真正发生有意义变化时才输出日志
-      if (import.meta.env.DEV && newTime !== oldTime && (newTime || oldTime)) {
-        console.warn('[NetworkStatusIndicator] lastCheckTime changed:', {
-          old: oldTime,
-          new: newTime,
-        })
-      }
-
+    (newTime) => {
+      // 移除过多的调试日志输出
       if (newTime && !isCheckingConnection.value) {
-        if (import.meta.env.DEV) {
-          console.warn('[NetworkStatusIndicator] Starting update timer for notification auto-hide')
-        }
         startUpdateTimer()
       }
     },
@@ -238,22 +228,7 @@ const isRecentCheck = computed(() => {
 
     const shouldShow = timeSinceCheck < hideDelay
 
-    // 调试信息：通知状态变化
-    if (import.meta.env.DEV) {
-      if (!shouldShow && timeSinceCheck >= hideDelay) {
-        console.warn('[NetworkStatusIndicator] Notification hiding:', {
-          timeSinceCheck,
-          hideDelay,
-          hasError: !networkStatus.value.isOnline || !networkStatus.value.isServerReachable,
-        })
-      } else if (shouldShow) {
-        console.warn('[NetworkStatusIndicator] Notification showing:', {
-          timeSinceCheck,
-          hideDelay,
-          hasError: !networkStatus.value.isOnline || !networkStatus.value.isServerReachable,
-        })
-      }
-    }
+    // 移除过多的调试日志输出
 
     return shouldShow
   } catch (error) {

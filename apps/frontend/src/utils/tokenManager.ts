@@ -138,10 +138,8 @@ class TokenManager {
         this.performAutoRefresh()
       }, timeUntilRefresh)
 
-      // Token refresh scheduled - using console.group for debugging
-      console.group('Token Management')
-      console.warn(`Token refresh scheduled in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`)
-      console.groupEnd()
+      // Token refresh scheduled - reduced logging for cleaner console
+      // console.log(`Token refresh scheduled in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`)
     } else {
       // 令牌即将过期或已过期，立即刷新
       this.performAutoRefresh()
