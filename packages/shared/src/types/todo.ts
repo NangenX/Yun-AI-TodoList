@@ -107,25 +107,5 @@ export interface TodoListResponse {
   nextCursor?: string
 }
 
-// 用户设置相关类型
-export interface UserSetting {
-  id: string
-  userId: string
-  key: string
-  value: string
-  createdAt: string
-  updatedAt: string
-  // 双重存储支持
-  synced?: boolean
-  lastSyncTime?: string
-  syncError?: string
-}
-
-export interface CreateUserSettingDto {
-  key: string
-  value: string
-}
-
-export interface UpdateUserSettingDto {
-  value: string
-}
+// 用户设置相关类型已迁移到 UserPreferences 表，此处保留注释作为历史记录
+// UserSetting 接口已废弃，请使用 user.ts 中的 UserPreferences

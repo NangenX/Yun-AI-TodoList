@@ -12,12 +12,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env.test') })
 // Export request for use in test files
 export { request }
 
-// Jest globals
-declare global {
-  const beforeAll: (fn: () => Promise<void>) => void
-  const afterAll: (fn: () => Promise<void>) => void
-  const beforeEach: (fn: () => Promise<void>) => void
-}
+// Jest globals are provided by @types/jest
 
 export let app: INestApplication
 export let prisma: PrismaService
@@ -65,7 +60,6 @@ async function cleanupDatabase(): Promise<void> {
   // For SQLite, we need to delete from tables individually
   try {
     // Delete in order to respect foreign key constraints
-    await prisma.userSetting.deleteMany()
     await prisma.todo.deleteMany()
     await prisma.user.deleteMany()
   } catch (error) {

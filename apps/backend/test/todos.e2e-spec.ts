@@ -90,7 +90,6 @@ describe('Todos (e2e)', () => {
 
   beforeAll(async () => {
     // 在 Todo 测试套件开始前清理数据库
-    await prisma.userSetting.deleteMany()
     await prisma.todo.deleteMany()
     await prisma.user.deleteMany()
 

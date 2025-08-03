@@ -4,7 +4,6 @@ import { app, prisma } from './setup'
 describe('Authentication (e2e)', () => {
   // 在认证测试套件开始前清理数据库
   beforeAll(async () => {
-    await prisma.userSetting.deleteMany()
     await prisma.todo.deleteMany()
     await prisma.user.deleteMany()
   })

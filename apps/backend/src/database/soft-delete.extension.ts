@@ -4,7 +4,7 @@ import { Prisma, PrismaClient } from '@prisma/client'
 // 软删除中间件
 export const softDeleteMiddleware: Prisma.Middleware = async (params, next) => {
   // 需要软删除过滤的模型
-  const softDeleteModels = ['user', 'todo', 'document', 'userSetting']
+  const softDeleteModels = ['user', 'todo']
 
   if (softDeleteModels.includes(params.model?.toLowerCase() || '')) {
     if (params.action === 'delete') {
@@ -53,13 +53,7 @@ SELECT * FROM users WHERE deleted_at IS NULL;
 CREATE OR REPLACE VIEW active_todos AS
 SELECT * FROM todos WHERE deleted_at IS NULL;
 
--- 创建活跃文档视图
-CREATE OR REPLACE VIEW active_documents AS
-SELECT * FROM documents WHERE deleted_at IS NULL;
-
--- 创建活跃用户设置视图
-CREATE OR REPLACE VIEW active_user_settings AS
-SELECT * FROM user_settings WHERE deleted_at IS NULL;
+-- 注意：documents 和 user_settings 表不存在，已移除相关视图
 
 -- 为视图创建规则，使其可更新
 CREATE OR REPLACE RULE active_users_insert AS
