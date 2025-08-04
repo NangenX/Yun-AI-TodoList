@@ -291,7 +291,10 @@ describe('AI 对话功能高级测试', () => {
 
   describe('性能测试', () => {
     it('应该能够处理大量消息历史', async () => {
-      const { chatHistory, sendMessage, userMessage } = useChat()
+      const { chatHistory, sendMessage, userMessage, createNewConversation } = useChat()
+
+      // 先创建一个对话，确保有 currentConversationId
+      createNewConversation('性能测试对话', true)
 
       // 预填充大量历史消息
       for (let i = 0; i < 100; i++) {
