@@ -56,14 +56,6 @@
             <div
               class="flex items-center gap-1 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-lg shadow-lg p-1"
             >
-              <!-- 编辑按钮 -->
-              <button
-                class="edit-button flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer bg-gray-100/80 hover:bg-gray-200/90 dark:bg-gray-700/80 dark:hover:bg-gray-600/90 border border-gray-300/50 hover:border-gray-400/70 dark:border-gray-600/50 dark:hover:border-gray-500/70 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-sm shadow-sm hover:shadow-md"
-                :title="t('editMessage')"
-                @click="startEdit"
-              >
-                <EditIcon class="w-4 h-4" />
-              </button>
               <!-- 复制按钮 -->
               <EnhancedCopyButton
                 :text="message.content"
@@ -72,6 +64,22 @@
                 @copy-success="handleCopySuccess"
                 @copy-error="handleCopyError"
               />
+              <!-- 重试按钮 -->
+              <button
+                class="retry-button flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 hover:border-orange-500/40 text-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-sm shadow-sm hover:shadow-md"
+                :title="'重试上一个请求'"
+                @click="handleRetry"
+              >
+                <RefreshIcon class="w-4 h-4" />
+              </button>
+              <!-- 编辑按钮 -->
+              <button
+                class="edit-button flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer bg-gray-100/80 hover:bg-gray-200/90 dark:bg-gray-700/80 dark:hover:bg-gray-600/90 border border-gray-300/50 hover:border-gray-400/70 dark:border-gray-600/50 dark:hover:border-gray-500/70 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-sm shadow-sm hover:shadow-md"
+                :title="t('editMessage')"
+                @click="startEdit"
+              >
+                <EditIcon class="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -120,17 +128,6 @@
                 <path d="m19 9-5 5-4-4-3 3" />
               </svg>
             </button>
-            <!-- 重试按钮 -->
-            <RetryButton
-              v-if="message.role === 'assistant'"
-              :is-retrying="props.isRetrying"
-              :retry-count="props.retryCount"
-              :has-error="props.hasError"
-              size="sm"
-              variant="minimal"
-              @retry="handleRetry"
-              @retry-start="handleRetry"
-            />
           </div>
         </div>
       </div>
@@ -143,6 +140,7 @@ import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import EditIcon from '../common/icons/EditIcon.vue'
 import LoadingIcon from '../common/icons/LoadingIcon.vue'
+import RefreshIcon from '../common/icons/RefreshIcon.vue'
 import EnhancedCopyButton from './EnhancedCopyButton.vue'
 import RetryButton from './RetryButton.vue'
 
