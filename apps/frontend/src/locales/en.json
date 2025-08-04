@@ -136,6 +136,8 @@
   "sortAlphabetically": "Sort Alphabetically",
   "addTodoError": "Failed to add todo, please try again",
   "dragToResize": "Drag to resize, double-click to reset",
+  "dragDisabled": "Drag is disabled when sorting by AI priority",
+
   "generateSuggestionsPrompt": "Please generate 5 practical todo suggestions covering work, study, life and other aspects. Each suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line.",
   "generateSuggestionsWithHistoryPrompt": "Please generate 5 todo suggestions.\n\nMy completed related tasks:\n{completedTodos}\n\nPlease generate according to the following requirements:\n1. Analyze my interests and needs from my history\n2. Generate 5 practical todo suggestions\n\nEach suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line, total 5 suggestions.",
 

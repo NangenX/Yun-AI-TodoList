@@ -338,11 +338,11 @@ ${todoTexts}
 3. 没有重复的数字
 4. 只包含数字和逗号，不要包含其他字符`
 
-      logger.info('Sending AI request for sorting', {}, 'TodoManagement')
+      logger.debug('Sending AI request for sorting', {}, 'TodoManagement')
       const aiResponse = await getAIResponse(prompt)
 
-      // 添加调试日志，查看 AI 实际返回的内容
-      logger.info('AI response received', { response: aiResponse }, 'TodoManagement')
+      // 记录 AI 响应（仅在调试模式下）
+      logger.debug('AI response received', { response: aiResponse }, 'TodoManagement')
 
       // 改进的解析逻辑，支持多种格式
       let sortedIndices: number[] = []
@@ -352,35 +352,23 @@ ${todoTexts}
       const allNumbers = aiResponse.match(/\d+/g)?.map((num) => parseInt(num)) || []
       const validNumbers = allNumbers.filter((num) => num >= 1 && num <= activeTodos.length)
 
-      // 添加调试日志，查看方式1解析过程
-      logger.info('Method 1 parsing process', { allNumbers, validNumbers }, 'TodoManagement')
-
       // 检查是否有足够的有效数字，并且没有重复
       if (
         validNumbers.length === activeTodos.length &&
         new Set(validNumbers).size === activeTodos.length
       ) {
         sortedIndices = validNumbers.map((num) => num - 1)
+        logger.debug('Method 1 parsing successful', { sortedIndices }, 'TodoManagement')
       }
-
-      // 添加调试日志，查看方式1解析结果
-      logger.info('Method 1 parsing result', { sortedIndices }, 'TodoManagement')
 
       // 方式2：清理响应后直接匹配数字序列
       if (sortedIndices.length === 0) {
         const cleanResponse = aiResponse.replace(/[^\d,，\s]/g, '').trim()
 
-        // 添加调试日志，查看清理后的响应
-        logger.info(
-          'Cleaned AI response',
-          { cleanResponse, originalLength: aiResponse.length, cleanLength: cleanResponse.length },
-          'TodoManagement'
-        )
-
         const directMatch = cleanResponse.match(/^[\d,，\s]+$/)
-        logger.info(
-          'Direct match result',
-          { directMatch, hasMatch: !!directMatch },
+        logger.debug(
+          'Method 2: Direct match attempt',
+          { cleanResponse, hasMatch: !!directMatch },
           'TodoManagement'
         )
 
@@ -391,8 +379,7 @@ ${todoTexts}
             .filter((num) => !isNaN(num) && num >= 1 && num <= activeTodos.length)
             .map((num) => num - 1)
 
-          // 添加调试日志，查看方式2解析结果
-          logger.info('Method 2 parsing result', { sortedIndices }, 'TodoManagement')
+          logger.debug('Method 2 parsing successful', { sortedIndices }, 'TodoManagement')
         }
       }
 
@@ -401,17 +388,14 @@ ${todoTexts}
         const allNumbers = aiResponse.match(/\d+/g)?.map((num) => parseInt(num)) || []
         const validNumbers = allNumbers.filter((num) => num >= 1 && num <= activeTodos.length)
 
-        // 添加调试日志，查看方式3解析过程
-        logger.info('Method 3 parsing process', { allNumbers, validNumbers }, 'TodoManagement')
+        logger.debug('Method 3: Fallback number extraction', { validNumbers }, 'TodoManagement')
 
         // 去重并保持顺序
         const uniqueNumbers = [...new Set(validNumbers)]
         if (uniqueNumbers.length === activeTodos.length) {
           sortedIndices = uniqueNumbers.map((num) => num - 1)
+          logger.debug('Method 3 parsing successful', { sortedIndices }, 'TodoManagement')
         }
-
-        // 添加调试日志，查看方式3解析结果
-        logger.info('Method 3 parsing result', { sortedIndices, uniqueNumbers }, 'TodoManagement')
       }
 
       // 验证排序结果
@@ -421,13 +405,8 @@ ${todoTexts}
         sortedIndices.every((index) => index >= 0 && index < activeTodos.length)
       ) {
         // 应用排序
-        // 应用新的排序顺序
         const sortedTodos = sortedIndices.map((index) => activeTodos[index])
-        logger.info(
-          'Todos sorted successfully',
-          { sortedTodos: sortedTodos.map((t) => t.title) },
-          'TodoManagement'
-        )
+        logger.debug('Todos sorted successfully', { count: sortedTodos.length }, 'TodoManagement')
 
         // 构建新的排序数组，只包含活跃任务的 ID，按 AI 返回的顺序排列
         const newOrder = sortedTodos.map((todo) => todo.id)
@@ -442,13 +421,7 @@ ${todoTexts}
         const updateResult = await updateTodosOrder(finalOrder)
 
         if (updateResult) {
-          logger.info(
-            'AI sorting completed, todos array updated',
-            { todos: todos.value.map((t) => ({ id: t.id, title: t.title, order: t.order })) },
-            'TodoManagement'
-          )
-
-          // AI 排序成功完成
+          logger.info('AI sorting completed successfully', {}, 'TodoManagement')
           showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
         } else {
           logger.error('Failed to update todos order', {}, 'TodoManagement')
@@ -497,7 +470,7 @@ ${todoTexts}
         showError(t('aiSortFailed', 'AI 排序失败，请重试'))
       }
     } finally {
-      logger.info('AI sorting process completed, resetting state', {}, 'TodoManagement')
+      logger.debug('AI sorting process completed, resetting state', {}, 'TodoManagement')
       isSorting.value = false
     }
   }
@@ -505,8 +478,8 @@ ${todoTexts}
   const handleAddTodo = async (text: string, skipSplitAnalysis = false) => {
     // 添加调用栈信息来调试双重请求
     const stack = new Error().stack
-    logger.info(
-      '🔍 handleAddTodo called',
+    logger.debug(
+      'handleAddTodo called',
       {
         text,
         skipSplitAnalysis,
@@ -546,8 +519,6 @@ ${todoTexts}
 
     // 设置加载状态
     isGenerating.value = true
-
-    logger.info('Adding todo with text', { text }, 'TodoManagement')
 
     try {
       // 创建 todo 数据，默认设置 dueDate 为今天
@@ -597,13 +568,7 @@ ${todoTexts}
       return { needsSplitting: false }
     }
 
-    logger.info('Todo added successfully', { result }, 'TodoManagement')
-
-    logger.info(
-      'Todo added successfully, checking auto analysis config',
-      { autoAnalyze: isAIAnalysisEnabled.value },
-      'TodoManagement'
-    )
+    // Todo 添加成功，继续处理
 
     // 如果启用了任何 AI 分析功能，则自动触发 AI 分析
     if (isAIAnalysisEnabled.value) {
@@ -613,21 +578,14 @@ ${todoTexts}
           .filter((todo) => !todo.completed && !todo.aiAnalyzed)
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
 
-        logger.info('Found new todo for analysis', { todoId: newTodo?.id }, 'TodoManagement')
-
         if (newTodo) {
-          logger.info('Starting auto AI analysis', {}, 'TodoManagement')
           // 异步执行 AI 分析，不阻塞用户操作，静默处理错误
           withRetry(
             () =>
               analyzeSingleTodo(
                 newTodo,
                 (id: string, updates: Partial<Todo>) => {
-                  logger.info(
-                    'Auto analysis completed, updating todo',
-                    { id, updates },
-                    'TodoManagement'
-                  )
+                  // 自动分析完成，更新 todo
                   // 使用专门的 AI 分析更新函数
                   updateTodoAIAnalysis(id, {
                     priority: updates.priority,
@@ -647,15 +605,11 @@ ${todoTexts}
             )
             // 不更新任何字段，保持 Todo 的原始状态
           })
-        } else {
-          logger.info('No new todo found for analysis', {}, 'TodoManagement')
         }
       } catch (error) {
         // 分析失败时静默处理，不影响任务添加
         logger.warn('Error in auto AI analysis', error, 'TodoManagement')
       }
-    } else {
-      logger.info('AI analysis features are disabled', {}, 'TodoManagement')
     }
 
     return { needsSplitting: false }

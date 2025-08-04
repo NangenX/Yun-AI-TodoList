@@ -133,6 +133,8 @@
   "sortAlphabetically": "按字母顺序排序",
   "addTodoError": "添加待办事项失败，请重试",
   "dragToResize": "拖拽调整宽度，双击重置",
+  "dragDisabled": "AI 优先级排序时，拖拽功能已禁用",
+
   "generateSuggestionsPrompt": "请为我生成5个实用的待办事项建议，涵盖工作、学习、生活等不同方面。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。",
   "generateSuggestionsWithHistoryPrompt": "请为我生成5个待办事项建议。\n\n我已完成的相关任务：\n{completedTodos}\n\n请按以下要求生成：\n1. 从我的历史记录中分析我的兴趣和需求\n2. 生成5个实用的待办事项建议\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。",
 

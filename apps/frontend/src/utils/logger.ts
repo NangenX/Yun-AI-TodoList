@@ -124,12 +124,12 @@ class Logger {
     switch (entry.level) {
       case LogLevel.DEBUG:
         if (this.isDevelopment) {
-          console.warn(`[DEBUG] ${message}`, entry.data || '')
+          console.debug(`[DEBUG] ${message}`, entry.data || '')
         }
         break
       case LogLevel.INFO:
         if (this.isDevelopment) {
-          console.warn(`[INFO] ${message}`, entry.data || '')
+          console.info(`[INFO] ${message}`, entry.data || '')
         }
         break
       case LogLevel.WARN:
