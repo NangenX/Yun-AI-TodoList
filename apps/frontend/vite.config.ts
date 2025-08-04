@@ -269,6 +269,7 @@ export default defineConfig({
         'node:process',
         'child_process',
         'cross-spawn',
+        'debug',
       ],
       output: {
         assetFileNames: (assetInfo) => {
