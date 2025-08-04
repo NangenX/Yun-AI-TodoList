@@ -4,12 +4,14 @@ import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import { ThemeValue } from '@shared/types/user'
 import { ChangePasswordDto } from './dto/change-password.dto'
+import { UserPreferencesService } from './user-preferences.service'
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utilsService: UtilsService
+    private readonly utilsService: UtilsService,
+    private readonly userPreferencesService: UserPreferencesService
   ) {}
 
   async create(
@@ -101,24 +103,33 @@ export class UsersService {
       // 分离 preferences 和其他字段
       const { preferences, ...userData } = updateUserDto
 
+      // 更新用户基本信息
       const prismaUser = await this.prisma.user.update({
         where: { id },
-        data: {
-          ...userData,
-          // 如果有 preferences 更新，使用 upsert 操作
-          ...(preferences && {
-            preferences: {
-              upsert: {
-                create: preferences,
-                update: preferences,
-              },
-            },
-          }),
-        },
+        data: userData,
         include: {
           preferences: true,
         },
       })
+
+      // 如果有偏好设置更新，使用 UserPreferencesService 处理
+      if (preferences) {
+        await this.updateUserPreferences(id, preferences)
+        // 重新获取更新后的用户数据
+        const updatedUser = await this.prisma.user.findUnique({
+          where: { id },
+          include: {
+            preferences: true,
+          },
+        })
+        if (updatedUser) {
+          return this.mapPrismaUserToUser(
+            updatedUser as Record<string, unknown> & {
+              preferences?: Record<string, unknown> | null
+            }
+          )
+        }
+      }
 
       return this.mapPrismaUserToUser(
         prismaUser as Record<string, unknown> & { preferences?: Record<string, unknown> | null }
@@ -127,6 +138,33 @@ export class UsersService {
       throw new Error(
         `Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`
       )
+    }
+  }
+
+  /**
+   * 更新用户偏好设置
+   */
+  private async updateUserPreferences(userId: string, preferences: Partial<any>): Promise<void> {
+    // 处理主题和语言设置
+    if (preferences.theme || preferences.language) {
+      await this.userPreferencesService.updateThemeAndLanguage(userId, {
+        theme: preferences.theme,
+        language: preferences.language,
+      })
+    }
+
+    // 处理 AI 分析配置
+    if (preferences.aiAnalysisConfig) {
+      await this.userPreferencesService.updateAIAnalysisConfig(userId, {
+        enablePriorityAnalysis: preferences.aiAnalysisConfig.enablePriorityAnalysis,
+        enableTimeEstimation: preferences.aiAnalysisConfig.enableTimeEstimation,
+        enableSubtaskSplitting: preferences.aiAnalysisConfig.enableSubtaskSplitting,
+      })
+    }
+
+    // 处理系统提示词
+    if (preferences.systemPrompts !== undefined) {
+      await this.userPreferencesService.updateSystemPrompts(userId, preferences.systemPrompts)
     }
   }
 
@@ -160,6 +198,20 @@ export class UsersService {
   ): User {
     const prefs = prismaUser.preferences || {}
 
+    // 处理 systemPrompts JSON 字段
+    let systemPrompts: any[] = []
+    if (prefs.systemPrompts) {
+      try {
+        const parsed = Array.isArray(prefs.systemPrompts)
+          ? prefs.systemPrompts
+          : JSON.parse(prefs.systemPrompts as string)
+        systemPrompts = Array.isArray(parsed) ? parsed : []
+      } catch (error) {
+        console.warn('解析 systemPrompts 失败，使用空数组', error)
+        systemPrompts = []
+      }
+    }
+
     return {
       id: prismaUser.id as string,
       email: prismaUser.email as string,
@@ -174,6 +226,7 @@ export class UsersService {
           enableTimeEstimation: (prefs.enableTimeEstimation as boolean) ?? true,
           enableSubtaskSplitting: (prefs.enableSubtaskSplitting as boolean) ?? false,
         },
+        systemPrompts,
       },
       createdAt: (prismaUser.createdAt as Date).toISOString(),
       updatedAt: (prismaUser.updatedAt as Date).toISOString(),

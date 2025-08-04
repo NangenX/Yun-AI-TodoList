@@ -43,4 +43,31 @@ export class UserPreferencesController {
   ): Promise<UserPreferences> {
     return this.userPreferencesService.updateAIAnalysisConfig(user.id, aiAnalysisConfig)
   }
+
+  @Patch('system-prompts')
+  @ApiOperation({ summary: '更新用户系统提示词列表' })
+  @ApiResponse({ status: 200, description: '更新成功' })
+  async updateSystemPrompts(@CurrentUser() user: User, @Body() systemPrompts: any[]) {
+    const updatedPreferences = await this.userPreferencesService.updateSystemPrompts(
+      user.id,
+      systemPrompts
+    )
+    return {
+      success: true,
+      data: updatedPreferences,
+      timestamp: new Date().toISOString(),
+    }
+  }
+
+  @Get('system-prompts')
+  @ApiOperation({ summary: '获取用户系统提示词列表' })
+  @ApiResponse({ status: 200, description: '获取成功' })
+  async getSystemPrompts(@CurrentUser() user: User) {
+    const systemPrompts = await this.userPreferencesService.getUserSystemPrompts(user.id)
+    return {
+      success: true,
+      data: systemPrompts,
+      timestamp: new Date().toISOString(),
+    }
+  }
 }

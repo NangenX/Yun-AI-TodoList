@@ -39,6 +39,18 @@ export interface PublicUser {
   updatedAt: string
 }
 
+// 系统提示词类型定义
+export interface SystemPrompt {
+  id: string
+  name: string
+  content: string
+  isActive: boolean
+  isDefault?: boolean
+  createdAt: string
+  updatedAt: string
+  tags?: string[]
+}
+
 export interface UserPreferences {
   theme: ThemeValue
   language: 'zh' | 'en'
@@ -47,6 +59,7 @@ export interface UserPreferences {
     enableTimeEstimation: boolean
     enableSubtaskSplitting: boolean
   }
+  systemPrompts?: SystemPrompt[] // 用户的系统提示词列表
 }
 
 export interface CreateUserDto {

@@ -171,6 +171,15 @@ const formData = ref({
 const errors = ref<Record<string, string>>({})
 const isEnhancing = ref(false)
 
+// 重置表单
+const resetForm = () => {
+  formData.value = {
+    name: '',
+    content: '',
+  }
+  errors.value = {}
+}
+
 // 计算属性
 const isFormValid = computed(() => {
   return formData.value.name.trim() && formData.value.content.trim()
@@ -204,15 +213,6 @@ watch(
     }
   }
 )
-
-// 重置表单
-const resetForm = () => {
-  formData.value = {
-    name: '',
-    content: '',
-  }
-  errors.value = {}
-}
 
 // 验证表单
 const validateForm = (): boolean => {

@@ -205,6 +205,37 @@ export class UserPreferencesService {
   }
 
   // ==========================================
+  // 系统提示词管理
+  // ==========================================
+
+  /**
+   * 更新用户系统提示词列表
+   */
+  async updateSystemPrompts(userId: string, systemPrompts: any[]): Promise<UserPreferences> {
+    try {
+      this.logger.debug(`更新用户系统提示词: ${userId}`, { count: systemPrompts.length })
+
+      const preferences = await this.updatePreferences(userId, {
+        systemPrompts: JSON.stringify(systemPrompts),
+      })
+
+      this.logger.log(`成功更新用户 ${userId} 的系统提示词，共 ${systemPrompts.length} 个`)
+      return preferences
+    } catch (error) {
+      this.logger.error(`更新系统提示词失败: ${userId}`, error)
+      throw error
+    }
+  }
+
+  /**
+   * 获取用户系统提示词列表
+   */
+  async getUserSystemPrompts(userId: string): Promise<any[]> {
+    const preferences = await this.findByUserId(userId)
+    return preferences?.systemPrompts || []
+  }
+
+  // ==========================================
   // 批量更新方法
   // ==========================================
 
@@ -272,6 +303,21 @@ export class UserPreferencesService {
     prismaPrefs: Record<string, unknown>
   ): UserPreferences {
     const language = prismaPrefs.language as string
+    let systemPrompts: any[] = []
+
+    // 处理 systemPrompts JSON 字段
+    if (prismaPrefs.systemPrompts) {
+      try {
+        const parsed = Array.isArray(prismaPrefs.systemPrompts)
+          ? prismaPrefs.systemPrompts
+          : JSON.parse(prismaPrefs.systemPrompts as string)
+        systemPrompts = Array.isArray(parsed) ? parsed : []
+      } catch (error) {
+        this.logger.warn('解析 systemPrompts 失败，使用空数组', error)
+        systemPrompts = []
+      }
+    }
+
     return {
       theme: (prismaPrefs.theme as ThemeValue) || 'light',
       language: (language === 'en' ? 'en' : 'zh') as 'zh' | 'en',
@@ -280,6 +326,7 @@ export class UserPreferencesService {
         enableTimeEstimation: (prismaPrefs.enableTimeEstimation as boolean) ?? true,
         enableSubtaskSplitting: (prismaPrefs.enableSubtaskSplitting as boolean) ?? false,
       },
+      systemPrompts,
     }
   }
 }

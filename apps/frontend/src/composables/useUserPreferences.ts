@@ -5,6 +5,7 @@ import {
   type UserPreferences,
   type UserPreferencesUpdateDto,
 } from '../services/userPreferencesApi'
+import { SystemPrompt } from '@shared/types'
 import { useAuth } from './useAuth'
 
 // 全局状态使用 ref
@@ -285,6 +286,53 @@ export function useUserPreferences() {
     )
   }
 
+  /**
+   * 更新用户系统提示词列表
+   */
+  const updateSystemPrompts = async (systemPrompts: SystemPrompt[]): Promise<void> => {
+    if (!isAuthenticated.value) {
+      console.warn('用户未登录，无法更新系统提示词')
+      return
+    }
+
+    try {
+      isLoading.value = true
+      syncError.value = null
+
+      const updatedPreferences = await UserPreferencesApi.updateSystemPrompts(systemPrompts)
+
+      // 更新本地状态
+      preferences.value = updatedPreferences
+
+      // 同步到本地存储
+      saveToLocalStorage(updatedPreferences)
+    } catch (err) {
+      console.error('更新系统提示词失败:', err)
+      syncError.value = err instanceof ApiError ? err.message : '更新系统提示词失败'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * 获取用户系统提示词列表
+   */
+  const getSystemPrompts = async (): Promise<SystemPrompt[]> => {
+    if (!isAuthenticated.value) {
+      console.warn('用户未登录，无法获取系统提示词')
+      return []
+    }
+
+    try {
+      return await UserPreferencesApi.getSystemPrompts()
+    } catch (err) {
+      console.error('获取系统提示词失败:', err)
+      syncError.value = err instanceof ApiError ? err.message : '获取系统提示词失败'
+      return []
+    }
+  }
+
   return {
     // 状态
     preferences: computed(() => preferences.value),
@@ -297,6 +345,8 @@ export function useUserPreferences() {
     // 方法
     initialize,
     updatePreferences,
+    updateSystemPrompts,
+    getSystemPrompts,
     refreshFromServer,
     cleanup,
   }

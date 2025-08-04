@@ -6,6 +6,8 @@ import type {
 } from '@/services/types'
 import { logger } from '@/utils/logger'
 import { computed, onMounted, ref } from 'vue'
+import { useUserPreferences } from '@/composables/useUserPreferences'
+import { useAuth } from '@/composables/useAuth'
 
 /**
  * 系统提示词管理 Composable
@@ -16,6 +18,11 @@ export function useSystemPrompts() {
   const SYSTEM_PROMPTS_KEY = 'system_prompts'
   const SYSTEM_PROMPT_CONFIG_KEY = 'system_prompt_config'
   const TODO_ASSISTANT_PROMPT_KEY = 'todo_assistant_prompt'
+
+  // 集成用户偏好设置和认证
+  const { updateSystemPrompts: updateUserSystemPrompts, getSystemPrompts: getUserSystemPrompts } =
+    useUserPreferences()
+  const { isAuthenticated } = useAuth()
 
   // 响应式状态
   const systemPrompts = ref<SystemPrompt[]>([])
@@ -155,13 +162,80 @@ export function useSystemPrompts() {
     }
   }
 
-  // 保存系统提示词
-  const saveSystemPrompts = () => {
+  // 保存系统提示词到本地存储
+  const saveSystemPromptsToLocal = () => {
     try {
       localStorage.setItem(SYSTEM_PROMPTS_KEY, JSON.stringify(systemPrompts.value))
-      logger.debug('系统提示词保存成功', { count: systemPrompts.value.length }, 'useSystemPrompts')
+      logger.debug(
+        '系统提示词本地保存成功',
+        { count: systemPrompts.value.length },
+        'useSystemPrompts'
+      )
+    } catch (error) {
+      throw new Error(handleError(error, '保存系统提示词到本地'))
+    }
+  }
+
+  // 同步系统提示词到后端
+  const syncSystemPromptsToBackend = async () => {
+    if (!isAuthenticated.value) {
+      logger.debug('用户未登录，跳过后端同步', undefined, 'useSystemPrompts')
+      return
+    }
+
+    try {
+      await updateUserSystemPrompts(systemPrompts.value)
+      logger.debug(
+        '系统提示词后端同步成功',
+        { count: systemPrompts.value.length },
+        'useSystemPrompts'
+      )
+    } catch (error) {
+      logger.error('系统提示词后端同步失败', error, 'useSystemPrompts')
+      // 后端同步失败不应该阻止本地操作
+    }
+  }
+
+  // 保存系统提示词（本地 + 后端）
+  const saveSystemPrompts = async () => {
+    try {
+      // 先保存到本地
+      saveSystemPromptsToLocal()
+      // 再同步到后端
+      await syncSystemPromptsToBackend()
     } catch (error) {
       throw new Error(handleError(error, '保存系统提示词'))
+    }
+  }
+
+  // 从后端加载系统提示词
+  const loadSystemPromptsFromBackend = async () => {
+    if (!isAuthenticated.value) {
+      logger.debug('用户未登录，跳过后端加载', undefined, 'useSystemPrompts')
+      return
+    }
+
+    try {
+      const backendPrompts = await getUserSystemPrompts()
+      if (backendPrompts && backendPrompts.length > 0) {
+        systemPrompts.value = backendPrompts.map((prompt) => ({
+          ...prompt,
+          // 确保必要字段存在
+          isActive: prompt.isActive ?? true,
+          createdAt: prompt.createdAt || new Date().toISOString(),
+          updatedAt: prompt.updatedAt || new Date().toISOString(),
+        }))
+        // 同步到本地存储
+        saveSystemPromptsToLocal()
+        logger.debug(
+          '从后端加载系统提示词成功',
+          { count: backendPrompts.length },
+          'useSystemPrompts'
+        )
+      }
+    } catch (error) {
+      logger.error('从后端加载系统提示词失败', error, 'useSystemPrompts')
+      // 后端加载失败时，继续使用本地数据
     }
   }
 
@@ -209,7 +283,7 @@ export function useSystemPrompts() {
       }
 
       systemPrompts.value.push(newPrompt)
-      saveSystemPrompts()
+      await saveSystemPrompts()
 
       logger.info(
         '系统提示词创建成功',
@@ -260,7 +334,7 @@ export function useSystemPrompts() {
       }
 
       systemPrompts.value[index] = updatedPrompt
-      saveSystemPrompts()
+      await saveSystemPrompts()
 
       logger.info('系统提示词更新成功', { id, name: updatedPrompt.name }, 'useSystemPrompts')
       return updatedPrompt
@@ -292,7 +366,7 @@ export function useSystemPrompts() {
       }
 
       systemPrompts.value.splice(index, 1)
-      saveSystemPrompts()
+      await saveSystemPrompts()
 
       logger.info('系统提示词删除成功', { id, name: prompt.name }, 'useSystemPrompts')
     } catch (error) {
@@ -453,15 +527,20 @@ export function useSystemPrompts() {
   }
 
   // 初始化
-  const initialize = () => {
+  const initialize = async () => {
     loadConfig()
     loadSystemPrompts()
     loadTodoAssistant()
+
+    // 如果用户已登录，尝试从后端加载数据
+    if (isAuthenticated.value) {
+      await loadSystemPromptsFromBackend()
+    }
   }
 
   // 组件挂载时初始化
-  onMounted(() => {
-    initialize()
+  onMounted(async () => {
+    await initialize()
   })
 
   return {
@@ -491,6 +570,10 @@ export function useSystemPrompts() {
     updateConfig,
     resetToDefault,
     initialize,
+
+    // 同步方法
+    syncSystemPromptsToBackend,
+    loadSystemPromptsFromBackend,
 
     // Todo 助手方法
     createOrUpdateTodoAssistant,
