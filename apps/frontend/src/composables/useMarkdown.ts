@@ -385,6 +385,10 @@ export function useMarkdown() {
           secondBkg: backgroundColor,
           tertiaryBkg: backgroundColor,
 
+          // 字体相关配置
+          fontFamily: fontStack,
+          fontSize: '14px',
+
           // 确保所有文字相关的颜色都使用主题文字颜色
           textColor: textColor,
           labelTextColor: textColor,
@@ -623,6 +627,17 @@ export function useMarkdown() {
             // 如果文本元素没有字体设置，添加字体样式
             if (!attributes.includes('font-family') && !attributes.includes('style="')) {
               return `<text${attributes} style="font-family: ${fontStack};">`
+            } else if (attributes.includes('style="') && !attributes.includes('font-family')) {
+              // 如果有 style 但没有 font-family，添加字体到 style 中
+              return match.replace('style="', `style="font-family: ${fontStack}; `)
+            }
+            return match
+          })
+          // 确保 SVG 内部的 tspan 元素也使用正确的字体
+          .replace(/<tspan([^>]*)>/g, (match, attributes) => {
+            // 如果 tspan 元素没有字体设置，添加字体样式
+            if (!attributes.includes('font-family') && !attributes.includes('style="')) {
+              return `<tspan${attributes} style="font-family: ${fontStack};">`
             } else if (attributes.includes('style="') && !attributes.includes('font-family')) {
               // 如果有 style 但没有 font-family，添加字体到 style 中
               return match.replace('style="', `style="font-family: ${fontStack}; `)
