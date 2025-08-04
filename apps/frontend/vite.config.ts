@@ -229,8 +229,11 @@ export default defineConfig({
       '@shared': fileURLToPath(new URL('../../packages/shared/src', import.meta.url)),
       vue: 'vue/dist/vue.esm-bundler.js',
     },
-    // 确保正确解析共享包
-    dedupe: ['vue', 'vue-router', 'vue-i18n'],
+    // 去重依赖，避免多个版本冲突
+    dedupe: ['vue', 'vue-router', 'vue-i18n', 'debug'],
+    // 确保正确解析 ES 模块
+    conditions: ['import', 'module', 'browser', 'default'],
+    mainFields: ['browser', 'module', 'main'],
   },
   server: {
     port: 5173,
@@ -441,6 +444,9 @@ export default defineConfig({
     __ELECTRON__: JSON.stringify(process.env.ELECTRON !== undefined),
     global: 'globalThis',
     'process.env': {},
+    // 修复 debug 模块的全局变量问题
+    'process.browser': true,
+    'process.env.DEBUG': JSON.stringify(process.env.DEBUG || ''),
   },
   optimizeDeps: {
     include: [
@@ -454,13 +460,13 @@ export default defineConfig({
       '@yun-ai-todolist/shared/constants',
       'marked',
       'highlight.js',
+      // 预构建 mermaid 以解决 ES 模块导入问题
+      'mermaid',
     ],
     exclude: [
       // 排除 MCP SDK 的 Node.js 特定模块
       '@modelcontextprotocol/sdk/client/stdio.js',
       '@modelcontextprotocol/sdk/client/stdio',
-      // 排除 mermaid 以避免预构建时的循环依赖问题
-      'mermaid',
     ],
     // 强制重新构建依赖
     force: process.env.NODE_ENV === 'development',
@@ -470,6 +476,8 @@ export default defineConfig({
       format: 'esm',
       // 确保正确处理模块导出
       keepNames: true,
+      // 支持 CommonJS 和 ES 模块混合
+      platform: 'browser',
     },
   },
 })

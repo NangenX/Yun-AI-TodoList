@@ -278,7 +278,14 @@ export function useMarkdown() {
     mermaidLoadPromise = (async () => {
       try {
         const mermaidModule = await import('mermaid')
-        mermaid = mermaidModule.default
+        // 兼容不同的模块导出格式
+        mermaid = mermaidModule.default || mermaidModule
+
+        // 确保 mermaid 实例有效
+        if (!mermaid || typeof mermaid.initialize !== 'function') {
+          throw new Error('Mermaid module loaded but missing required methods')
+        }
+
         return mermaid
       } catch (error) {
         console.error('Failed to load mermaid:', error)
