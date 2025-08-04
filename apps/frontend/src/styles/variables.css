@@ -274,41 +274,20 @@ button {
     sans-serif !important;
 }
 
-.mermaid text {
-  font-family:
-    'LXGW WenKai Lite Medium',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    'PingFang SC',
-    'Hiragino Sans GB',
-    'Microsoft YaHei',
-    'Helvetica Neue',
-    Helvetica,
-    Arial,
-    sans-serif !important;
-  font-size: 14px !important;
-}
-
-/* 浅色主题下的 Mermaid 文字颜色 */
-:root .mermaid text,
-:root .mermaid .node text,
-:root .mermaid .edgeLabel text,
-:root .mermaid .label text {
-  fill: #000000 !important;
-}
-
-/* 深色主题下的 Mermaid 文字颜色 */
-[data-theme='dark'] .mermaid text,
-[data-theme='dark'] .mermaid .node text,
-[data-theme='dark'] .mermaid .edgeLabel text,
-[data-theme='dark'] .mermaid .label text {
-  fill: #ffffff !important;
-}
-
+/* Mermaid 文字样式 - 统一配置，使用 CSS 变量保持主题一致性 */
+.mermaid text,
 .mermaid .node text,
 .mermaid .edgeLabel text,
-.mermaid .label text {
+.mermaid .label text,
+.mermaid .nodeLabel,
+.mermaid .cluster text,
+.mermaid .actor text,
+.mermaid .messageText,
+.mermaid .labelText,
+.mermaid .loopText,
+.mermaid .noteText {
+  fill: var(--text-color) !important;
+  color: var(--text-color) !important;
   font-family:
     'LXGW WenKai Lite Medium',
     -apple-system,
@@ -323,6 +302,8 @@ button {
     sans-serif !important;
   font-size: 14px !important;
   font-weight: normal !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* 全局输入框样式重置 */
@@ -551,24 +532,37 @@ select {
   /* 优化图像渲染质量 */
 }
 
-/* 确保 Mermaid 图表中的文字可见 - 使用 CSS 变量保持主题一致性 */
-.mermaid-diagram svg text {
+/* 确保 Mermaid 图表中的所有文字元素可见 - 使用 CSS 变量保持主题一致性 */
+.mermaid-diagram svg text,
+.mermaid-diagram svg .label,
+.mermaid-diagram svg .nodeLabel,
+.mermaid-diagram svg .edgeLabel,
+.mermaid-diagram svg .node text,
+.mermaid-diagram svg .cluster text,
+.mermaid-diagram svg .actor text,
+.mermaid-diagram svg .messageLine0,
+.mermaid-diagram svg .messageLine1,
+.mermaid-diagram svg .messageText,
+.mermaid-diagram svg .labelText,
+.mermaid-diagram svg .loopText,
+.mermaid-diagram svg .noteText {
   fill: var(--text-color) !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  color: var(--text-color) !important;
+  font-family:
+    'LXGW WenKai Lite Medium',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif !important;
   font-size: 14px !important;
   opacity: 1 !important;
   visibility: visible !important;
-}
-
-.mermaid-diagram svg .label {
-  color: var(--text-color) !important;
-  fill: var(--text-color) !important;
-}
-
-.mermaid-diagram svg .nodeLabel,
-.mermaid-diagram svg .edgeLabel {
-  color: var(--text-color) !important;
-  fill: var(--text-color) !important;
 }
 
 .mermaid-diagram svg {
