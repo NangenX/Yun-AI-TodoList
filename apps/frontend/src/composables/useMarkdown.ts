@@ -374,6 +374,27 @@ export function useMarkdown() {
           mainBkg: backgroundColor,
           secondBkg: backgroundColor,
           tertiaryBkg: backgroundColor,
+          // 确保所有文字相关的颜色都使用主题文字颜色
+          textColor: textColor,
+          labelTextColor: textColor,
+          nodeTextColor: textColor,
+          edgeLabelBackground: backgroundColor,
+          clusterTextColor: textColor,
+          titleColor: textColor,
+          // 序列图相关文字颜色
+          actorTextColor: textColor,
+          signalTextColor: textColor,
+          messageTextColor: textColor,
+          loopTextColor: textColor,
+          noteTextColor: textColor,
+          // 甘特图相关文字颜色
+          sectionBkgColor: backgroundColor,
+          altSectionBkgColor: backgroundColor,
+          gridColor: textColor,
+          section0: primaryColor,
+          section1: primaryColor,
+          section2: primaryColor,
+          section3: primaryColor,
         },
       })
 
@@ -517,10 +538,6 @@ export function useMarkdown() {
               return match.replace(/fill="[^"]*"/, 'fill="transparent"')
             }
           )
-          // 确保所有文本元素可见，使用 CSS 变量保持主题一致性
-          .replace(/<text([^>]*)>/g, '<text$1 fill="var(--text-color)" stroke="none">')
-          .replace(/fill="none"/g, 'fill="var(--text-color)"')
-          .replace(/fill="transparent"/g, 'fill="var(--text-color)"')
 
         // 将渲染好的 SVG 包装在容器中，添加缩放控制
         const wrappedSvg = `<div class="mermaid-container">

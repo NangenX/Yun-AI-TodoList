@@ -274,8 +274,22 @@ button {
     sans-serif !important;
 }
 
-/* Mermaid 文字样式 - 统一配置，使用 CSS 变量保持主题一致性 */
+/* Mermaid 图表基础样式 - 统一使用 CSS 变量 */
+.mermaid,
+.mermaid-container,
+.mermaid-diagram {
+  color: var(--text-color);
+}
+
+/* Mermaid 文字样式 - 统一使用 CSS 变量 */
 .mermaid text,
+.mermaid tspan,
+.mermaid svg text,
+.mermaid svg tspan,
+.mermaid-container text,
+.mermaid-container tspan,
+.mermaid-diagram text,
+.mermaid-diagram tspan,
 .mermaid .node text,
 .mermaid .edgeLabel text,
 .mermaid .label text,
@@ -288,6 +302,12 @@ button {
 .mermaid .noteText {
   fill: var(--text-color) !important;
   color: var(--text-color) !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
   font-family:
     'LXGW WenKai Lite Medium',
     -apple-system,
@@ -300,10 +320,6 @@ button {
     Helvetica,
     Arial,
     sans-serif !important;
-  font-size: 14px !important;
-  font-weight: normal !important;
-  opacity: 1 !important;
-  visibility: visible !important;
 }
 
 /* 全局输入框样式重置 */
@@ -532,38 +548,7 @@ select {
   /* 优化图像渲染质量 */
 }
 
-/* 确保 Mermaid 图表中的所有文字元素可见 - 使用 CSS 变量保持主题一致性 */
-.mermaid-diagram svg text,
-.mermaid-diagram svg .label,
-.mermaid-diagram svg .nodeLabel,
-.mermaid-diagram svg .edgeLabel,
-.mermaid-diagram svg .node text,
-.mermaid-diagram svg .cluster text,
-.mermaid-diagram svg .actor text,
-.mermaid-diagram svg .messageLine0,
-.mermaid-diagram svg .messageLine1,
-.mermaid-diagram svg .messageText,
-.mermaid-diagram svg .labelText,
-.mermaid-diagram svg .loopText,
-.mermaid-diagram svg .noteText {
-  fill: var(--text-color) !important;
-  color: var(--text-color) !important;
-  font-family:
-    'LXGW WenKai Lite Medium',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    'PingFang SC',
-    'Hiragino Sans GB',
-    'Microsoft YaHei',
-    'Helvetica Neue',
-    Helvetica,
-    Arial,
-    sans-serif !important;
-  font-size: 14px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
+/* Mermaid SVG 优化 */
 
 .mermaid-diagram svg {
   shape-rendering: geometricPrecision;

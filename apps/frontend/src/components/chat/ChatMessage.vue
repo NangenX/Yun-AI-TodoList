@@ -142,7 +142,6 @@ import EditIcon from '../common/icons/EditIcon.vue'
 import LoadingIcon from '../common/icons/LoadingIcon.vue'
 import RefreshIcon from '../common/icons/RefreshIcon.vue'
 import EnhancedCopyButton from './EnhancedCopyButton.vue'
-import RetryButton from './RetryButton.vue'
 
 interface Message {
   role: 'user' | 'assistant'
