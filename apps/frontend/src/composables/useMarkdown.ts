@@ -279,6 +279,7 @@ export function useMarkdown() {
       try {
         // 设置全局变量以解决 debug 模块问题
         if (typeof window !== 'undefined') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ;(window as any).process = {
             browser: true,
             env: { DEBUG: '', NODE_ENV: 'production' },

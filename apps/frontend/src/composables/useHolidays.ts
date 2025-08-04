@@ -26,30 +26,40 @@ const holidayCache = ref<Record<string, Holiday[]>>({})
 // 2026年数据的懒加载
 let allHolidays2026: Holiday[] = []
 let holidaysByDate2026: Record<string, Holiday[]> = {}
+let data2026LoadPromise: Promise<void> | null = null
 
 // 加载2026年数据
-const load2026Data = async () => {
-  try {
-    const module = await import('@/data/holidays')
-    allHolidays2026 = module.allHolidays2026 || []
-    holidaysByDate2026 = module.holidaysByDate2026 || {}
-  } catch (error) {
-    console.warn('Failed to load 2026 holiday data:', error)
+const load2026Data = async (): Promise<void> => {
+  if (data2026LoadPromise) {
+    return data2026LoadPromise
   }
-}
 
-// 立即加载2026年数据
-load2026Data()
+  data2026LoadPromise = (async () => {
+    try {
+      const module = await import('@/data/holidays')
+      allHolidays2026 = module.allHolidays2026 || []
+      holidaysByDate2026 = module.holidaysByDate2026 || {}
+    } catch (error) {
+      console.warn('Failed to load 2026 holiday data:', error)
+      // 重置 promise 以允许重试
+      data2026LoadPromise = null
+    }
+  })()
+
+  return data2026LoadPromise
+}
 
 export function useHolidays() {
   /**
    * 根据年份获取节假日数据
    */
-  const getHolidayDataByYear = (year: number) => {
+  const getHolidayDataByYear = async (year: number) => {
     switch (year) {
       case 2025:
         return { allHolidays: allHolidays2025, holidaysByDate: holidaysByDate2025 }
       case 2026:
+        // 确保 2026 年数据已加载
+        await load2026Data()
         return { allHolidays: allHolidays2026, holidaysByDate: holidaysByDate2026 }
       default:
         return { allHolidays: allHolidays2025, holidaysByDate: holidaysByDate2025 }
@@ -59,7 +69,7 @@ export function useHolidays() {
   /**
    * 获取指定日期的节假日
    */
-  const getHolidaysForDate = (date: Date): Holiday[] => {
+  const getHolidaysForDate = async (date: Date): Promise<Holiday[]> => {
     const dateKey = format(date, 'yyyy-MM-dd')
     const year = date.getFullYear()
 
@@ -69,7 +79,7 @@ export function useHolidays() {
     }
 
     // 从数据源获取
-    const { holidaysByDate } = getHolidayDataByYear(year)
+    const { holidaysByDate } = await getHolidayDataByYear(year)
     const holidays = holidaysByDate[dateKey] || []
     const customHolidaysForDate = customHolidays.value.filter((h) => h.date === dateKey)
     const allHolidaysForDate = [...holidays, ...customHolidaysForDate]
@@ -107,28 +117,30 @@ export function useHolidays() {
   /**
    * 获取指定月份的所有节假日
    */
-  const getHolidaysForMonth = (year: number, month: number): Holiday[] => {
+  const getHolidaysForMonth = async (year: number, month: number): Promise<Holiday[]> => {
     const monthKey = `${year}-${month.toString().padStart(2, '0')}`
-    const { allHolidays } = getHolidayDataByYear(year)
+    const { allHolidays } = await getHolidayDataByYear(year)
 
     return allHolidays
       .concat(customHolidays.value)
-      .filter((holiday) => holiday.date.startsWith(monthKey))
-      .filter((holiday) => filterHolidaysByConfig([holiday]).length > 0)
+      .filter((holiday: Holiday) => holiday.date.startsWith(monthKey))
+      .filter((holiday: Holiday) => filterHolidaysByConfig([holiday]).length > 0)
   }
 
   /**
    * 检查指定日期是否为节假日
    */
-  const isHoliday = (date: Date): boolean => {
-    return getHolidaysForDate(date).length > 0
+  const isHoliday = async (date: Date): Promise<boolean> => {
+    const holidays = await getHolidaysForDate(date)
+    return holidays.length > 0
   }
 
   /**
    * 检查指定日期是否为法定节假日
    */
-  const isLegalHoliday = (date: Date): boolean => {
-    return getHolidaysForDate(date).some((h) => h.type === 'legal' && h.isOfficial)
+  const isLegalHoliday = async (date: Date): Promise<boolean> => {
+    const holidays = await getHolidaysForDate(date)
+    return holidays.some((h: Holiday) => h.type === 'legal' && h.isOfficial)
   }
 
   /**

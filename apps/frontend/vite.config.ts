@@ -228,9 +228,11 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@shared': fileURLToPath(new URL('../../packages/shared/src', import.meta.url)),
       vue: 'vue/dist/vue.esm-bundler.js',
+      // 为 debug 模块提供浏览器兼容的 polyfill
+      debug: fileURLToPath(new URL('./src/utils/debug-polyfill.ts', import.meta.url)),
     },
     // 去重依赖，避免多个版本冲突
-    dedupe: ['vue', 'vue-router', 'vue-i18n', 'debug'],
+    dedupe: ['vue', 'vue-router', 'vue-i18n'],
     // 确保正确解析 ES 模块
     conditions: ['import', 'module', 'browser', 'default'],
     mainFields: ['browser', 'module', 'main'],
@@ -262,14 +264,13 @@ export default defineConfig({
     target: 'es2020',
     rollupOptions: {
       external: [
-        // 排除 MCP SDK 的 Node.js 特定模块
+        // 排除 Node.js 特定模块
         '@modelcontextprotocol/sdk/client/stdio.js',
         '@modelcontextprotocol/sdk/client/stdio',
         'node:stream',
         'node:process',
         'child_process',
         'cross-spawn',
-        'debug',
       ],
       output: {
         assetFileNames: (assetInfo) => {
@@ -452,6 +453,9 @@ export default defineConfig({
     // 修复 Mermaid 相关的模块解析问题
     'process.platform': JSON.stringify('browser'),
     'process.version': JSON.stringify('v18.0.0'),
+    // 为 debug 模块提供浏览器兼容性
+    'process.type': JSON.stringify('renderer'),
+    'process.versions': JSON.stringify({ node: '18.0.0' }),
   },
   optimizeDeps: {
     include: [
