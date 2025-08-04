@@ -308,9 +308,9 @@ export function useMarkdown() {
   }
 
   // 初始化 Mermaid 配置
-  const initializeMermaid = async (theme: 'default' | 'dark' = 'default') => {
-    // 避免重复初始化相同主题
-    if (mermaidInitialized && currentMermaidTheme === theme) {
+  const initializeMermaid = async (theme: 'default' | 'dark' = 'default', forceReinit = false) => {
+    // 避免重复初始化相同主题，除非强制重新初始化
+    if (mermaidInitialized && currentMermaidTheme === theme && !forceReinit) {
       return
     }
 
@@ -384,6 +384,7 @@ export function useMarkdown() {
           mainBkg: backgroundColor,
           secondBkg: backgroundColor,
           tertiaryBkg: backgroundColor,
+
           // 确保所有文字相关的颜色都使用主题文字颜色
           textColor: textColor,
           labelTextColor: textColor,
@@ -391,12 +392,30 @@ export function useMarkdown() {
           edgeLabelBackground: backgroundColor,
           clusterTextColor: textColor,
           titleColor: textColor,
+
+          // 流程图相关文字颜色
+          nodeBorder: primaryColor,
+          clusterBkg: backgroundColor,
+          clusterBorder: primaryColor,
+          defaultLinkColor: textColor,
+
           // 序列图相关文字颜色
+          actorBkg: backgroundColor,
+          actorBorder: primaryColor,
           actorTextColor: textColor,
+          actorLineColor: textColor,
+          signalColor: textColor,
           signalTextColor: textColor,
-          messageTextColor: textColor,
+          labelBoxBkgColor: backgroundColor,
+          labelBoxBorderColor: primaryColor,
           loopTextColor: textColor,
+          noteBorderColor: primaryColor,
+          noteBkgColor: backgroundColor,
           noteTextColor: textColor,
+          activationBorderColor: primaryColor,
+          activationBkgColor: backgroundColor,
+          sequenceNumberColor: textColor,
+
           // 甘特图相关文字颜色
           sectionBkgColor: backgroundColor,
           altSectionBkgColor: backgroundColor,
@@ -405,6 +424,53 @@ export function useMarkdown() {
           section1: primaryColor,
           section2: primaryColor,
           section3: primaryColor,
+
+          // 类图相关文字颜色
+          classText: textColor,
+
+          // 状态图相关文字颜色
+          labelColor: textColor,
+
+          // Git 图相关文字颜色
+          git0: primaryColor,
+          git1: primaryColor,
+          git2: primaryColor,
+          git3: primaryColor,
+          git4: primaryColor,
+          git5: primaryColor,
+          git6: primaryColor,
+          git7: primaryColor,
+          gitBranchLabel0: textColor,
+          gitBranchLabel1: textColor,
+          gitBranchLabel2: textColor,
+          gitBranchLabel3: textColor,
+          gitBranchLabel4: textColor,
+          gitBranchLabel5: textColor,
+          gitBranchLabel6: textColor,
+          gitBranchLabel7: textColor,
+
+          // 饼图相关文字颜色
+          pieTitleTextSize: '25px',
+          pieTitleTextColor: textColor,
+          pieSectionTextSize: '17px',
+          pieSectionTextColor: textColor,
+          pieLegendTextSize: '17px',
+          pieLegendTextColor: textColor,
+          pieStrokeColor: textColor,
+          pieStrokeWidth: '2px',
+          pieOuterStrokeWidth: '2px',
+          pieOuterStrokeColor: textColor,
+          pieOpacity: '0.7',
+
+          // 旅程图相关文字颜色
+          fillType0: primaryColor,
+          fillType1: primaryColor,
+          fillType2: primaryColor,
+          fillType3: primaryColor,
+          fillType4: primaryColor,
+          fillType5: primaryColor,
+          fillType6: primaryColor,
+          fillType7: primaryColor,
         },
       })
 
@@ -505,9 +571,9 @@ export function useMarkdown() {
     }
 
     try {
-      // 根据当前主题重新初始化 Mermaid
+      // 根据当前主题重新初始化 Mermaid，强制重新初始化以确保主题正确应用
       const currentTheme = getCurrentTheme()
-      await initializeMermaid(currentTheme)
+      await initializeMermaid(currentTheme, true)
     } catch (error) {
       console.warn('Mermaid initialization failed, falling back to code blocks:', error)
       // 降级处理：将 mermaid 代码块转换为普通代码块
@@ -534,10 +600,14 @@ export function useMarkdown() {
         const { svg } = await mermaidInstance.render(id, diagramCode)
 
         // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
+        // 使用与 Mermaid 初始化时相同的字体栈，确保中文字体正确显示
+        const fontStack =
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
+
         const optimizedSvg = svg
           .replace(
             '<svg',
-            '<svg preserveAspectRatio="xMidYMid meet" style="background: transparent; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;"'
+            `<svg preserveAspectRatio="xMidYMid meet" style="background: transparent; font-family: ${fontStack};"`
           )
           .replace(/width="[^"]*"/, 'width="100%"')
           .replace(/height="[^"]*"/, 'height="auto"')
@@ -548,6 +618,17 @@ export function useMarkdown() {
               return match.replace(/fill="[^"]*"/, 'fill="transparent"')
             }
           )
+          // 确保 SVG 内部的文本元素也使用正确的字体
+          .replace(/<text([^>]*)>/g, (match, attributes) => {
+            // 如果文本元素没有字体设置，添加字体样式
+            if (!attributes.includes('font-family') && !attributes.includes('style="')) {
+              return `<text${attributes} style="font-family: ${fontStack};">`
+            } else if (attributes.includes('style="') && !attributes.includes('font-family')) {
+              // 如果有 style 但没有 font-family，添加字体到 style 中
+              return match.replace('style="', `style="font-family: ${fontStack}; `)
+            }
+            return match
+          })
 
         // 将渲染好的 SVG 包装在容器中，添加缩放控制
         const wrappedSvg = `<div class="mermaid-container">
@@ -977,10 +1058,21 @@ export function useMarkdown() {
     }
   }
 
+  // 重新初始化 Mermaid（用于主题切换时调用）
+  const reinitializeMermaid = async () => {
+    try {
+      const currentTheme = getCurrentTheme()
+      await initializeMermaid(currentTheme, true)
+    } catch (error) {
+      console.warn('Mermaid reinitialization failed:', error)
+    }
+  }
+
   return {
     sanitizeContent,
     extractThinkingContent,
     setupCodeCopyFunction,
     renderMarkdown,
+    reinitializeMermaid,
   }
 }
