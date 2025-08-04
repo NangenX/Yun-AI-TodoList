@@ -74,6 +74,9 @@ export function useChat() {
         currentConversationId.value = mostRecentConversation.id
         chatHistory.value = [...mostRecentConversation.messages]
         saveCurrentConversationId(mostRecentConversation.id)
+      } else {
+        // 如果没有任何对话历史，创建一个初始对话
+        createNewConversation(t('newConversation'), true)
       }
     } catch (error) {
       handleError(error, 'loadConversationHistory')
@@ -167,7 +170,11 @@ export function useChat() {
     retryCount.value = 0
 
     try {
-      if (chatHistory.value.length === 0) {
+      // 如果没有当前对话 ID，创建新对话
+      if (!currentConversationId.value) {
+        createNewConversation(message, true)
+      } else if (chatHistory.value.length === 0) {
+        // 如果有对话 ID 但是聊天历史为空，更新对话标题
         const currentConversation = conversationHistory.value.find(
           (conv) => conv.id === currentConversationId.value
         )
