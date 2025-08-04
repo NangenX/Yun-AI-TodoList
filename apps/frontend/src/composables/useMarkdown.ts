@@ -331,7 +331,7 @@ export function useMarkdown() {
         computedStyle.getPropertyValue('--bg-color').trim() || (isDark ? '#1a1a1a' : '#ffffff')
       const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#79b4a6'
       const fontStack =
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
+        '"LXGW WenKai Medium", "LXGW WenKai Lite Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
 
       mermaidInstance.initialize({
         startOnLoad: false,
@@ -602,7 +602,7 @@ export function useMarkdown() {
         // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
         // 使用与 Mermaid 初始化时相同的字体栈，确保中文字体正确显示
         const fontStack =
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
+          '"LXGW WenKai Medium", "LXGW WenKai Lite Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
 
         const optimizedSvg = svg
           .replace(

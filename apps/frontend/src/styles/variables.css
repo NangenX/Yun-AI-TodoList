@@ -246,6 +246,7 @@ button {
 /* Mermaid 图表字体设置 - 确保中文显示 */
 .mermaid {
   font-family:
+    'LXGW WenKai Medium',
     'LXGW WenKai Lite Medium',
     -apple-system,
     BlinkMacSystemFont,
@@ -261,6 +262,7 @@ button {
 
 .mermaid svg {
   font-family:
+    'LXGW WenKai Medium',
     'LXGW WenKai Lite Medium',
     -apple-system,
     BlinkMacSystemFont,
@@ -309,6 +311,7 @@ button {
   font-size: 14px !important;
   font-weight: normal !important;
   font-family:
+    'LXGW WenKai Medium',
     'LXGW WenKai Lite Medium',
     -apple-system,
     BlinkMacSystemFont,
