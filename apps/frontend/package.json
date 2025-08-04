@@ -33,6 +33,7 @@
     "canvas-confetti": "1.9.3",
     "chart.js": "4.4.9",
     "date-fns": "4.1.0",
+    "debug": "^4.4.1",
     "dompurify": "3.2.6",
     "highlight.js": "11.11.1",
     "katex": "^0.16.22",

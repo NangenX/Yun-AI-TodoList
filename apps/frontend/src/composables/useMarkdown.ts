@@ -277,6 +277,16 @@ export function useMarkdown() {
 
     mermaidLoadPromise = (async () => {
       try {
+        // 设置全局变量以解决 debug 模块问题
+        if (typeof window !== 'undefined') {
+          ;(window as any).process = {
+            browser: true,
+            env: { DEBUG: '', NODE_ENV: 'production' },
+            platform: 'browser',
+            version: 'v18.0.0',
+          }
+        }
+
         const mermaidModule = await import('mermaid')
         // 兼容不同的模块导出格式
         mermaid = mermaidModule.default || mermaidModule

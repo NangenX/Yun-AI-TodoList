@@ -63,7 +63,13 @@ export function getOptimizedPWAConfig(): PWAConfig {
  * 验证图标文件是否存在
  */
 export async function validatePWAIcons(): Promise<boolean> {
-  const icons = ['/pwa-192x192.png', '/pwa-512x512.png', '/apple-touch-icon.png']
+  // 根据环境使用正确的基础路径
+  const basePath = process.env.NODE_ENV === 'production' ? '/Yun-AI-TodoList/' : './'
+  const icons = [
+    `${basePath}pwa-192x192.png`,
+    `${basePath}pwa-512x512.png`,
+    `${basePath}apple-touch-icon.png`,
+  ]
 
   try {
     const results = await Promise.all(
@@ -77,8 +83,13 @@ export async function validatePWAIcons(): Promise<boolean> {
       })
     )
 
-    return results.every(Boolean)
+    const allValid = results.every(Boolean)
+    if (!allValid) {
+      console.warn('[PWA] 部分 PWA 图标文件无法访问')
+    }
+    return allValid
   } catch {
+    console.warn('[PWA] PWA 图标验证失败')
     return false
   }
 }

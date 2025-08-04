@@ -448,6 +448,10 @@ export default defineConfig({
     // 修复 debug 模块的全局变量问题
     'process.browser': true,
     'process.env.DEBUG': JSON.stringify(process.env.DEBUG || ''),
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    // 修复 Mermaid 相关的模块解析问题
+    'process.platform': JSON.stringify('browser'),
+    'process.version': JSON.stringify('v18.0.0'),
   },
   optimizeDeps: {
     include: [
