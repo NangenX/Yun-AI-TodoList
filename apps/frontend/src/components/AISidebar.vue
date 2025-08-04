@@ -81,7 +81,7 @@
               :value="config.enabled ? config.activePromptId || '' : ''"
               :disabled="!config.enabled"
               :class="[
-                'w-full md:w-auto px-3 py-1.5 pr-8 text-xs border rounded-lg transition-all duration-200 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none',
+                'w-full md:w-auto px-3 py-1.5 pr-7 text-xs border rounded-lg transition-all duration-200 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[100px] lg:min-w-[120px] md:text-xs appearance-none truncate',
                 config.enabled
                   ? 'bg-white/10 text-white border-white/20 cursor-pointer hover:bg-white/15 focus:bg-white/15 focus:border-white/40'
                   : 'bg-white/5 text-white/50 border-white/10 cursor-not-allowed',
@@ -101,19 +101,19 @@
 
             <!-- 自定义下拉箭头 -->
             <div
-              class="absolute right-2 top-0 bottom-0 flex items-center justify-center pointer-events-none"
+              class="absolute right-1.5 top-0 bottom-0 flex items-center justify-center pointer-events-none min-w-[20px]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="text-white/70 transition-colors duration-200"
+                class="text-white/70 transition-colors duration-200 flex-shrink-0"
               >
                 <polyline points="6,8 10,12 14,8"></polyline>
               </svg>
@@ -611,6 +611,12 @@ defineOptions({
   select {
     min-width: 120px !important;
     font-size: 0.875rem;
+    padding-right: 1.75rem !important; /* 确保箭头有足够空间 */
+  }
+
+  /* 调整下拉箭头位置 */
+  .absolute.right-1\.5 {
+    right: 0.375rem !important;
   }
 }
 
@@ -624,7 +630,6 @@ defineOptions({
   /* 调整头部布局 */
   .flex.items-center.justify-between {
     padding: 0.75rem 1rem;
-    flex-wrap: wrap;
     gap: 0.5rem;
   }
 
@@ -637,7 +642,17 @@ defineOptions({
   select {
     min-width: 100px !important;
     font-size: 0.75rem;
-    padding: 0.375rem 0.75rem;
+    padding: 0.375rem 1.5rem 0.375rem 0.75rem !important; /* 确保右侧有足够空间给箭头 */
+  }
+
+  /* 下拉箭头在平板竖屏的优化 */
+  .absolute.right-1\.5 {
+    right: 0.25rem !important;
+  }
+
+  .absolute.right-1\.5 svg {
+    width: 12px !important;
+    height: 12px !important;
   }
 }
 
@@ -697,7 +712,18 @@ defineOptions({
     width: 100% !important;
     min-width: unset !important;
     font-size: 0.75rem;
-    padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+    padding: 0.25rem 1.75rem 0.25rem 0.5rem !important; /* 增加右侧内边距 */
+  }
+
+  /* 移动端下拉箭头优化 */
+  .header-controls .absolute.right-1\.5 {
+    right: 0.375rem !important;
+    min-width: 16px !important;
+  }
+
+  .header-controls .absolute.right-1\.5 svg {
+    width: 12px !important;
+    height: 12px !important;
   }
 
   /* 移动端按钮优化 */
@@ -764,7 +790,17 @@ defineOptions({
 
   select {
     font-size: 0.75rem;
-    padding: 0.375rem 1.5rem 0.375rem 0.5rem;
+    padding: 0.375rem 1.75rem 0.375rem 0.5rem !important; /* 确保箭头空间 */
+  }
+
+  /* 超小屏幕下拉箭头优化 */
+  .absolute.right-1\.5 {
+    right: 0.25rem !important;
+  }
+
+  .absolute.right-1\.5 svg {
+    width: 10px !important;
+    height: 10px !important;
   }
 }
 
@@ -780,8 +816,18 @@ defineOptions({
   }
 
   select {
-    padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+    padding: 0.25rem 1.75rem 0.25rem 0.5rem !important; /* 确保箭头空间 */
     font-size: 0.75rem;
+  }
+
+  /* 横屏模式下拉箭头优化 */
+  .absolute.right-1\.5 {
+    right: 0.25rem !important;
+  }
+
+  .absolute.right-1\.5 svg {
+    width: 10px !important;
+    height: 10px !important;
   }
 }
 
