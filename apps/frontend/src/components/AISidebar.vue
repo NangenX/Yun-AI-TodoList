@@ -208,6 +208,7 @@
 </template>
 
 <script setup lang="ts">
+import { useTheme } from '@/composables/useTheme'
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAISidebar } from '../composables/useAISidebar'
@@ -324,6 +325,13 @@ const refreshSystemPrompts = () => {
 const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof AIChatContent> | null>(null)
 
+const { theme, systemTheme } = useTheme()
+
+// 获取当前实际使用的主题
+const currentTheme = computed(() => {
+  return theme.value === 'auto' ? systemTheme.value : theme.value
+})
+
 const handleScroll = () => {
   // 滚动信息传递给父组件或用于其他用途
   // 自动滚动逻辑现在由 ChatMessageList 内部处理
@@ -336,7 +344,7 @@ const handleGenerateChart = async (...args: unknown[]) => {
 1. 使用标准的 mermaid 语法
 2. 选择合适的图表类型（flowchart、sequenceDiagram、pie 等）
 3. 使用简洁的节点标签，避免特殊字符
-4. 如需背景颜色，使用标准的 style 语法，并使用 # 开头的十六进制柔和护眼的颜色代码
+4. 如需背景颜色，使用标准的 style 语法，并使用 # 开头的十六进制柔和护眼的颜色代码，当前系统主题是${currentTheme.value === 'dark' ? '深色主题' : '浅色主题'}
 5. 确保语法完全正确
 6.请只返回 mermaid 代码块，不要包含其他解释文字。
 
