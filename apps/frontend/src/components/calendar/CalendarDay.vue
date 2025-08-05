@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { format } from 'date-fns'
 import type { Todo } from '@/types/todo'
 import type { Holiday } from '@/types/holiday'
@@ -104,10 +104,22 @@ const completionPercentage = computed(() => {
   return Math.round((props.completedCount / props.todoCount) * 100)
 })
 
-// 获取当前日期的节假日
-const holidays = computed(() => {
-  if (!isHolidayEnabled.value) return []
-  return getHolidaysForDate(props.date)
+// 节假日数据（使用 ref 处理异步数据）
+const holidays = ref<Holiday[]>([])
+
+// 监听日期变化，异步获取节假日数据
+watchEffect(async () => {
+  if (!isHolidayEnabled.value) {
+    holidays.value = []
+    return
+  }
+
+  try {
+    holidays.value = await getHolidaysForDate(props.date)
+  } catch (error) {
+    console.warn('Failed to get holidays for date:', error)
+    holidays.value = []
+  }
 })
 
 // 显示的节假日（最多显示3个）
