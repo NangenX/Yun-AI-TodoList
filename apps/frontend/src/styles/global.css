@@ -823,7 +823,7 @@ button {
   cursor: pointer;
 }
 
-/* Mermaid 图表字体设置 - 确保中文显示 */
+/* Mermaid 图表字体设置 - 确保中文显示并优化渲染 */
 .mermaid {
   font-family:
     'LXGW WenKai Medium',
@@ -838,6 +838,11 @@ button {
     Helvetica,
     Arial,
     sans-serif !important;
+  /* 添加字体平滑渲染 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  shape-rendering: geometricPrecision;
 }
 
 .mermaid svg {
@@ -854,6 +859,12 @@ button {
     Helvetica,
     Arial,
     sans-serif !important;
+  /* 确保SVG在高DPI显示器上的清晰渲染 */
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+  /* 添加这行以改善字体渲染 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Mermaid 图表基础样式 - 统一使用 CSS 变量 */
@@ -1076,12 +1087,9 @@ select {
   cursor: grab;
   user-select: none;
   will-change: transform;
-}
-
-.mermaid-diagram svg {
+  /* 确保高 DPI 显示清晰 */
   shape-rendering: geometricPrecision;
   text-rendering: geometricPrecision;
-  /* 确保高 DPI 显示清晰 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

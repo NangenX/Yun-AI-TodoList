@@ -45,7 +45,6 @@ declare global {
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement
       if (target.classList.contains('mermaid-zoom-btn')) {
-        console.log('Mermaid zoom button clicked:', target) // 添加调试日志
         const action = target.getAttribute('data-action') as 'in' | 'out' | 'reset'
         const container = target.closest('.mermaid-container') as HTMLElement
 
@@ -53,9 +52,6 @@ declare global {
           console.warn('Mermaid container or action not found')
           return
         }
-
-        console.log('Container:', container) // 添加调试日志
-        console.log('Action:', action) // 添加调试日志
 
         // 根据屏幕尺寸确定默认缩放比例
         const getDefaultScale = () => {
@@ -85,7 +81,6 @@ declare global {
         }
 
         container.style.setProperty('--mermaid-scale', newScale.toString())
-        console.log('New scale:', newScale) // 添加调试日志
       }
     })
 
@@ -355,6 +350,9 @@ export function useMarkdown() {
         theme: theme,
         securityLevel: 'loose',
         maxTextSize: 100000, // 增加最大文本大小限制
+        // 添加字体渲染优化配置
+        fontFamily: fontStack,
+        fontSize: 16, // 设置默认字体大小
         flowchart: {
           useMaxWidth: false, // 使用最大宽度
           htmlLabels: true, // 启用HTML标签
@@ -390,7 +388,7 @@ export function useMarkdown() {
           sectionFontSize: 20, // 从 18 增加
         },
         // 支持中文字体
-        fontFamily: fontStack,
+        // fontFamily 已在顶层配置中设置
         journey: {
           diagramMarginX: 80,
           diagramMarginY: 30,
@@ -437,6 +435,8 @@ export function useMarkdown() {
           edgeLabelBackground: backgroundColor,
           clusterTextColor: textColor,
           titleColor: textColor,
+          // 添加字体渲染优化
+          textRendering: 'geometricPrecision',
 
           // 流程图相关文字颜色
           nodeBorder: primaryColor,
@@ -685,15 +685,15 @@ export function useMarkdown() {
         const optimizedSvg = svg
           .replace(
             '<svg',
-            `<svg preserveAspectRatio="xMidYMid meet" style="background: transparent;"`
+            `<svg preserveAspectRatio="xMidYMid meet" style="background: transparent; shape-rendering: geometricPrecision; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;"`
           )
-          .replace(/width="[^"]*"/, 'width="100%"')
-          .replace(/height="[^"]*"/, 'height="100%"')
+          .replace(/width="[^"']*"/, 'width="100%"')
+          .replace(/height="[^"']*"/, 'height="100%"')
           .replace(
-            /<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"]*"[^>]*>/g,
+            /<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"']*"[^>]*>/g,
             (match: string) => {
               // 只移除全尺寸的画布背景矩形
-              return match.replace(/fill="[^"]*"/, 'fill="transparent"')
+              return match.replace(/fill="[^"']*"/, 'fill="transparent"')
             }
           )
 
