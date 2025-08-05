@@ -283,48 +283,6 @@ button {
   color: var(--text-color);
 }
 
-/* Mermaid 文字样式 - 统一使用 CSS 变量 */
-.mermaid text,
-.mermaid tspan,
-.mermaid svg text,
-.mermaid svg tspan,
-.mermaid-container text,
-.mermaid-container tspan,
-.mermaid-diagram text,
-.mermaid-diagram tspan,
-.mermaid .node text,
-.mermaid .edgeLabel text,
-.mermaid .label text,
-.mermaid .nodeLabel,
-.mermaid .cluster text,
-.mermaid .actor text,
-.mermaid .messageText,
-.mermaid .labelText,
-.mermaid .loopText,
-.mermaid .noteText {
-  fill: var(--text-color) !important;
-  color: var(--text-color) !important;
-  stroke: none !important;
-  stroke-width: 0 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  font-size: 14px !important;
-  font-weight: normal !important;
-  font-family:
-    'LXGW WenKai Medium',
-    'LXGW WenKai Lite Medium',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    'PingFang SC',
-    'Hiragino Sans GB',
-    'Microsoft YaHei',
-    'Helvetica Neue',
-    Helvetica,
-    Arial,
-    sans-serif !important;
-}
-
 /* 全局输入框样式重置 */
 input,
 textarea,
@@ -528,7 +486,7 @@ select {
   }
 
   .mermaid-diagram svg {
-    transform: scale(var(--mermaid-scale, 1.4))
+    transform: scale(var(--mermaid-scale, 2))
       translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   }
 }
@@ -541,7 +499,7 @@ select {
   min-height: 150px;
   background: transparent;
   color: var(--text-color);
-  transform: scale(var(--mermaid-scale, 1.8))
+  transform: scale(var(--mermaid-scale, 2.5))
     translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   transform-origin: center;
   transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);

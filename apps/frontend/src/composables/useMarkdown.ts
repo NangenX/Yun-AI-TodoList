@@ -50,9 +50,9 @@ declare global {
         // 根据屏幕尺寸确定默认缩放比例
         const getDefaultScale = () => {
           if (window.innerWidth <= 768) {
-            return '1.4'
+            return '2.0' // 与移动端 CSS 默认值保持一致
           }
-          return '1.8'
+          return '2.5' // 与桌面端 CSS 默认值保持一致
         }
 
         const currentScale = parseFloat(
@@ -69,7 +69,7 @@ declare global {
             break
           case 'reset':
             // 根据屏幕尺寸确定重置缩放比例
-            newScale = window.innerWidth <= 768 ? 1.4 : 1.8
+            newScale = window.innerWidth <= 768 ? 2.0 : 2.5 // 与 CSS 默认值保持一致
             // 重置时也重置位移
             container.style.setProperty('--mermaid-translate-x', '0px')
             container.style.setProperty('--mermaid-translate-y', '0px')
@@ -250,6 +250,9 @@ const getLanguageDisplayName = (lang: string): string => {
   // 降级方案：首字母大写
   return lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()
 }
+
+// 存储 Mermaid SVG 的 Map，以便在 DOMPurify 清理后注入
+const mermaidSvgMap = new Map<string, string>()
 
 export function useMarkdown() {
   // Mermaid 初始化状态管理
@@ -543,7 +546,7 @@ export function useMarkdown() {
     // 处理行内公式 $...$（但不处理已经被 $$ 处理过的）
     processedMarkdown = processedMarkdown.replace(
       /(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g,
-      (match, formula) => {
+      (_, formula) => {
         try {
           const html = katex.renderToString(formula.trim(), {
             displayMode: false,
@@ -575,6 +578,9 @@ export function useMarkdown() {
       return markdown
     }
 
+    // 每次渲染前清空 map，防止旧数据残留
+    mermaidSvgMap.clear()
+
     try {
       // 根据当前主题重新初始化 Mermaid，强制重新初始化以确保主题正确应用
       const currentTheme = getCurrentTheme()
@@ -582,7 +588,7 @@ export function useMarkdown() {
     } catch (error) {
       console.warn('Mermaid initialization failed, falling back to code blocks:', error)
       // 降级处理：将 mermaid 代码块转换为普通代码块
-      return markdown.replace(mermaidRegex, (match, code) => {
+      return markdown.replace(mermaidRegex, (_, code) => {
         return `\`\`\`text\n${code.trim()}\n\`\`\``
       })
     }
@@ -592,7 +598,9 @@ export function useMarkdown() {
     for (const match of matches) {
       try {
         const diagramCode = match[1]
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
+        // 使用更稳健的 ID
+        const id = `mermaid-svg-${Math.random().toString(36).substr(2, 9)}`
+        const placeholderId = `mermaid-placeholder-${id}`
 
         // 确保 mermaid 已加载并渲染
         const mermaidInstance = await loadMermaid()
@@ -605,17 +613,13 @@ export function useMarkdown() {
         const { svg } = await mermaidInstance.render(id, diagramCode)
 
         // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
-        // 使用与 Mermaid 初始化时相同的字体栈，确保中文字体正确显示
-        const fontStack =
-          '"LXGW WenKai Medium", "LXGW WenKai Lite Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
-
         const optimizedSvg = svg
           .replace(
             '<svg',
-            `<svg preserveAspectRatio="xMidYMid meet" style="background: transparent; font-family: ${fontStack};"`
+            `<svg preserveAspectRatio="xMidYMid meet" style="background: transparent;"`
           )
           .replace(/width="[^"]*"/, 'width="100%"')
-          .replace(/height="[^"]*"/, 'height="auto"')
+          .replace(/height="[^"]*"/, 'height="100%"')
           .replace(
             /<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"]*"[^>]*>/g,
             (match: string) => {
@@ -623,31 +627,9 @@ export function useMarkdown() {
               return match.replace(/fill="[^"]*"/, 'fill="transparent"')
             }
           )
-          // 确保 SVG 内部的文本元素也使用正确的字体
-          .replace(/<text([^>]*)>/g, (match, attributes) => {
-            // 如果文本元素没有字体设置，添加字体样式
-            if (!attributes.includes('font-family') && !attributes.includes('style="')) {
-              return `<text${attributes} style="font-family: ${fontStack};">`
-            } else if (attributes.includes('style="') && !attributes.includes('font-family')) {
-              // 如果有 style 但没有 font-family，添加字体到 style 中
-              return match.replace('style="', `style="font-family: ${fontStack}; `)
-            }
-            return match
-          })
-          // 确保 SVG 内部的 tspan 元素也使用正确的字体
-          .replace(/<tspan([^>]*)>/g, (match, attributes) => {
-            // 如果 tspan 元素没有字体设置，添加字体样式
-            if (!attributes.includes('font-family') && !attributes.includes('style="')) {
-              return `<tspan${attributes} style="font-family: ${fontStack};">`
-            } else if (attributes.includes('style="') && !attributes.includes('font-family')) {
-              // 如果有 style 但没有 font-family，添加字体到 style 中
-              return match.replace('style="', `style="font-family: ${fontStack}; `)
-            }
-            return match
-          })
 
-        // 将渲染好的 SVG 包装在容器中，添加缩放控制
-        const wrappedSvg = `<div class="mermaid-container">
+        // 关键改动：将 SVG 和控制按钮包装后存入 Map，并用占位符替换
+        const fullHtml = `<div class="mermaid-container">
           <div class="mermaid-zoom-controls">
             <button class="mermaid-zoom-btn" data-action="in" title="放大">+</button>
             <button class="mermaid-zoom-btn" data-action="out" title="缩小">−</button>
@@ -656,8 +638,12 @@ export function useMarkdown() {
           <div class="mermaid-diagram">${optimizedSvg}</div>
         </div>`
 
-        // 替换原始的 mermaid 代码块
-        processedMarkdown = processedMarkdown.replace(match[0], wrappedSvg)
+        mermaidSvgMap.set(placeholderId, fullHtml)
+
+        const placeholderHtml = `<div id="${placeholderId}"></div>`
+
+        // 替换原始的 mermaid 代码块为占位符
+        processedMarkdown = processedMarkdown.replace(match[0], placeholderHtml)
       } catch (error: unknown) {
         console.error('Mermaid rendering error:', error)
         const errorMessage = error instanceof Error ? error.message : String(error)
@@ -1084,11 +1070,16 @@ export function useMarkdown() {
     }
   }
 
+  // 新增一个 getter 函数来访问 map
+  const getMermaidSvgMap = () => mermaidSvgMap
+
   return {
     sanitizeContent,
     extractThinkingContent,
     setupCodeCopyFunction,
     renderMarkdown,
     reinitializeMermaid,
+    // 新增导出
+    getMermaidSvgMap,
   }
 }

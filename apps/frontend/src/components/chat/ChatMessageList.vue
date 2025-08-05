@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, nextTick } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
@@ -109,7 +109,8 @@ const emit = defineEmits<{
   (e: 'edit-message', messageIndex: number, newContent: string): void
 }>()
 
-const { sanitizeContent, extractThinkingContent, setupCodeCopyFunction } = useMarkdown()
+const { renderMarkdown, getMermaidSvgMap, extractThinkingContent, setupCodeCopyFunction } =
+  useMarkdown()
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 
 // ChatMessage 组件引用管理
@@ -142,40 +143,58 @@ type ExtendedMessage = ChatMessageType & {
 const sanitizedMessages = ref<ExtendedMessage[]>([])
 const currentResponseSanitized = ref('')
 
+// 实现 Mermaid SVG 注入逻辑
+const injectMermaidSVGs = async () => {
+  await nextTick()
+  const svgMap = getMermaidSvgMap()
+  if (svgMap.size === 0) return
+
+  svgMap.forEach((fullHtml, placeholderId) => {
+    const placeholder = document.getElementById(placeholderId)
+    if (placeholder && placeholder.parentNode) {
+      const tempWrapper = document.createElement('div')
+      tempWrapper.innerHTML = fullHtml
+
+      const svgElement = tempWrapper.querySelector('svg')
+      if (svgElement) {
+        // 修复 foreignObject 的 height="auto" 问题
+        const foreignObjects = svgElement.querySelectorAll('foreignObject')
+        foreignObjects.forEach((fo) => {
+          if (fo.getAttribute('height') === 'auto') {
+            fo.setAttribute('height', '100%')
+          }
+        })
+
+        // 替换占位符
+        placeholder.parentNode.replaceChild(svgElement, placeholder)
+      }
+    }
+  })
+
+  svgMap.clear()
+}
+
 // 异步处理消息内容
 const processSanitizedMessages = async () => {
-  const processed: ExtendedMessage[] = []
-
+  const newSanitizedMessages: ExtendedMessage[] = []
   for (const message of props.messages) {
-    if (message.role === 'assistant') {
-      const { thinking, response } = extractThinkingContent(message.content)
-      const sanitizedContent = await sanitizeContent(response)
-      processed.push({
-        ...message,
-        content: response,
-        sanitizedContent,
-        thinkingContent: thinking || undefined,
-      })
-    } else {
-      const sanitizedContent = await sanitizeContent(message.content)
-      processed.push({
-        ...message,
-        sanitizedContent,
-        thinkingContent: undefined,
-      })
-    }
+    const { thinking, response } = extractThinkingContent(message.content)
+    const sanitized = await renderMarkdown(response)
+    newSanitizedMessages.push({
+      ...message,
+      content: response,
+      thinkingContent: thinking,
+      sanitizedContent: sanitized,
+    })
   }
-
-  sanitizedMessages.value = processed
+  sanitizedMessages.value = newSanitizedMessages
+  await injectMermaidSVGs()
 }
 
 // 异步处理当前响应
 const processCurrentResponse = async () => {
-  if (props.currentResponse) {
-    currentResponseSanitized.value = await sanitizeContent(props.currentResponse)
-  } else {
-    currentResponseSanitized.value = ''
-  }
+  currentResponseSanitized.value = await renderMarkdown(props.currentResponse)
+  await injectMermaidSVGs()
 }
 
 // 监听消息变化
