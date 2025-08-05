@@ -151,15 +151,15 @@ describe('useTheme', () => {
 
   describe('系统主题监听', () => {
     it('应该监听系统主题变化', async () => {
-      const mockAddListener = vi.fn()
+      const mockAddEventListener = vi.fn()
 
       window.matchMedia = vi.fn().mockImplementation(() => ({
         matches: false,
         media: '',
         onchange: null,
-        addListener: mockAddListener,
+        addListener: vi.fn(),
         removeListener: vi.fn(),
-        addEventListener: vi.fn(),
+        addEventListener: mockAddEventListener,
         removeEventListener: vi.fn(),
         dispatchEvent: vi.fn(),
       }))
@@ -175,7 +175,7 @@ describe('useTheme', () => {
 
       mount(TestComponent)
 
-      expect(mockAddListener).toHaveBeenCalledWith(expect.any(Function))
+      expect(mockAddEventListener).toHaveBeenCalledWith('change', expect.any(Function))
     })
   })
 })

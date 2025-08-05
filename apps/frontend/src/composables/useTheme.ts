@@ -114,7 +114,8 @@ export function useTheme() {
 
   onMounted(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addListener(handleSystemThemeChange)
+    // 使用现代的 addEventListener 替代已废弃的 addListener
+    mediaQuery.addEventListener('change', handleSystemThemeChange)
     updateTheme()
   })
 
@@ -123,7 +124,8 @@ export function useTheme() {
   if (instance) {
     onUnmounted(() => {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      mediaQuery.removeListener(handleSystemThemeChange)
+      // 使用现代的 removeEventListener 替代已废弃的 removeListener
+      mediaQuery.removeEventListener('change', handleSystemThemeChange)
     })
   }
 
