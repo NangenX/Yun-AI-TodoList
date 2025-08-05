@@ -971,24 +971,26 @@ select {
 
 /* Mermaid 图表样式 */
 .mermaid-container {
-  margin: 20px 0;
-  padding: 40px;
-  background: var(--card-bg-color);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--input-border-color);
-  text-align: center;
-  min-height: 400px;
+  position: relative;
   width: 100%;
   max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
+  min-height: 500px;
+  margin: 20px auto;
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  background: var(--card-bg-color);
+  overflow: hidden;
+}
+
+.mermaid-diagram {
+  width: 100%;
+  max-width: 100%;
+  min-height: 500px;
+  overflow: auto;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  overflow: visible;
-  position: relative;
+  align-items: center;
+  padding: 40px;
 }
 
 .mermaid-loading {
@@ -1018,29 +1020,6 @@ select {
   }
 }
 
-.mermaid-container {
-  position: relative;
-  width: 100%;
-  max-width: 1000px;
-  min-height: 400px;
-  margin: 20px auto;
-  border: 1px solid var(--input-border-color);
-  border-radius: 8px;
-  background: var(--card-bg-color);
-  overflow: hidden;
-}
-
-.mermaid-diagram {
-  width: 100%;
-  max-width: 100%;
-  min-height: 400px;
-  overflow: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-}
-
 /* 响应式设计 */
 @media (max-width: 1280px) {
   .mermaid-container {
@@ -1066,30 +1045,38 @@ select {
   }
 
   .mermaid-diagram svg {
-    transform: scale(var(--mermaid-scale, 4))
+    transform: scale(var(--mermaid-scale, 1.1))
       translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   }
 }
 
+/* 大屏设备特殊处理 */
+@media (min-width: 1900px) {
+  .mermaid-container {
+    max-width: 1600px;
+  }
+
+  .mermaid-diagram svg {
+    max-width: 1600px;
+  }
+}
+
 .mermaid-diagram svg {
-  max-width: none;
+  max-width: 1000px;
   width: auto;
   height: auto;
-  min-width: 200px;
-  min-height: 150px;
+  min-width: 300px;
+  min-height: 200px;
   background: transparent;
   color: var(--text-color);
-  transform: scale(var(--mermaid-scale, 5))
+  transform: scale(var(--mermaid-scale, 1))
     translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   transform-origin: center;
   transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: grab;
   user-select: none;
   will-change: transform;
-  /* 优化图像渲染质量 */
 }
-
-/* Mermaid SVG 优化 */
 
 .mermaid-diagram svg {
   shape-rendering: geometricPrecision;

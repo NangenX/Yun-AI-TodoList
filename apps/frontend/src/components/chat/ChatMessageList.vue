@@ -152,21 +152,15 @@ const injectMermaidSVGs = async () => {
   svgMap.forEach((fullHtml, placeholderId) => {
     const placeholder = document.getElementById(placeholderId)
     if (placeholder && placeholder.parentNode) {
+      // 创建临时容器来解析完整的HTML
       const tempWrapper = document.createElement('div')
       tempWrapper.innerHTML = fullHtml
 
-      const svgElement = tempWrapper.querySelector('svg')
-      if (svgElement) {
-        // 修复 foreignObject 的 height="auto" 问题
-        const foreignObjects = svgElement.querySelectorAll('foreignObject')
-        foreignObjects.forEach((fo) => {
-          if (fo.getAttribute('height') === 'auto') {
-            fo.setAttribute('height', '100%')
-          }
-        })
-
-        // 替换占位符
-        placeholder.parentNode.replaceChild(svgElement, placeholder)
+      // 获取完整的容器元素（包含缩放按钮和SVG）
+      const containerElement = tempWrapper.querySelector('.mermaid-container')
+      if (containerElement) {
+        // 替换占位符为完整的容器
+        placeholder.parentNode.replaceChild(containerElement, placeholder)
       }
     }
   })

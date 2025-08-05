@@ -25,12 +25,18 @@ declare global {
     let dragTarget: HTMLElement | null = null
     let animationFrameId: number | null = null
     const pendingTransform = { x: 0, y: 0 }
+    let lastUpdateTime = 0
+    const MIN_UPDATE_INTERVAL = 16 // 约60fps
 
-    // 优化的拖拽更新函数，使用 requestAnimationFrame 节流
-    const updateDragTransform = () => {
+    // 优化的拖拽更新函数，使用 requestAnimationFrame 和时间戳节流
+    const updateDragTransform = (timestamp: number) => {
       if (dragTarget && isDragging) {
-        dragTarget.style.setProperty('--mermaid-translate-x', `${pendingTransform.x}px`)
-        dragTarget.style.setProperty('--mermaid-translate-y', `${pendingTransform.y}px`)
+        // 使用时间戳控制更新频率
+        if (timestamp - lastUpdateTime >= MIN_UPDATE_INTERVAL) {
+          dragTarget.style.setProperty('--mermaid-translate-x', `${pendingTransform.x}px`)
+          dragTarget.style.setProperty('--mermaid-translate-y', `${pendingTransform.y}px`)
+          lastUpdateTime = timestamp
+        }
       }
       animationFrameId = null
     }
@@ -39,6 +45,7 @@ declare global {
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement
       if (target.classList.contains('mermaid-zoom-btn')) {
+        console.log('Mermaid zoom button clicked:', target) // 添加调试日志
         const action = target.getAttribute('data-action') as 'in' | 'out' | 'reset'
         const container = target.closest('.mermaid-container') as HTMLElement
 
@@ -47,10 +54,13 @@ declare global {
           return
         }
 
+        console.log('Container:', container) // 添加调试日志
+        console.log('Action:', action) // 添加调试日志
+
         // 根据屏幕尺寸确定默认缩放比例
         const getDefaultScale = () => {
           // 统一桌面和移动端的默认缩放，与 CSS 默认值保持一致
-          return '1.5'
+          return '1.1'
         }
 
         const currentScale = parseFloat(
@@ -75,6 +85,7 @@ declare global {
         }
 
         container.style.setProperty('--mermaid-scale', newScale.toString())
+        console.log('New scale:', newScale) // 添加调试日志
       }
     })
 
@@ -111,9 +122,13 @@ declare global {
     // 优化的拖拽移动事件，使用节流和更平滑的计算
     document.addEventListener('mousemove', (event) => {
       if (isDragging && dragTarget) {
+        // 根据设备类型动态调整阻尼系数
+        const isMobile = window.innerWidth <= 768
+        const dampingFactor = isMobile ? 0.8 : 1.0
+
         // 计算移动距离，添加轻微的阻尼效果提升手感
-        const deltaX = (event.clientX - dragStartX) * 1.0 // 可调整阻尼系数
-        const deltaY = (event.clientY - dragStartY) * 1.0
+        const deltaX = (event.clientX - dragStartX) * dampingFactor
+        const deltaY = (event.clientY - dragStartY) * dampingFactor
 
         pendingTransform.x = currentTranslateX + deltaX
         pendingTransform.y = currentTranslateY + deltaY
@@ -339,32 +354,43 @@ export function useMarkdown() {
         startOnLoad: false,
         theme: theme,
         securityLevel: 'loose',
-        // 支持中文字体
-        fontFamily: fontStack,
+        maxTextSize: 100000, // 增加最大文本大小限制
         flowchart: {
-          useMaxWidth: false,
+          useMaxWidth: false, // 使用最大宽度
+          htmlLabels: true, // 启用HTML标签
+          curve: 'linear', // 使用线性曲线
+          padding: 40, // 增加内边距
           nodeSpacing: 100, // 从 80 增加，让节点更疏朗
           rankSpacing: 120, // 从 100 增加，让层级更清晰
-          padding: 40, // 从 30 增加，提供更多内边距
-          curve: 'linear',
         },
         sequence: {
+          diagramMarginX: 60,
+          diagramMarginY: 40,
+          actorMargin: 50,
           width: 300, // 从 250 增加，让参与者框更宽
           height: 100,
           boxMargin: 20, // 从 15 增加
           boxTextMargin: 8,
           noteMargin: 15,
           messageMargin: 60, // 从 50 增加，让消息线更长
-          diagramMarginX: 60, // 从 50 增加
-          diagramMarginY: 40, // 从 30 增加
+          mirrorActors: true,
+          bottomMarginAdj: 1,
+          useMaxWidth: true,
         },
         gantt: {
+          titleTopMargin: 25,
+          barHeight: 20,
+          topPadding: 50,
+          rightPadding: 75,
+          leftPadding: 75,
+          gridLineStartPadding: 350,
           numberSectionStyles: 4,
           axisFormat: '%m-%d',
-          gridLineStartPadding: 350,
           fontSize: 18, // 从 16 增加
           sectionFontSize: 20, // 从 18 增加
         },
+        // 支持中文字体
+        fontFamily: fontStack,
         journey: {
           diagramMarginX: 80,
           diagramMarginY: 30,
@@ -673,10 +699,10 @@ export function useMarkdown() {
 
         // 关键改动：将 SVG 和控制按钮包装后存入 Map，并用占位符替换
         const fullHtml = `<div class="mermaid-container">
-          <div class="mermaid-zoom-controls">
-            <button class="mermaid-zoom-btn" data-action="in" title="放大">+</button>
-            <button class="mermaid-zoom-btn" data-action="out" title="缩小">−</button>
-            <button class="mermaid-zoom-btn" data-action="reset" title="重置">⌂</button>
+          <div class="mermaid-zoom-controls" role="toolbar" aria-label="Mermaid 图表缩放控件">
+            <button class="mermaid-zoom-btn" data-action="in" title="放大" aria-label="放大">+</button>
+            <button class="mermaid-zoom-btn" data-action="out" title="缩小" aria-label="缩小">−</button>
+            <button class="mermaid-zoom-btn" data-action="reset" title="重置" aria-label="重置">⌂</button>
           </div>
           <div class="mermaid-diagram">${optimizedSvg}</div>
         </div>`
