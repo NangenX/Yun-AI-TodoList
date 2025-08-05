@@ -397,124 +397,30 @@ defineOptions({
   opacity: 1;
 }
 
-/* 不同类型卡片的特殊样式 - 基于主色调的和谐变体 */
-.settings-card-primary {
-  background: linear-gradient(
-    135deg,
-    var(--settings-card-primary-accent) 0%,
-    var(--settings-card-bg) 100%
-  );
-  border-color: var(--settings-primary-medium);
-}
-
-.settings-card-primary:hover {
-  background: linear-gradient(
-    135deg,
-    var(--settings-primary-soft) 0%,
-    var(--settings-card-hover-bg) 100%
-  );
-}
-
-.settings-card-secondary {
-  background: linear-gradient(
-    135deg,
-    var(--settings-card-secondary-accent) 0%,
-    var(--settings-card-bg) 100%
-  );
-  border-color: var(--settings-primary-soft);
-}
-
-.settings-card-secondary:hover {
-  background: linear-gradient(
-    135deg,
-    var(--settings-primary-medium) 0%,
-    var(--settings-card-hover-bg) 100%
-  );
-}
-
-.settings-card-accent {
-  background: linear-gradient(
-    135deg,
-    var(--settings-card-tertiary-accent) 0%,
-    var(--settings-card-bg) 100%
-  );
-  border-color: var(--settings-primary-ultra-light);
-}
-
-.settings-card-accent:hover {
-  background: linear-gradient(
-    135deg,
-    var(--settings-primary-soft) 0%,
-    var(--settings-card-hover-bg) 100%
-  );
-}
-
-.settings-card-language {
-  background: linear-gradient(
-    135deg,
-    var(--settings-card-secondary-accent) 0%,
-    var(--settings-card-bg) 100%
-  );
-  border-color: var(--settings-primary-soft);
-}
-
-.settings-card-language:hover {
-  background: linear-gradient(
-    135deg,
-    var(--settings-primary-medium) 0%,
-    var(--settings-card-hover-bg) 100%
-  );
-}
-
-.settings-card-storage {
-  background: linear-gradient(
-    135deg,
-    var(--settings-card-primary-accent) 0%,
-    var(--settings-card-bg) 100%
-  );
-  border-color: var(--settings-primary-medium);
-}
-
-.settings-card-storage:hover {
-  background: linear-gradient(
-    135deg,
-    var(--settings-primary-soft) 0%,
-    var(--settings-card-hover-bg) 100%
-  );
-}
-
-.settings-card-ai {
-  background: linear-gradient(
-    135deg,
-    var(--settings-card-secondary-accent) 0%,
-    var(--settings-card-bg) 100%
-  );
-  border-color: var(--settings-primary-soft);
-}
-
-.settings-card-ai:hover {
-  background: linear-gradient(
-    135deg,
-    var(--settings-primary-medium) 0%,
-    var(--settings-card-hover-bg) 100%
-  );
-}
-
+/* 统一的卡片样式 - 保持一致的视觉风格 */
+.settings-card-primary,
+.settings-card-secondary,
+.settings-card-accent,
+.settings-card-language,
+.settings-card-storage,
+.settings-card-ai,
 .settings-card-prompts {
-  background: linear-gradient(
-    135deg,
-    var(--settings-card-primary-accent) 0%,
-    var(--settings-card-bg) 100%
-  );
-  border-color: var(--settings-primary-medium);
+  background: var(--settings-card-bg);
+  border-color: var(--settings-card-border);
+  box-shadow: var(--settings-card-shadow);
 }
 
+.settings-card-primary:hover,
+.settings-card-secondary:hover,
+.settings-card-accent:hover,
+.settings-card-language:hover,
+.settings-card-storage:hover,
+.settings-card-ai:hover,
 .settings-card-prompts:hover {
-  background: linear-gradient(
-    135deg,
-    var(--settings-primary-soft) 0%,
-    var(--settings-card-hover-bg) 100%
-  );
+  background: var(--settings-card-hover-bg);
+  border-color: var(--settings-card-hover-border);
+  box-shadow: var(--settings-card-hover-shadow);
+  transform: translateY(-2px);
 }
 
 /* 背景装饰 */
