@@ -1,5 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
-import type { CreateUserDto, UpdateUserDto, User } from '@shared/types'
+import type {
+  CreateUserDto,
+  UpdateUserDto,
+  User,
+  UserPreferences,
+  SystemPrompt,
+} from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import { ThemeValue } from '@shared/types/user'
@@ -144,7 +150,10 @@ export class UsersService {
   /**
    * 更新用户偏好设置
    */
-  private async updateUserPreferences(userId: string, preferences: Partial<any>): Promise<void> {
+  private async updateUserPreferences(
+    userId: string,
+    preferences: Partial<UserPreferences>
+  ): Promise<void> {
     // 处理主题和语言设置
     if (preferences.theme || preferences.language) {
       await this.userPreferencesService.updateThemeAndLanguage(userId, {
@@ -199,7 +208,7 @@ export class UsersService {
     const prefs = prismaUser.preferences || {}
 
     // 处理 systemPrompts JSON 字段
-    let systemPrompts: any[] = []
+    let systemPrompts: SystemPrompt[] = []
     if (prefs.systemPrompts) {
       try {
         const parsed = Array.isArray(prefs.systemPrompts)

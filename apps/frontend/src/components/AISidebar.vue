@@ -300,7 +300,7 @@ const handlePromptChange = (event: Event) => {
 // 处理预设变化
 const handlePresetChanged = async (payload: {
   type: 'ai-provider' | 'system-prompt'
-  preset: any
+  preset: { id: string }
 }) => {
   try {
     if (payload.type === 'system-prompt') {

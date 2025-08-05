@@ -77,7 +77,7 @@ import { useSettingsState } from '../../composables/useSettingsState'
 import { saveApiKey, saveBaseUrl, saveAIModel, saveAIProvider } from '../../services/configService'
 
 const { t } = useI18n()
-const router = useRouter()
+const _router = useRouter()
 
 // 系统提示词管理
 const {
@@ -157,7 +157,7 @@ const handlePresetChange = async () => {
         saveAIProvider(preset.provider)
         saveApiKey(preset.apiKey)
         saveBaseUrl(preset.baseUrl)
-        saveAIModel(preset.model as any) // 类型转换，因为预设可能包含更多模型类型
+        saveAIModel(preset.model as never) // 类型转换，因为预设可能包含更多模型类型
 
         emit('preset-changed', {
           type: 'ai-provider',
@@ -218,7 +218,7 @@ interface Emits {
     e: 'preset-changed',
     payload: {
       type: 'ai-provider' | 'system-prompt'
-      preset: any
+      preset: unknown
     }
   ): void
 }
@@ -235,15 +235,16 @@ watch(
 )
 
 // 监听 localStorage 变化，当设置页面保存新预设时自动更新
-const handleStorageChange = (e: StorageEvent) => {
-  if (e.key === 'ai_api_presets') {
+const handleStorageChange = (e: Event) => {
+  const storageEvent = e as unknown as { key: string | null }
+  if (storageEvent.key === 'ai_api_presets') {
     loadAIProviderPresets()
     checkCurrentPreset()
   }
 }
 
 // 监听自定义事件，当预设更新时实时刷新
-const handlePresetsUpdated = (e: CustomEvent) => {
+const handlePresetsUpdated = (_e: Event) => {
   loadAIProviderPresets()
   checkCurrentPreset()
 }
@@ -256,13 +257,13 @@ onMounted(() => {
   // 监听 localStorage 变化
   window.addEventListener('storage', handleStorageChange)
   // 监听自定义预设更新事件
-  window.addEventListener('ai-presets-updated', handlePresetsUpdated as EventListener)
+  window.addEventListener('ai-presets-updated', handlePresetsUpdated)
 })
 
 // 组件卸载时清理监听器
 onUnmounted(() => {
   window.removeEventListener('storage', handleStorageChange)
-  window.removeEventListener('ai-presets-updated', handlePresetsUpdated as EventListener)
+  window.removeEventListener('ai-presets-updated', handlePresetsUpdated)
 })
 
 defineOptions({

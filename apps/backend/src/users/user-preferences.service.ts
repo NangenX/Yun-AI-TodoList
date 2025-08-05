@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
-import type { UserPreferences } from '@shared/types'
+import type { UserPreferences, SystemPrompt } from '@shared/types'
 import { ThemeValue } from '@shared/types/user'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
@@ -211,7 +211,10 @@ export class UserPreferencesService {
   /**
    * 更新用户系统提示词列表
    */
-  async updateSystemPrompts(userId: string, systemPrompts: any[]): Promise<UserPreferences> {
+  async updateSystemPrompts(
+    userId: string,
+    systemPrompts: SystemPrompt[]
+  ): Promise<UserPreferences> {
     try {
       this.logger.debug(`更新用户系统提示词: ${userId}`, { count: systemPrompts.length })
 
@@ -230,7 +233,7 @@ export class UserPreferencesService {
   /**
    * 获取用户系统提示词列表
    */
-  async getUserSystemPrompts(userId: string): Promise<any[]> {
+  async getUserSystemPrompts(userId: string): Promise<SystemPrompt[]> {
     const preferences = await this.findByUserId(userId)
     return preferences?.systemPrompts || []
   }
@@ -303,7 +306,7 @@ export class UserPreferencesService {
     prismaPrefs: Record<string, unknown>
   ): UserPreferences {
     const language = prismaPrefs.language as string
-    let systemPrompts: any[] = []
+    let systemPrompts: SystemPrompt[] = []
 
     // 处理 systemPrompts JSON 字段
     if (prismaPrefs.systemPrompts) {

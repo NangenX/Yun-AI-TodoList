@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import type { User, UserPreferences } from '@shared/types'
+import type { User, UserPreferences, SystemPrompt } from '@shared/types'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { AIAnalysisConfigDto, ThemePreferencesDto } from './dto/user-preferences.dto'
@@ -47,7 +47,7 @@ export class UserPreferencesController {
   @Patch('system-prompts')
   @ApiOperation({ summary: '更新用户系统提示词列表' })
   @ApiResponse({ status: 200, description: '更新成功' })
-  async updateSystemPrompts(@CurrentUser() user: User, @Body() systemPrompts: any[]) {
+  async updateSystemPrompts(@CurrentUser() user: User, @Body() systemPrompts: SystemPrompt[]) {
     const updatedPreferences = await this.userPreferencesService.updateSystemPrompts(
       user.id,
       systemPrompts
