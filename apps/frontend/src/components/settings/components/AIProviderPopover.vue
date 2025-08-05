@@ -603,6 +603,12 @@ const loadPresets = () => {
 const savePresets = () => {
   try {
     localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(savedPresets.value))
+    // 触发自定义事件通知其他组件预设已更新
+    window.dispatchEvent(
+      new CustomEvent('ai-presets-updated', {
+        detail: { presets: savedPresets.value },
+      })
+    )
   } catch (error) {
     console.error('Failed to save presets:', error)
   }

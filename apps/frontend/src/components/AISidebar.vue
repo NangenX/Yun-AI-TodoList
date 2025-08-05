@@ -22,7 +22,7 @@
           'border-r border-input-border': !isFullscreen,
         },
       ]"
-      :style="sidebarStyle"
+      :style="{ ...sidebarStyle, 'container-type': 'inline-size' }"
     >
       <!-- 拖拽调整手柄 -->
       <div
@@ -72,10 +72,11 @@
           </div>
         </div>
 
-        <!-- 系统提示词选择器和桌面端关闭按钮 -->
+        <!-- 系统提示词选择器和预设选择器 - 仅桌面端 -->
         <div
           class="header-controls hidden md:flex items-center gap-2 w-full md:w-auto mt-3 md:mt-0"
         >
+          <!-- 系统提示词选择器 -->
           <div class="relative flex-1 md:flex-none">
             <select
               :value="config.enabled ? config.activePromptId || '' : ''"
@@ -119,6 +120,9 @@
               </svg>
             </div>
           </div>
+
+          <!-- AI 提供商预设选择器 -->
+          <PresetSelector @preset-changed="handlePresetChanged" />
 
           <!-- 全屏模式切换按钮 - 桌面端 -->
           <button
@@ -210,6 +214,7 @@ import { useAISidebar } from '../composables/useAISidebar'
 import { useChat } from '../composables/useChat'
 import { useSystemPrompts } from '../composables/useSystemPrompts'
 import AIChatContent from './chat/AIChatContent.vue'
+import PresetSelector from './chat/PresetSelector.vue'
 import Overlay from './common/Overlay.vue'
 import CloseIcon from './common/icons/CloseIcon.vue'
 
@@ -280,18 +285,34 @@ const {
   initialize: initializeSystemPrompts,
 } = useSystemPrompts()
 
-// 处理系统提示词切换
-const handlePromptChange = async (event: Event) => {
+// 处理系统提示词选择变化
+const handlePromptChange = (event: Event) => {
   const target = event.target as HTMLSelectElement
   const promptId = target.value || null
+  if (promptId) {
+    setActivePrompt(promptId)
+  } else {
+    // 清空当前选择的提示词
+    setActivePrompt(null)
+  }
+}
+
+// 处理预设变化
+const handlePresetChanged = async (payload: {
+  type: 'ai-provider' | 'system-prompt'
+  preset: any
+}) => {
   try {
-    // 如果选择了具体的系统提示词，自动启用系统提示词功能
-    if (promptId && !config.value.enabled) {
-      await updateConfig({ enabled: true })
+    if (payload.type === 'system-prompt') {
+      // 处理系统提示词预设变化
+      if (!config.value.enabled) {
+        await updateConfig({ enabled: true })
+      }
+      await setActivePrompt(payload.preset.id)
     }
-    await setActivePrompt(promptId)
+    // AI 提供商预设的变化已经在 PresetSelector 组件内部处理了
   } catch (error) {
-    console.error('切换系统提示词失败:', error)
+    console.error('切换预设失败:', error)
   }
 }
 
@@ -617,6 +638,84 @@ defineOptions({
   /* 调整下拉箭头位置 */
   .absolute.right-1\.5 {
     right: 0.375rem !important;
+  }
+}
+
+/* 侧边栏宽度响应式隐藏 - 当宽度小于 400px 时 */
+@container (max-width: 400px) {
+  /* 隐藏预设选择器 */
+  .preset-selector-container {
+    display: none !important;
+  }
+
+  /* 隐藏全屏按钮 */
+  .fullscreen-btn {
+    display: none !important;
+  }
+
+  /* 调整头部控件布局 */
+  .header-controls {
+    gap: 0.5rem !important;
+    justify-content: flex-end !important;
+  }
+
+  /* 确保关闭按钮保持在右侧 */
+  .close-btn-desktop {
+    flex-shrink: 0 !important;
+  }
+}
+
+/* 侧边栏宽度响应式隐藏 - 当宽度小于 350px 时 */
+@container (max-width: 350px) {
+  /* 进一步简化，只保留系统提示词选择器和关闭按钮 */
+  .header-controls {
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* 系统提示词选择器保持合适宽度 */
+  .header-controls > .relative:first-child {
+    flex: 1 !important;
+    max-width: calc(100% - 40px) !important;
+    margin-right: 0.5rem !important;
+  }
+
+  /* 缩小选择器字体 */
+  .header-controls select {
+    font-size: 0.75rem !important;
+    min-width: 80px !important;
+  }
+
+  /* 关闭按钮保持固定宽度 */
+  .close-btn-desktop {
+    flex-shrink: 0 !important;
+  }
+}
+
+/* 侧边栏宽度响应式隐藏 - 当宽度小于 300px 时 */
+@container (max-width: 300px) {
+  /* 隐藏系统提示词选择器标签文本，只显示选中值 */
+  .header-controls select {
+    font-size: 0.7rem !important;
+    padding: 0.25rem 1.5rem 0.25rem 0.5rem !important;
+  }
+
+  /* 进一步缩小标题 */
+  .sidebar-header h2 {
+    font-size: 0.8rem !important;
+  }
+
+  /* 确保关闭按钮在极小宽度下仍然可见 */
+  .close-btn-desktop {
+    padding: 0.375rem !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+  }
+
+  /* 调整头部控件间距 */
+  .header-controls {
+    gap: 0.25rem !important;
   }
 }
 

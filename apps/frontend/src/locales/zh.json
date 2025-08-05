@@ -737,5 +737,10 @@
   "clickToEditPriority": "点击编辑优先级",
   "clickToEditTime": "点击编辑时间估算",
   "enterNewPriority": "请输入新的优先级 (1-5):",
-  "enterNewTimeEstimate": "请输入新的时间估算 (如: 30分钟, 2小时):"
+  "enterNewTimeEstimate": "请输入新的时间估算 (如: 30分钟, 2小时):",
+
+  "selectPreset": "选择预设",
+  "openSettings": "打开设置",
+  "aiProviderPresets": "AI 提供商预设",
+  "systemPromptPresets": "系统提示词预设"
 }

@@ -50,9 +50,9 @@ declare global {
         // 根据屏幕尺寸确定默认缩放比例
         const getDefaultScale = () => {
           if (window.innerWidth <= 768) {
-            return '2.0' // 与移动端 CSS 默认值保持一致
+            return '4.0' // 与移动端 CSS 默认值保持一致
           }
-          return '2.5' // 与桌面端 CSS 默认值保持一致
+          return '5.0' // 与桌面端 CSS 默认值保持一致
         }
 
         const currentScale = parseFloat(
@@ -69,7 +69,7 @@ declare global {
             break
           case 'reset':
             // 根据屏幕尺寸确定重置缩放比例
-            newScale = window.innerWidth <= 768 ? 2.0 : 2.5 // 与 CSS 默认值保持一致
+            newScale = window.innerWidth <= 768 ? 4.0 : 5.0 // 与 CSS 默认值保持一致
             // 重置时也重置位移
             container.style.setProperty('--mermaid-translate-x', '0px')
             container.style.setProperty('--mermaid-translate-y', '0px')
@@ -569,6 +569,37 @@ export function useMarkdown() {
     return processedMarkdown
   }
 
+  // 一个辅助函数，用于修复常见的 Mermaid 语法错误
+  const fixMermaidSyntax = (code: string): string => {
+    // 检查是否存在潜在的错误语法
+    if (!/style.*style/.test(code)) {
+      return code // 如果没有一行内出现多个 style，直接返回
+    }
+
+    // 修复连续的 style 定义，将它们拆分成多行
+    // 匹配类似 "style A fill:#f0f8e8 style B fill:#some-color" 的模式
+    // 并将其转换为两行独立的 style 定义
+    let fixedCode = code
+
+    // 使用更精确的正则表达式来匹配和修复 style 语法错误
+    // 匹配一个 style 定义后跟另一个 style 定义的情况
+    fixedCode = fixedCode.replace(
+      /(style\s+[A-Za-z0-9_-]+\s+[^:\n]*:[^:\n]*(?:,[^:\n]*:[^:\n]*)*)\s+(style\s+[A-Za-z0-9_-]+\s+[^:\n]*:[^:\n]*(?:,[^:\n]*:[^:\n]*)*)/g,
+      '$1\n$2'
+    )
+
+    // 处理可能存在的更多连续 style 定义
+    fixedCode = fixedCode.replace(
+      /(\nstyle\s+[A-Za-z0-9_-]+\s+[^:\n]*:[^:\n]*(?:,[^:\n]*:[^:\n]*)*)\s+(style\s+[A-Za-z0-9_-]+\s+[^:\n]*:[^:\n]*(?:,[^:\n]*:[^:\n]*)*)/g,
+      '$1\n$2'
+    )
+
+    // 移除可能产生的多余空行，但保留一个空行
+    fixedCode = fixedCode.replace(/\n{3,}/g, '\n\n').trim()
+
+    return fixedCode
+  }
+
   // 预处理 Mermaid 图表
   const preprocessMermaidDiagrams = async (markdown: string): Promise<string> => {
     const mermaidRegex = /```mermaid\n([\s\S]*?)\n```/g
@@ -578,13 +609,10 @@ export function useMarkdown() {
       return markdown
     }
 
-    // 每次渲染前清空 map，防止旧数据残留
-    mermaidSvgMap.clear()
-
     try {
-      // 根据当前主题重新初始化 Mermaid，强制重新初始化以确保主题正确应用
+      // 根据当前主题重新初始化 Mermaid，避免不必要的强制重新初始化
       const currentTheme = getCurrentTheme()
-      await initializeMermaid(currentTheme, true)
+      await initializeMermaid(currentTheme)
     } catch (error) {
       console.warn('Mermaid initialization failed, falling back to code blocks:', error)
       // 降级处理：将 mermaid 代码块转换为普通代码块
@@ -597,7 +625,11 @@ export function useMarkdown() {
 
     for (const match of matches) {
       try {
-        const diagramCode = match[1]
+        let diagramCode = match[1]
+
+        // 在这里调用修复函数
+        diagramCode = fixMermaidSyntax(diagramCode)
+
         // 使用更稳健的 ID
         const id = `mermaid-svg-${Math.random().toString(36).substr(2, 9)}`
         const placeholderId = `mermaid-placeholder-${id}`
@@ -1064,7 +1096,7 @@ export function useMarkdown() {
   const reinitializeMermaid = async () => {
     try {
       const currentTheme = getCurrentTheme()
-      await initializeMermaid(currentTheme, true)
+      await initializeMermaid(currentTheme)
     } catch (error) {
       console.warn('Mermaid reinitialization failed:', error)
     }
@@ -1081,5 +1113,7 @@ export function useMarkdown() {
     reinitializeMermaid,
     // 新增导出
     getMermaidSvgMap,
+    // 仅用于测试的导出
+    fixMermaidSyntax,
   }
 }

@@ -397,9 +397,9 @@ select {
   border-radius: var(--border-radius);
   border: 1px solid var(--input-border-color);
   text-align: center;
-  min-height: 500px;
+  min-height: 400px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -441,8 +441,8 @@ select {
 .mermaid-container {
   position: relative;
   width: 100%;
-  max-width: 1200px;
-  min-height: 500px;
+  max-width: 1000px;
+  min-height: 400px;
   margin: 20px auto;
   border: 1px solid var(--input-border-color);
   border-radius: 8px;
@@ -453,12 +453,12 @@ select {
 .mermaid-diagram {
   width: 100%;
   max-width: 100%;
-  min-height: 500px;
+  min-height: 400px;
   overflow: auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  padding: 30px;
 }
 
 /* 响应式设计 */
@@ -486,7 +486,7 @@ select {
   }
 
   .mermaid-diagram svg {
-    transform: scale(var(--mermaid-scale, 2))
+    transform: scale(var(--mermaid-scale, 4))
       translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   }
 }
@@ -499,7 +499,7 @@ select {
   min-height: 150px;
   background: transparent;
   color: var(--text-color);
-  transform: scale(var(--mermaid-scale, 2.5))
+  transform: scale(var(--mermaid-scale, 5))
     translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   transform-origin: center;
   transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);

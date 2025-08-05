@@ -719,5 +719,10 @@
   "clickToEditPriority": "Click to edit priority",
   "clickToEditTime": "Click to edit time estimate",
   "enterNewPriority": "Enter new priority (1-5):",
-  "enterNewTimeEstimate": "Enter new time estimate (e.g., 30 minutes, 2 hours):"
+  "enterNewTimeEstimate": "Enter new time estimate (e.g., 30 minutes, 2 hours):",
+
+  "selectPreset": "Select Preset",
+  "openSettings": "Open Settings",
+  "aiProviderPresets": "AI Provider Presets",
+  "systemPromptPresets": "System Prompt Presets"
 }

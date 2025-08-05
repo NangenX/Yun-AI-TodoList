@@ -176,23 +176,33 @@ const injectMermaidSVGs = async () => {
 
 // 异步处理消息内容
 const processSanitizedMessages = async () => {
-  const newSanitizedMessages: ExtendedMessage[] = []
-  for (const message of props.messages) {
+  // 在开始处理整个消息列表前，清空一次 Mermaid Map
+  getMermaidSvgMap().clear()
+
+  // 使用 Promise.all 并行处理所有消息的渲染，提高效率
+  const processingPromises = props.messages.map(async (message) => {
     const { thinking, response } = extractThinkingContent(message.content)
     const sanitized = await renderMarkdown(response)
-    newSanitizedMessages.push({
+    return {
       ...message,
       content: response,
       thinkingContent: thinking,
       sanitizedContent: sanitized,
-    })
-  }
+    }
+  })
+
+  // 等待所有消息都处理完毕
+  const newSanitizedMessages = await Promise.all(processingPromises)
+
   sanitizedMessages.value = newSanitizedMessages
+  // 所有消息的 HTML（包括占位符）都已生成，现在可以安全地注入 SVG
   await injectMermaidSVGs()
 }
 
 // 异步处理当前响应
 const processCurrentResponse = async () => {
+  // 为当前响应的渲染也清空一次 map，避免和历史消息冲突
+  getMermaidSvgMap().clear()
   currentResponseSanitized.value = await renderMarkdown(props.currentResponse)
   await injectMermaidSVGs()
 }
