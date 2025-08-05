@@ -1,3 +1,583 @@
+.todo-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 126, 103, 0.3), transparent);
+}
+
+/* 增强输入框的聚焦效果 */
+.input-base:focus {
+  box-shadow:
+    0 0 8px rgba(125, 179, 165, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 增强按钮的渐变效果 */
+.btn-primary {
+  background: linear-gradient(135deg, var(--button-bg-color) 0%, rgba(125, 179, 165, 0.9) 100%);
+  box-shadow: 0 2px 6px rgba(125, 179, 165, 0.25);
+  letter-spacing: 0.5px;
+  height: 42px;
+}
+
+.btn-primary:hover {
+  background-color: var(--button-hover-bg-color);
+}
+
+/* 增强卡片的复杂阴影和背景 */
+.card-base {
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.1),
+    0 1px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 增强 todo-card-header 的背景和阴影 */
+.todo-card-header {
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 126, 103, 0.02) 100%);
+  box-shadow: 0 2px 8px rgba(255, 126, 103, 0.08);
+  border-bottom: 1px solid rgba(255, 126, 103, 0.08);
+  position: relative;
+  z-index: 10;
+}
+
+/* 增强 todo-item 的悬停效果 */
+.card-todo:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 增强过滤器按钮的样式 */
+.btn-filter {
+  border-radius: 20px;
+}
+
+.btn-filter:hover,
+.btn-filter-active {
+  background-color: var(--filter-btn-active-bg);
+  color: var(--filter-btn-active-text);
+  border-color: var(--filter-btn-active-border);
+}
+
+/* 增强导航栏在移动端的阴影 */
+@media (max-width: 768px) {
+  .nav-bar {
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* 增强搜索框的聚焦效果 */
+.search-input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+}
+
+/* 增强清除按钮的悬停效果 */
+.clear-search-btn:hover {
+  background-color: var(--hover-bg-color);
+  color: var(--text-color);
+  opacity: 1;
+}
+
+/* 增强复选框的样式 */
+.checkbox.checked::after {
+  content: '✓';
+  color: var(--card-bg-color);
+  font-size: 12px;
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+/* 增强删除按钮的悬停效果 */
+.delete-btn:hover {
+  background-color: rgba(245, 101, 101, 0.08);
+  color: var(--error-color);
+  transform: scale(1.05);
+}
+
+/* 增强表单的背景和边框 */
+form {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 126, 103, 0.1);
+}
+
+/* 增强空状态的样式 */
+.empty-hint {
+  color: var(--text-color-secondary, #666);
+}
+
+.empty-hint svg {
+  opacity: 0.5;
+}
+
+.empty-hint p {
+  opacity: 0.8;
+}
+
+/* 增强加载状态 */
+.todo-list.is-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* 增强主题切换工具提示 */
+.theme-toggle::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
+}
+
+.theme-toggle:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 深色主题下的特殊效果 */
+@media (prefers-color-scheme: dark) {
+  .card-base {
+    backdrop-filter: blur(20px);
+  }
+
+  .search-input-wrapper {
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .search-input {
+    font-size: 16px; /* 防止 iOS 缩放 */
+  }
+}
+
+/* 确保过渡动画的流畅性 */
+.transition-all-300 {
+  transition: all 0.3s ease;
+}
+
+/* AI 回答代码高亮主题切换 */
+:root {
+  --hljs-bg: #f6f8fa;
+  --hljs-color: #24292e;
+}
+
+[data-theme='dark'] {
+  --hljs-bg: #0d1117;
+  --hljs-color: #c9d1d9;
+}
+
+/* 代码块主题适配 */
+.ai-message-container pre {
+  background: var(--hljs-bg) !important;
+  color: var(--hljs-color) !important;
+}
+
+.ai-message-container pre code {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* 浅色主题代码高亮 */
+:root .hljs {
+  background: var(--hljs-bg);
+  color: var(--hljs-color);
+}
+
+/* 深色主题代码高亮 */
+[data-theme='dark'] .hljs {
+  background: var(--hljs-bg);
+  color: var(--hljs-color);
+}
+
+[data-theme='dark'] .hljs-comment,
+[data-theme='dark'] .hljs-quote {
+  color: #8b949e;
+}
+
+[data-theme='dark'] .hljs-keyword,
+[data-theme='dark'] .hljs-selector-tag,
+[data-theme='dark'] .hljs-subst {
+  color: #ff7b72;
+}
+
+[data-theme='dark'] .hljs-number,
+[data-theme='dark'] .hljs-literal,
+[data-theme='dark'] .hljs-variable,
+[data-theme='dark'] .hljs-template-variable,
+[data-theme='dark'] .hljs-tag .hljs-attr {
+  color: #79c0ff;
+}
+
+[data-theme='dark'] .hljs-string,
+[data-theme='dark'] .hljs-doctag {
+  color: #a5d6ff;
+}
+
+[data-theme='dark'] .hljs-title,
+[data-theme='dark'] .hljs-section,
+[data-theme='dark'] .hljs-selector-id {
+  color: #d2a8ff;
+}
+
+[data-theme='dark'] .hljs-type,
+[data-theme='dark'] .hljs-class .hljs-title {
+  color: #ffa657;
+}
+
+[data-theme='dark'] .hljs-tag,
+[data-theme='dark'] .hljs-name,
+[data-theme='dark'] .hljs-attribute {
+  color: #7ee787;
+}
+
+[data-theme='dark'] .hljs-regexp,
+[data-theme='dark'] .hljs-link {
+  color: #f2cc60;
+}
+
+/* AI 回答容器增强视觉效果 */
+.ai-message-container {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.95) 50%,
+    rgba(241, 245, 249, 0.92) 100%
+  );
+  border: 1px solid rgba(125, 179, 165, 0.12);
+  border-radius: 24px;
+  padding: 24px 28px;
+  margin: 16px 0;
+  box-shadow:
+    0 4px 24px rgba(125, 179, 165, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-message-container:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(125, 179, 165, 0.1),
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-color: rgba(125, 179, 165, 0.18);
+}
+
+/* 深色主题适配 */
+[data-theme='dark'] .ai-message-container {
+  background: linear-gradient(
+    135deg,
+    rgba(47, 53, 61, 0.98) 0%,
+    rgba(37, 43, 50, 0.95) 50%,
+    rgba(30, 35, 41, 0.92) 100%
+  );
+  border-color: rgba(125, 179, 165, 0.15);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .ai-message-container:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-color: rgba(125, 179, 165, 0.22);
+}
+
+/* AI 回答内容区域 */
+.ai-message-container > div {
+  position: relative;
+  z-index: 2;
+}
+
+/* 代码块增强效果 */
+.ai-message-container pre {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(248, 250, 252, 0.95) 0%,
+    rgba(241, 245, 249, 0.9) 100%
+  ) !important;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  /* border-radius: 0 0 4px 4px; */
+  padding: 16px 20px;
+  /* margin: 2px 0; */
+  overflow-x: auto;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  backdrop-filter: blur(8px);
+}
+
+[data-theme='dark'] .ai-message-container pre {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 35, 41, 0.95) 0%,
+    rgba(17, 24, 39, 0.9) 100%
+  ) !important;
+  border-color: rgba(64, 70, 80, 0.6);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* 引用块增强效果 */
+.ai-message-container blockquote {
+  position: relative;
+  background: linear-gradient(90deg, rgba(125, 179, 165, 0.08) 0%, rgba(125, 179, 165, 0.04) 100%);
+  border-left: 4px solid rgba(125, 179, 165, 0.6);
+  border-radius: 0 12px 12px 0;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-style: italic;
+  box-shadow: 0 2px 8px rgba(125, 179, 165, 0.06);
+  backdrop-filter: blur(4px);
+}
+
+[data-theme='dark'] .ai-message-container blockquote {
+  background: linear-gradient(90deg, rgba(125, 179, 165, 0.12) 0%, rgba(125, 179, 165, 0.06) 100%);
+  border-left-color: rgba(125, 179, 165, 0.8);
+}
+
+/* 表格增强效果 */
+.ai-message-container table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(4px);
+}
+
+[data-theme='dark'] .ai-message-container table {
+  background: rgba(47, 53, 61, 0.8);
+  border-color: rgba(64, 70, 80, 0.6);
+}
+
+.ai-message-container th {
+  background: linear-gradient(135deg, rgba(125, 179, 165, 0.12) 0%, rgba(125, 179, 165, 0.08) 100%);
+  padding: 12px 16px;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.ai-message-container td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.4);
+}
+
+.ai-message-container tr:last-child td {
+  border-bottom: none;
+}
+
+[data-theme='dark'] .ai-message-container th {
+  background: linear-gradient(135deg, rgba(125, 179, 165, 0.15) 0%, rgba(125, 179, 165, 0.1) 100%);
+  border-bottom-color: rgba(64, 70, 80, 0.6);
+}
+
+[data-theme='dark'] .ai-message-container td {
+  border-bottom-color: rgba(64, 70, 80, 0.4);
+}
+
+/* 链接悬停效果增强 */
+.ai-message-container a {
+  position: relative;
+  color: rgba(125, 179, 165, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba(125, 179, 165, 0.3);
+}
+
+.ai-message-container a:hover {
+  color: rgba(125, 179, 165, 1);
+  border-bottom-color: rgba(125, 179, 165, 0.8);
+  transform: translateY(-1px);
+}
+
+/* 滚动条美化 */
+.ai-message-container pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ai-message-container pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.ai-message-container pre::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, var(--primary-color), rgba(125, 179, 165, 0.8));
+  border-radius: 3px;
+}
+
+.ai-message-container pre::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(125, 179, 165, 0.8), var(--primary-color));
+}
+
+.transition-all-500 {
+  transition: all 0.5s ease;
+}
+
+/* 确保变换效果的正确性 */
+.transform-hover-up {
+  transform: translateY(-2px);
+}
+
+.transform-hover-up-1 {
+  transform: translateY(-1px);
+}
+
+/* 确保字体渲染的一致性 */
+.font-sans {
+  font-family:
+    'LXGW WenKai Lite Medium',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    'Helvetica Neue',
+    sans-serif;
+}
+
+/* AI 消息排版增强 */
+.ai-message-container h1,
+.ai-message-container h2,
+.ai-message-container h3,
+.ai-message-container h4,
+.ai-message-container h5,
+.ai-message-container h6 {
+  color: var(--text-color);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.ai-message-container h1 {
+  font-size: 1.25rem;
+  border-bottom: 2px solid rgba(125, 179, 165, 0.2);
+  padding-bottom: 6px;
+}
+
+.ai-message-container h2 {
+  font-size: 1.125rem;
+}
+
+.ai-message-container h3 {
+  font-size: 1rem;
+}
+
+.ai-message-container p {
+  line-height: 1.6;
+  margin-bottom: 12px;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.ai-message-container ul,
+.ai-message-container ol {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.ai-message-container li {
+  margin: 6px 0;
+  line-height: 1.5;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.ai-message-container li::marker {
+  color: rgba(125, 179, 165, 0.8);
+}
+
+.ai-message-container code:not(pre code) {
+  background: rgba(125, 179, 165, 0.1);
+  color: rgba(125, 179, 165, 0.9);
+  padding: 2px 5px;
+  border-radius: 5px;
+  font-size: 0.85em;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  border: 1px solid rgba(125, 179, 165, 0.15);
+}
+
+[data-theme='dark'] .ai-message-container code:not(pre code) {
+  background: rgba(125, 179, 165, 0.15);
+  color: rgba(125, 179, 165, 1);
+  border-color: rgba(125, 179, 165, 0.2);
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .ai-message-container {
+    padding: 16px 12px;
+    margin: 10px 0;
+    border-radius: 16px;
+  }
+
+  .ai-message-container pre {
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  .ai-message-container h1 {
+    font-size: 1.125rem;
+  }
+
+  .ai-message-container h2 {
+    font-size: 1rem;
+  }
+
+  .ai-message-container h3 {
+    font-size: 0.9rem;
+  }
+
+  .ai-message-container p {
+    font-size: 13px;
+  }
+
+  .ai-message-container li {
+    font-size: 13px;
+  }
+}
+
 /* 字体定义 - 使用本地字体文件 */
 @font-face {
   font-family: 'LXGW WenKai Medium';

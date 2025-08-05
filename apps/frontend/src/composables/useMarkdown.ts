@@ -49,10 +49,8 @@ declare global {
 
         // 根据屏幕尺寸确定默认缩放比例
         const getDefaultScale = () => {
-          if (window.innerWidth <= 768) {
-            return '4.0' // 与移动端 CSS 默认值保持一致
-          }
-          return '5.0' // 与桌面端 CSS 默认值保持一致
+          // 统一桌面和移动端的默认缩放，与 CSS 默认值保持一致
+          return '1.5'
         }
 
         const currentScale = parseFloat(
@@ -62,14 +60,14 @@ declare global {
 
         switch (action) {
           case 'in':
-            newScale = Math.min(currentScale * 1.2, 3.0) // 最大3倍
+            newScale = Math.min(currentScale * 1.2, 5.0) // 最大5倍
             break
           case 'out':
-            newScale = Math.max(currentScale / 1.2, 0.5) // 最小0.5倍
+            newScale = Math.max(currentScale / 1.2, 0.2) // 最小0.2倍
             break
           case 'reset':
-            // 根据屏幕尺寸确定重置缩放比例
-            newScale = window.innerWidth <= 768 ? 4.0 : 5.0 // 与 CSS 默认值保持一致
+            // 重置缩放比例为默认值
+            newScale = parseFloat(getDefaultScale())
             // 重置时也重置位移
             container.style.setProperty('--mermaid-translate-x', '0px')
             container.style.setProperty('--mermaid-translate-y', '0px')
@@ -343,33 +341,49 @@ export function useMarkdown() {
         securityLevel: 'loose',
         // 支持中文字体
         fontFamily: fontStack,
-        // 图表尺寸配置
         flowchart: {
-          nodeSpacing: 50,
-          rankSpacing: 60,
-          padding: 20,
+          useMaxWidth: false,
+          nodeSpacing: 100, // 从 80 增加，让节点更疏朗
+          rankSpacing: 120, // 从 100 增加，让层级更清晰
+          padding: 40, // 从 30 增加，提供更多内边距
+          curve: 'linear',
         },
         sequence: {
-          width: 150,
-          height: 65,
-          boxMargin: 10,
-          boxTextMargin: 5,
-          noteMargin: 10,
-          messageMargin: 35,
+          width: 300, // 从 250 增加，让参与者框更宽
+          height: 100,
+          boxMargin: 20, // 从 15 增加
+          boxTextMargin: 8,
+          noteMargin: 15,
+          messageMargin: 60, // 从 50 增加，让消息线更长
+          diagramMarginX: 60, // 从 50 增加
+          diagramMarginY: 40, // 从 30 增加
         },
         gantt: {
           numberSectionStyles: 4,
+          axisFormat: '%m-%d',
+          gridLineStartPadding: 350,
+          fontSize: 18, // 从 16 增加
+          sectionFontSize: 20, // 从 18 增加
         },
         journey: {
-          diagramMarginX: 50,
-          diagramMarginY: 10,
+          diagramMarginX: 80,
+          diagramMarginY: 30,
+          leftMargin: 150,
+          width: 250, // 从 200 增加
+          height: 75, // 从 65 增加
+          boxMargin: 10,
+          boxTextMargin: 5,
         },
         timeline: {
-          diagramMarginX: 50,
-          diagramMarginY: 10,
+          diagramMarginX: 80,
+          diagramMarginY: 30,
+          leftMargin: 150,
+          width: 250, // 从 200 增加
+          height: 75, // 从 65 增加
         },
         mindmap: {
-          padding: 10,
+          padding: 30, // 从 20 增加
+          maxNodeWidth: 250, // 从 200 增加
         },
         gitGraph: {
           mainBranchName: 'main',
@@ -388,12 +402,9 @@ export function useMarkdown() {
           mainBkg: backgroundColor,
           secondBkg: backgroundColor,
           tertiaryBkg: backgroundColor,
-
-          // 字体相关配置
           fontFamily: fontStack,
-          fontSize: '14px',
-
-          // 确保所有文字相关的颜色都使用主题文字颜色
+          fontSize: '18px',
+          fontWeight: 'normal',
           textColor: textColor,
           labelTextColor: textColor,
           nodeTextColor: textColor,
@@ -457,12 +468,12 @@ export function useMarkdown() {
           gitBranchLabel6: textColor,
           gitBranchLabel7: textColor,
 
-          // 饼图相关文字颜色
-          pieTitleTextSize: '25px',
+          // --- [修改] 饼图相关文字颜色和尺寸 - 增大字体 ---
+          pieTitleTextSize: '30px', // 从 '28px' 增加
           pieTitleTextColor: textColor,
-          pieSectionTextSize: '17px',
+          pieSectionTextSize: '22px', // 从 '20px' 增加
           pieSectionTextColor: textColor,
-          pieLegendTextSize: '17px',
+          pieLegendTextSize: '20px', // 从 '18px' 增加
           pieLegendTextColor: textColor,
           pieStrokeColor: textColor,
           pieStrokeWidth: '2px',
