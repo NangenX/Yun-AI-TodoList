@@ -299,19 +299,15 @@ const handlePromptChange = (event: Event) => {
 }
 
 // 处理预设变化
-const handlePresetChanged = async (payload: {
-  type: 'ai-provider' | 'system-prompt'
-  preset: { id: string }
-}) => {
+const handlePresetChanged = async (payload: { type: 'ai-provider'; preset: unknown }) => {
   try {
-    if (payload.type === 'system-prompt') {
-      // 处理系统提示词预设变化
-      if (!config.value.enabled) {
-        await updateConfig({ enabled: true })
-      }
-      await setActivePrompt(payload.preset.id)
+    if (payload.type === 'ai-provider') {
+      // AI 提供商预设的变化已经在 PresetSelector 组件内部处理了
+      console.log('AI 提供商预设已切换:', payload.preset)
+
+      // 可选：创建新对话以使用新的 AI 提供商设置
+      // createNewConversation()
     }
-    // AI 提供商预设的变化已经在 PresetSelector 组件内部处理了
   } catch (error) {
     console.error('切换预设失败:', error)
   }

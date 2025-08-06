@@ -10,7 +10,9 @@
         ]"
         @change="handlePresetChange"
       >
-        <option value="" class="text-gray-800">{{ t('selectPreset', '选择预设') }}</option>
+        <option v-if="!selectedPreset" value="" disabled class="text-gray-800">
+          {{ t('selectPreset', '选择预设') }}
+        </option>
 
         <!-- AI 提供商预设 -->
         <optgroup
@@ -25,22 +27,6 @@
             class="text-gray-800"
           >
             {{ preset.name }} ({{ getProviderDisplayName(preset.provider) }})
-          </option>
-        </optgroup>
-
-        <!-- 系统提示词预设 -->
-        <optgroup
-          v-if="systemPromptPresets.length > 0"
-          :label="t('systemPromptPresets', '系统提示词预设')"
-          class="text-gray-800"
-        >
-          <option
-            v-for="preset in systemPromptPresets"
-            :key="`prompt-${preset.id}`"
-            :value="`prompt-${preset.id}`"
-            class="text-gray-800"
-          >
-            {{ preset.name }}
           </option>
         </optgroup>
       </select>
@@ -69,23 +55,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useSystemPrompts } from '../../composables/useSystemPrompts'
 import { useSettingsState } from '../../composables/useSettingsState'
-import { saveApiKey, saveBaseUrl, saveAIModel, saveAIProvider } from '../../services/configService'
+import { saveAIModel, saveAIProvider, saveApiKey, saveBaseUrl } from '../../services/configService'
 
 const { t } = useI18n()
 const _router = useRouter()
-
-// 系统提示词管理
-const {
-  systemPrompts,
-  config: systemPromptConfig,
-  setActivePrompt,
-  updateConfig: updateSystemPromptConfig,
-} = useSystemPrompts()
 
 // 设置状态管理
 const { localProvider, localApiKey, localBaseUrl, localModel } = useSettingsState()
@@ -105,11 +82,6 @@ const aiProviderPresets = ref<
     createdAt: number
   }>
 >([])
-
-// 系统提示词预设（启用的系统提示词）
-const systemPromptPresets = computed(() => {
-  return systemPrompts.value.filter((prompt) => prompt.isActive)
-})
 
 // 获取提供商显示名称
 const getProviderDisplayName = (provider: string): string => {
@@ -164,17 +136,6 @@ const handlePresetChange = async () => {
           preset: preset,
         })
       }
-    } else if (type === 'prompt') {
-      // 切换系统提示词预设
-      if (!systemPromptConfig.value.enabled) {
-        await updateSystemPromptConfig({ enabled: true })
-      }
-      await setActivePrompt(id)
-
-      emit('preset-changed', {
-        type: 'system-prompt',
-        preset: { id, name: systemPrompts.value.find((p) => p.id === id)?.name },
-      })
     }
   } catch (error) {
     console.error('Failed to switch preset:', error)
@@ -183,12 +144,6 @@ const handlePresetChange = async () => {
 
 // 检查当前激活的预设
 const checkCurrentPreset = () => {
-  // 检查系统提示词预设
-  if (systemPromptConfig.value.enabled && systemPromptConfig.value.activePromptId) {
-    selectedPreset.value = `prompt-${systemPromptConfig.value.activePromptId}`
-    return
-  }
-
   // 检查 AI 提供商预设
   const currentConfig = {
     provider: localProvider.value,
