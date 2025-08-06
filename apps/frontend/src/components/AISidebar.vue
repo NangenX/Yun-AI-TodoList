@@ -282,7 +282,7 @@ const {
   config,
   enabledPrompts,
   setActivePrompt,
-  updateConfig,
+  // updateConfig, // 已注释掉未使用的变量
   initialize: initializeSystemPrompts,
 } = useSystemPrompts()
 
@@ -299,15 +299,19 @@ const handlePromptChange = (event: Event) => {
 }
 
 // 处理预设变化
-const handlePresetChanged = async (payload: { type: 'ai-provider'; preset: unknown }) => {
+const handlePresetChanged = async (payload: {
+  type: 'ai-provider' | 'system-prompt'
+  preset: unknown
+}) => {
   try {
     if (payload.type === 'ai-provider') {
       // AI 提供商预设的变化已经在 PresetSelector 组件内部处理了
-      console.log('AI 提供商预设已切换:', payload.preset)
+      console.warn('AI 提供商预设已切换:', payload.preset) // 将 console.log 更改为 console.warn
 
       // 可选：创建新对话以使用新的 AI 提供商设置
       // createNewConversation()
     }
+    // 可以在这里添加对 'system-prompt' 类型的处理
   } catch (error) {
     console.error('切换预设失败:', error)
   }
