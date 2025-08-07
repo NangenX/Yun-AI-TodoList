@@ -309,67 +309,92 @@ const showVisualAlert = (isWorkTime: boolean) => {
   showInPageAlert(isWorkTime)
 }
 
-// 页面内弹窗提醒
+// 页面内视觉提醒 - 与应用风格统一
 const showInPageAlert = (isWorkTime: boolean) => {
-  // 创建临时的页面内提醒元素
+  // 创建符合应用风格的提醒元素
   const alertDiv = document.createElement('div')
   alertDiv.style.cssText = `
     position: fixed;
-    top: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 16px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 10000;
+    top: 1rem;
+    right: 1rem;
+    background: var(--card-bg-color);
+    color: var(--text-color);
+    padding: 1rem 1.25rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(var(--primary-color-rgb), 0.12);
+    z-index: 10001;
     font-family: 'LXGW WenKai Lite Medium', sans-serif;
-    font-size: 14px;
-    max-width: 300px;
-    animation: slideInRight 0.3s ease-out;
+    font-size: 0.875rem;
+    max-width: 20rem;
+    animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
+    cursor: pointer;
   `
 
   alertDiv.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span style="font-size: 20px;">🍅</span>
-      <div>
-        <div style="font-weight: bold; margin-bottom: 4px;">${t('pomodoroComplete')}</div>
-        <div style="font-size: 12px; opacity: 0.9;">${isWorkTime ? t('workTimeStarted') : t('breakTimeStarted')}</div>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div style="
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--primary-color-rgb), 0.05) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      ">
+        <span style="font-size: 1.25rem;">🍅</span>
+      </div>
+      <div style="flex: 1;">
+        <div style="font-weight: 600; margin-bottom: 0.125rem; color: var(--text-color);">
+          ${t('pomodoroComplete')}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-secondary-color); line-height: 1.4;">
+          ${isWorkTime ? t('workTimeStarted') : t('breakTimeStarted')}
+        </div>
       </div>
     </div>
   `
 
-  // 添加动画样式
+  // 添加主题适配的动画样式
   const style = document.createElement('style')
   style.textContent = `
-    @keyframes slideInRight {
+    @keyframes toastSlideIn {
       from {
-        transform: translateX(100%);
+        transform: translateX(100%) scale(0.9);
         opacity: 0;
       }
       to {
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
         opacity: 1;
       }
     }
-    @keyframes slideOutRight {
+    @keyframes toastSlideOut {
       from {
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
         opacity: 1;
       }
       to {
-        transform: translateX(100%);
+        transform: translateX(100%) scale(0.9);
         opacity: 0;
       }
+    }
+
+    /* 深色主题适配 */
+    [data-theme="dark"] ${alertDiv.outerHTML.split('>')[0] + '>'} {
+      background: var(--card-bg-color);
+      border-color: rgba(var(--primary-color-rgb), 0.15);
     }
   `
   document.head.appendChild(style)
 
   document.body.appendChild(alertDiv)
 
-  // 3秒后移除提醒
-  setTimeout(() => {
-    alertDiv.style.animation = 'slideOutRight 0.3s ease-in'
+  // 点击关闭提醒
+  alertDiv.addEventListener('click', () => {
+    alertDiv.style.animation = 'toastSlideOut 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
     setTimeout(() => {
       if (alertDiv.parentNode) {
         alertDiv.parentNode.removeChild(alertDiv)
@@ -377,7 +402,22 @@ const showInPageAlert = (isWorkTime: boolean) => {
       if (style.parentNode) {
         style.parentNode.removeChild(style)
       }
-    }, 300)
+    }, 200)
+  })
+
+  // 3秒后自动移除提醒
+  setTimeout(() => {
+    if (alertDiv.parentNode) {
+      alertDiv.style.animation = 'toastSlideOut 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+      setTimeout(() => {
+        if (alertDiv.parentNode) {
+          alertDiv.parentNode.removeChild(alertDiv)
+        }
+        if (style.parentNode) {
+          style.parentNode.removeChild(style)
+        }
+      }, 200)
+    }
   }, 3000)
 }
 
