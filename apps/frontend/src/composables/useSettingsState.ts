@@ -1,4 +1,4 @@
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { apiKey, baseUrl, aiModel, aiProvider } from '../services/configService'
 
 export function useSettingsState() {
@@ -23,6 +23,25 @@ export function useSettingsState() {
     localStorage.removeItem('promptSortOptions')
   }
 
+  // 监听 configService 中响应式变量的变化，实现实时同步
+  const setupWatchers = () => {
+    watch(apiKey, (newValue) => {
+      localApiKey.value = newValue
+    })
+
+    watch(baseUrl, (newValue) => {
+      localBaseUrl.value = newValue
+    })
+
+    watch(aiModel, (newValue) => {
+      localModel.value = newValue
+    })
+
+    watch(aiProvider, (newValue) => {
+      localProvider.value = newValue
+    })
+  }
+
   const showSuccessToast = (duration = 2000) => {
     showSuccessMessage.value = true
     setTimeout(() => {
@@ -36,6 +55,7 @@ export function useSettingsState() {
 
   onMounted(() => {
     initializeSettings()
+    setupWatchers()
   })
 
   return {

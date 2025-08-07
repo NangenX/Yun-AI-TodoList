@@ -251,6 +251,18 @@
             <div v-if="selectedPreset" class="flex gap-2">
               <button
                 type="button"
+                class="text-xs px-2 py-1 rounded transition-colors"
+                :style="{
+                  backgroundColor: 'var(--settings-primary-ultra-light)',
+                  color: 'var(--settings-primary)',
+                  border: '1px solid var(--settings-primary-soft)',
+                }"
+                @click="editPreset"
+              >
+                编辑名称
+              </button>
+              <button
+                type="button"
                 class="text-xs px-2 py-1 rounded transition-colors delete-btn"
                 @click="deletePreset"
               >
@@ -410,6 +422,75 @@
         </div>
       </div>
     </div>
+
+    <!-- 编辑预设名称对话框 -->
+    <div
+      v-if="showEditPresetDialog"
+      class="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-60 p-4"
+      :style="{
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      }"
+      @click.self="showEditPresetDialog = false"
+    >
+      <div
+        class="rounded-xl border w-full max-w-sm transform transition-all duration-300 ease-out scale-100 opacity-100"
+        :style="{
+          backgroundColor: 'var(--settings-card-bg-solid)',
+          borderColor: 'var(--settings-card-border-enhanced)',
+          boxShadow: 'var(--settings-card-shadow-enhanced)',
+        }"
+      >
+        <div class="p-4">
+          <h4 class="text-lg font-semibold text-text mb-3">编辑预设名称</h4>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-text mb-1">预设名称</label>
+              <input
+                v-model="editPresetName"
+                type="text"
+                class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                :style="{
+                  backgroundColor: 'var(--settings-input-bg-enhanced)',
+                  borderColor: 'var(--settings-input-border)',
+                  color: 'var(--text-color)',
+                  '--tw-ring-color': 'var(--settings-primary)',
+                  border: '1px solid var(--settings-input-border)',
+                }"
+                placeholder="输入新的预设名称"
+                @keyup.enter="updatePresetName"
+              />
+            </div>
+            <div class="flex gap-2">
+              <button
+                type="button"
+                class="flex-1 px-3 py-2 rounded-lg transition-all font-medium"
+                :style="{
+                  color: 'var(--text-secondary-color)',
+                  border: '1px solid var(--settings-input-border)',
+                  backgroundColor: 'var(--settings-button-secondary-bg)',
+                }"
+                @click="showEditPresetDialog = false"
+              >
+                取消
+              </button>
+              <button
+                :disabled="!editPresetName.trim()"
+                type="button"
+                class="flex-1 px-3 py-2 rounded-lg transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                :style="{
+                  backgroundColor: 'var(--settings-button-primary-bg)',
+                  color: 'var(--text-color)',
+                  border: 'none',
+                }"
+                @click="updatePresetName"
+              >
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -455,7 +536,9 @@ const { t } = useI18n()
 const savedPresets = ref<APIPreset[]>([])
 const selectedPreset = ref('')
 const showSavePresetDialog = ref(false)
+const showEditPresetDialog = ref(false)
 const presetName = ref('')
+const editPresetName = ref('')
 
 // 本地存储键
 const PRESETS_STORAGE_KEY = 'ai_api_presets'
@@ -696,6 +779,44 @@ const deletePreset = () => {
   savedPresets.value = savedPresets.value.filter((p) => p.id !== selectedPreset.value)
   savePresets()
   selectedPreset.value = ''
+}
+
+// 编辑预设名称
+const editPreset = () => {
+  if (!selectedPreset.value) return
+
+  const preset = savedPresets.value.find((p) => p.id === selectedPreset.value)
+  if (preset) {
+    editPresetName.value = preset.name
+    showEditPresetDialog.value = true
+  }
+}
+
+// 更新预设名称
+const updatePresetName = () => {
+  if (!selectedPreset.value || !editPresetName.value.trim()) return
+
+  const presetIndex = savedPresets.value.findIndex((p) => p.id === selectedPreset.value)
+  if (presetIndex >= 0) {
+    // 检查是否已存在同名预设（排除当前预设）
+    const existingPreset = savedPresets.value.find(
+      (p, index) => p.name === editPresetName.value.trim() && index !== presetIndex
+    )
+
+    if (existingPreset) {
+      alert('预设名称已存在，请使用其他名称')
+      return
+    }
+
+    // 更新预设名称
+    savedPresets.value[presetIndex] = {
+      ...savedPresets.value[presetIndex],
+      name: editPresetName.value.trim(),
+    }
+    savePresets()
+    editPresetName.value = ''
+    showEditPresetDialog.value = false
+  }
 }
 
 // 检查当前配置是否匹配某个预设
