@@ -633,7 +633,7 @@ defineOptions({
 
   /* 调整头部间距 */
   .flex.items-center.justify-between {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
   }
 
   /* 调整系统提示词选择器 */
@@ -736,7 +736,7 @@ defineOptions({
 
   /* 调整头部布局 */
   .flex.items-center.justify-between {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     gap: 0.5rem;
   }
 
@@ -773,6 +773,7 @@ defineOptions({
   /* 移动端头部优化 */
   .sidebar-header {
     padding: 0.25rem 0.5rem;
+    min-height: 40px; /* 固定最小高度 */
     flex-direction: column;
     align-items: stretch;
     gap: 0.25rem;
@@ -782,7 +783,7 @@ defineOptions({
   .sidebar-header.mobile-simplified {
     padding: 0.125rem 0.25rem;
     gap: 0;
-    min-height: 1.5rem;
+    min-height: 36px; /* 固定最小高度 */
     background: linear-gradient(90deg, rgba(59, 130, 246, 0.9), rgba(99, 102, 241, 0.9));
   }
 
@@ -842,8 +843,9 @@ defineOptions({
   }
 
   /* 移动端全屏模式头部优化 */
-  .mobile-simplified {
-    padding: 0.125rem 0.25rem !important;
+  .sidebar-header.mobile-simplified {
+    padding: 0.25rem 0.5rem !important;
+    min-height: 36px; /* 固定最小高度 */
     background: linear-gradient(
       135deg,
       var(--primary-color) 0%,
@@ -852,23 +854,26 @@ defineOptions({
     border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
   }
 
-  .mobile-simplified .header-title-row {
-    gap: 0.5rem;
+  .sidebar-header.mobile-simplified .header-title-row {
+    gap: 0.25rem;
+    min-height: 32px;
   }
 
-  .mobile-simplified h2 {
+  .sidebar-header.mobile-simplified h2 {
     font-size: 0.875rem !important;
     font-weight: 600 !important;
     letter-spacing: 0.025em;
+    line-height: 1.2 !important;
+    margin: 0 !important;
   }
 
-  .mobile-simplified .close-btn-mobile {
+  .sidebar-header.mobile-simplified .close-btn-mobile {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 6px;
     backdrop-filter: blur(8px);
-    min-height: 32px;
-    min-width: 32px;
-    padding: 0.25rem;
+    min-height: 28px;
+    min-width: 28px;
+    padding: 0.125rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
