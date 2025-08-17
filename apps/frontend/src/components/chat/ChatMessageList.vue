@@ -334,29 +334,32 @@ watch(
             scrollToBottomInstantly()
           }, 0)
         })
-      } else {
-        // AI 消息或其他情况，使用智能滚动
-        nextTick(() => {
-          smartScrollToBottom()
-        })
       }
+      // 移除 AI 消息完成时的自动滚动行为
+      // else {
+      //   // AI 消息或其他情况，使用智能滚动
+      //   nextTick(() => {
+      //     smartScrollToBottom()
+      //   })
+      // }
     }
   },
   { immediate: true }
 )
 
-watch(
-  () => props.currentResponse,
-  (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      nextTick(() => {
-        smartScrollToBottom()
-      })
-    }
-  }
-)
+// 移除流式响应过程中的自动滚动行为
+// watch(
+//   () => props.currentResponse,
+//   (newVal, oldVal) => {
+//     if (newVal !== oldVal) {
+//       nextTick(() => {
+//         smartScrollToBottom()
+//       })
+//     }
+//   }
+// )
 
-// 监听思考内容变化
+// 移除思考内容变化时的自动滚动行为
 watch(
   () => props.currentThinking,
   (newVal, oldVal) => {
