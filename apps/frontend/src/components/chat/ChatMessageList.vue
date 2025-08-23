@@ -348,16 +348,16 @@ watch(
 )
 
 // 移除流式响应过程中的自动滚动行为
-// watch(
-//   () => props.currentResponse,
-//   (newVal, oldVal) => {
-//     if (newVal !== oldVal) {
-//       nextTick(() => {
-//         smartScrollToBottom()
-//       })
-//     }
-//   }
-// )
+watch(
+  () => props.currentResponse,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      nextTick(() => {
+        smartScrollToBottom()
+      })
+    }
+  }
+)
 
 // 移除思考内容变化时的自动滚动行为
 watch(
