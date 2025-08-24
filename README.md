@@ -20,9 +20,9 @@
 
 这个项目用了一些我比较熟悉的技术：
 
-**前端：** Vue 3 + TypeScript，用 Vite 构建，UI 组件库选的 Naive UI **后端：**
-NestJS + PostgreSQL，API 文档用 Swagger **桌面端：** Electron 打包成原生应用
-**部署：** Docker 容器化，支持一键部署
+**前端：** Vue 3 + TypeScript，用 Vite 构建，样式方案使用 UnoCSS + 自定义CSS
+**后端：** NestJS + PostgreSQL，API 文档用 Swagger **桌面端：**
+Electron 打包成原生应用 **部署：** Docker 容器化，支持一键部署
 
 ## 快速开始
 

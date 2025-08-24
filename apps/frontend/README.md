@@ -8,7 +8,7 @@ Vite, 和 TypeScript 构建的现代化、响应式的 Web 和桌面应用界面
 ## ✨ 功能亮点
 
 - **响应式设计**: 完美适配桌面和移动设备。
-- **现代化 UI**: 使用 UnoCSS 和 Naive UI 构建，界面美观、体验流畅。
+- **现代化 UI**: 使用 UnoCSS 和 自定义CSS 构建，界面美观、体验流畅。
 - **数据可视化**: 通过 Chart.js 展示任务统计数据。
 - **国际化**: 支持多语言切换 (i18n)。
 - **桌面端集成**: 使用 Electron 打包为跨平台桌面应用。
@@ -19,8 +19,7 @@ Vite, 和 TypeScript 构建的现代化、响应式的 Web 和桌面应用界面
 - **框架**: Vue 3.5+
 - **构建工具**: Vite 5.x
 - **语言**: TypeScript 5.x
-- **UI 框架**: Naive UI 2.x
-- **CSS 工具**: UnoCSS
+- **CSS 工具**: UnoCSS + 自定义CSS
 - **路由**: Vue Router 4.x
 - **状态管理**: Pinia 2.x
 - **国际化**: Vue I18n 9.x
