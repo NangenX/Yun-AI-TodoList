@@ -217,6 +217,21 @@ watch(
   { immediate: true, deep: true }
 )
 
+// 监听当前响应变化，检测对话是否结束
+watch(
+  () => props.currentResponse,
+  (newVal, oldVal) => {
+    // 检测对话是否结束：当前响应从有内容变为空
+    if (oldVal && oldVal.length > 0 && !newVal) {
+      isConversationEnding.value = true
+      // 设置一个定时器来重置结束状态
+      setTimeout(() => {
+        isConversationEnding.value = false
+      }, 1000)
+    }
+  }
+)
+
 watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
 
 // 移除 getCurrentStreamingContent 函数，现在分别处理思考内容和响应内容
@@ -253,6 +268,8 @@ const handleEditMessage = (messageIndex: number, newContent: string) => {
 
 const isUserScrolling = ref(false)
 const lastScrollTop = ref(0)
+const isConversationEnding = ref(false)
+const scrollTimeout = ref<NodeJS.Timeout | null>(null)
 
 const scrollToBottomInstantly = () => {
   if (chatHistoryRef.value) {
@@ -310,8 +327,18 @@ const smartScrollToBottom = () => {
     return
   }
 
+  // 清除之前的滚动定时器，避免多次滚动
+  if (scrollTimeout.value) {
+    clearTimeout(scrollTimeout.value)
+    scrollTimeout.value = null
+  }
+
+  // 如果用户没有主动滚动，则执行滚动
   if (!isUserScrolling.value) {
-    scrollToBottomInstantly()
+    // 使用 setTimeout 确保滚动操作在 DOM 更新后执行
+    scrollTimeout.value = setTimeout(() => {
+      scrollToBottomInstantly()
+    }, 50)
   }
 }
 
@@ -341,9 +368,12 @@ watch(
       // 只有在用户主动滚动时才对AI消息进行滚动
       else if (!isUserScrolling.value && lastMessage && lastMessage.role === 'assistant') {
         // AI消息完成时，只有在用户没有主动滚动的情况下才自动滚动
-        nextTick(() => {
-          smartScrollToBottom()
-        })
+        // 如果对话刚刚结束，不执行滚动，避免与 currentResponse 的监听器冲突
+        if (!isConversationEnding.value) {
+          nextTick(() => {
+            smartScrollToBottom()
+          })
+        }
       }
     }
   },
@@ -358,7 +388,11 @@ watch(
       nextTick(() => {
         // 只有在用户没有主动滚动的情况下才自动滚动
         if (!isUserScrolling.value) {
-          smartScrollToBottom()
+          // 如果对话正在结束（从有内容到无内容），不执行滚动
+          // 因为这会在消息列表更新时由 messages 的监听器处理
+          if (!(oldVal && oldVal.length > 0 && !newVal)) {
+            smartScrollToBottom()
+          }
         }
       })
     }
@@ -373,7 +407,10 @@ watch(
       nextTick(() => {
         // 只有在用户没有主动滚动的情况下才自动滚动
         if (!isUserScrolling.value) {
-          smartScrollToBottom()
+          // 如果对话正在结束，不执行滚动
+          if (!isConversationEnding.value) {
+            smartScrollToBottom()
+          }
         }
       })
     }
