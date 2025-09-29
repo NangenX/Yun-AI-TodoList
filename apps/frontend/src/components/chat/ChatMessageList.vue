@@ -269,7 +269,7 @@ const handleEditMessage = (messageIndex: number, newContent: string) => {
 const isUserScrolling = ref(false)
 const lastScrollTop = ref(0)
 const isConversationEnding = ref(false)
-const scrollTimeout = ref<NodeJS.Timeout | null>(null)
+const scrollTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const scrollToBottomInstantly = () => {
   if (chatHistoryRef.value) {
