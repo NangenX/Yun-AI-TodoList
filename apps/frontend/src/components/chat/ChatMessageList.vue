@@ -286,6 +286,9 @@ const handleScroll = () => {
     if (element.scrollTop < lastScrollTop.value) {
       // 向上滚动，禁用自动滚动
       isUserScrolling.value = true
+    } else if (element.scrollTop > lastScrollTop.value && !isAtBottom) {
+      // 向下滚动但未到达底部，也表明用户有主动滚动意图
+      isUserScrolling.value = true
     } else if (isAtBottom) {
       // 用户滚动到底部，重新启用自动滚动
       isUserScrolling.value = false
@@ -335,37 +338,43 @@ watch(
           }, 0)
         })
       }
-      // 移除 AI 消息完成时的自动滚动行为
-      // else {
-      //   // AI 消息或其他情况，使用智能滚动
-      //   nextTick(() => {
-      //     smartScrollToBottom()
-      //   })
-      // }
+      // 只有在用户主动滚动时才对AI消息进行滚动
+      else if (!isUserScrolling.value && lastMessage && lastMessage.role === 'assistant') {
+        // AI消息完成时，只有在用户没有主动滚动的情况下才自动滚动
+        nextTick(() => {
+          smartScrollToBottom()
+        })
+      }
     }
   },
   { immediate: true }
 )
 
-// 移除流式响应过程中的自动滚动行为
+// 流式响应过程中的智能滚动
 watch(
   () => props.currentResponse,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
       nextTick(() => {
-        smartScrollToBottom()
+        // 只有在用户没有主动滚动的情况下才自动滚动
+        if (!isUserScrolling.value) {
+          smartScrollToBottom()
+        }
       })
     }
   }
 )
 
-// 移除思考内容变化时的自动滚动行为
+// 思考内容变化时的智能滚动
 watch(
   () => props.currentThinking,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
       nextTick(() => {
-        smartScrollToBottom()
+        // 只有在用户没有主动滚动的情况下才自动滚动
+        if (!isUserScrolling.value) {
+          smartScrollToBottom()
+        }
       })
     }
   }
