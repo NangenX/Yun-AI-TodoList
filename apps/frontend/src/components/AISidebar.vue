@@ -407,7 +407,7 @@ const handleEditMessage = (...args: unknown[]) => {
 const handleCheckErrors = (...args: unknown[]) => {
   const [content] = args as [string]
   // 构造核查错误的提示词
-  const checkPrompt = `下面内容有错误吗？无错误请直接说正确，有错误的话请返回修改正确后的完整内容。
+  const checkPrompt = `请仔细检查下面内容有错误吗？无错误请直接说正确，有错误的话请返回修改正确后的完整内容。
 
   "${content}"`
 
