@@ -48,6 +48,7 @@
       @retry="(messageIndex: number) => $emit('retry', messageIndex)"
       @optimize="$emit('optimize')"
       @generate-chart="$emit('generateChart', $event)"
+      @check-errors="$emit('checkErrors', $event)"
       @edit-message="
         (messageIndex: number, newContent: string) => $emit('editMessage', messageIndex, newContent)
       "
@@ -145,6 +146,7 @@ interface Emits {
   (e: 'scroll', scrollInfo: ScrollInfo): void
   (e: 'update:userMessage', value: string): void
   (e: 'generateChart', content: string): void
+  (e: 'checkErrors', content: string): void
   (e: 'editMessage', messageIndex: number, newContent: string): void
   (e: 'file-upload', payload: { file: File; content: string }): void
   (e: 'clear-file'): void

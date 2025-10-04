@@ -198,6 +198,7 @@
         @scroll="handleScroll"
         @update:user-message="updateUserMessage"
         @generate-chart="handleGenerateChart"
+        @check-errors="handleCheckErrors"
         @edit-message="handleEditMessage"
         @file-upload="handleFileUploadWrapper"
         @clear-file="clearFileUpload"
@@ -400,6 +401,27 @@ const handleFileUploadWrapper = (...args: unknown[]) => {
 const handleEditMessage = (...args: unknown[]) => {
   const [messageIndex, newContent] = args as [number, string]
   editMessage(messageIndex, newContent)
+}
+
+// 核查错误函数
+const handleCheckErrors = (...args: unknown[]) => {
+  const [content] = args as [string]
+  // 构造核查错误的提示词
+  const checkPrompt = `下面内容有错误吗？无错误请直接说正确，有错误的话请返回修改正确后的完整内容。
+
+  "${content}"`
+
+  // 临时保存当前用户消息
+  const originalMessage = userMessage.value
+
+  // 设置核查提示词作为用户消息
+  userMessage.value = checkPrompt
+
+  // 发送消息
+  sendMessage().finally(() => {
+    // 恢复原始用户消息（如果有的话）
+    userMessage.value = originalMessage
+  })
 }
 
 // 新建对话函数

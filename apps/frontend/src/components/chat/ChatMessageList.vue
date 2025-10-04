@@ -37,6 +37,7 @@
         @copy-error="handleCopyError"
         @retry="handleRetry"
         @generate-chart="handleGenerateChart"
+        @check-errors="handleCheckErrors"
         @edit-message="handleEditMessage"
       />
     </div>
@@ -106,6 +107,7 @@ const emit = defineEmits<{
   ): void
   (e: 'retry', messageIndex: number): void
   (e: 'generate-chart', content: string): void
+  (e: 'check-errors', content: string): void
   (e: 'edit-message', messageIndex: number, newContent: string): void
 }>()
 
@@ -260,6 +262,10 @@ const handleRetry = (messageIndex: number) => {
 
 const handleGenerateChart = (content: string) => {
   emit('generate-chart', content)
+}
+
+const handleCheckErrors = (content: string) => {
+  emit('check-errors', content)
 }
 
 const handleEditMessage = (messageIndex: number, newContent: string) => {

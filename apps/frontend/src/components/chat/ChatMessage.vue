@@ -128,6 +128,31 @@
                 <path d="m19 9-5 5-4-4-3 3" />
               </svg>
             </button>
+            <!-- 核查错误按钮 -->
+            <button
+              v-if="message.role === 'assistant'"
+              class="flex items-center justify-center w-8 h-8 rounded-md bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 border border-gray-200/50 dark:border-gray-600/50 transition-all duration-200 group/check"
+              :title="'核查错误'"
+              @click="handleCheckErrors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-gray-600 dark:text-gray-400 group-hover/check:text-green-600 dark:group-hover/check:text-green-400 transition-colors duration-200"
+              >
+                <path d="M20 6L9 17l-5-5" />
+                <path
+                  d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -165,6 +190,7 @@ interface Emits {
   (e: 'copy-error', error: Error): void
   (e: 'retry', messageIndex: number): void
   (e: 'generate-chart', content: string): void
+  (e: 'check-errors', content: string): void
   (e: 'edit-message', messageIndex: number, newContent: string): void
 }
 
@@ -202,6 +228,10 @@ const handleRetry = () => {
 
 const handleGenerateChart = () => {
   emit('generate-chart', props.message.content)
+}
+
+const handleCheckErrors = () => {
+  emit('check-errors', props.message.content)
 }
 
 // 编辑功能方法
