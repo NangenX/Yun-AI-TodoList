@@ -325,7 +325,7 @@ const showInPageAlert = (isWorkTime: boolean) => {
     backdrop-filter: blur(12px);
     border: 1px solid rgba(var(--primary-color-rgb), 0.12);
     z-index: 10001;
-    font-family: 'LXGW WenKai Lite Medium', sans-serif;
+    font-family: 'LXGW WenKai Medium', sans-serif;
     font-size: 0.875rem;
     max-width: 20rem;
     animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -462,7 +462,7 @@ const emit = defineEmits(['pomodoroComplete'])
 
 <style scoped>
 .pomodoro-timer {
-  font-family: 'LXGW WenKai Lite Medium', sans-serif;
+  font-family: 'LXGW WenKai Medium', sans-serif;
   background-color: var(--card-bg-color);
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);

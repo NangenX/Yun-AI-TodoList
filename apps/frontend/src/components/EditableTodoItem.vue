@@ -259,7 +259,7 @@ defineExpose({
   @apply bg-input-bg border border-input-border rounded-lg;
   @apply focus:outline-none focus:border-input-focus focus:ring-2 focus:ring-primary focus:ring-opacity-20;
   @apply transition-all duration-200;
-  font-family: 'LXGW WenKai Lite Medium', sans-serif;
+  font-family: 'LXGW WenKai Medium', sans-serif;
   line-height: 1.4;
   overflow-y: auto;
 }
@@ -308,7 +308,7 @@ defineExpose({
 .todo-text-display {
   @apply flex-1 cursor-pointer text-sm leading-relaxed;
   @apply transition-all duration-200;
-  font-family: 'LXGW WenKai Lite Medium', sans-serif;
+  font-family: 'LXGW WenKai Medium', sans-serif;
   word-break: break-word;
   white-space: pre-wrap;
   padding: 0;

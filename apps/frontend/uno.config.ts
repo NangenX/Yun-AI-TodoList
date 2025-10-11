@@ -98,7 +98,7 @@ export default defineConfig({
       // Web 字体预设 - 使用 Google Fonts 提供的字体
       fonts: {
         sans: ['LXGW WenKai Medium', 'Noto Sans SC:400,500,600', 'Inter:400,500,600'],
-        mono: ['Fira Code:400,500', 'JetBrains Mono:400,500'],
+        mono: ['JetBrains Mono:400,500', 'Fira Code:400,500'],
       },
       // 字体提供商配置
       provider: 'google',
@@ -178,6 +178,7 @@ export default defineConfig({
     },
     fontFamily: {
       sans: [
+        'LXGW WenKai Medium',
         'Noto Sans SC',
         'Inter',
         '-apple-system',
@@ -189,7 +190,7 @@ export default defineConfig({
         'Helvetica Neue',
         'sans-serif',
       ],
-      mono: ['Fira Code', 'JetBrains Mono', 'Consolas', 'monospace'],
+      mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
     },
     borderRadius: {
       DEFAULT: 'var(--border-radius)',

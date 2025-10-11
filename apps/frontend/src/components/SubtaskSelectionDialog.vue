@@ -235,7 +235,7 @@ function initTextareaHeights() {
   max-height: 90vh;
   overflow: hidden;
   border: 1px solid var(--input-border-color);
-  font-family: 'LXGW WenKai Lite Medium', sans-serif;
+  font-family: 'LXGW WenKai Medium', sans-serif;
 }
 
 /* 头部样式 */
