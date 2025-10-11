@@ -16,13 +16,19 @@
       v-show="isOpen"
       ref="sidebarRef"
       :class="[
-        'fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl shadow-2xl z-[10000] flex flex-col p-0 m-0',
+        'fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl shadow-2xl z-[2147483647] flex flex-col p-0 m-0',
         {
           'fullscreen-mode': isFullscreen,
           'border-r border-input-border': !isFullscreen,
         },
       ]"
-      :style="{ ...sidebarStyle, 'container-type': 'inline-size' }"
+      :style="{
+        ...sidebarStyle,
+        'container-type': 'inline-size',
+        transform: 'translateZ(0)',
+        'backface-visibility': 'hidden',
+        'will-change': 'transform',
+      }"
     >
       <!-- 拖拽调整手柄 -->
       <div
@@ -470,7 +476,7 @@ defineOptions({
   width: 6px;
   height: 100%;
   cursor: ew-resize;
-  z-index: 10001;
+  z-index: 2147483647;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -969,6 +975,23 @@ defineOptions({
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .resize-handle-line {
     /* 在高分辨率屏幕上优化线条显示 */
+    transform: translateZ(0);
+  }
+}
+
+/* 防止滚动闪烁的优化 */
+.sidebar-header,
+.chat-messages,
+.chat-input-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* 确保在移动设备上的性能 */
+@media (max-width: 768px) {
+  .fixed {
+    -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
 }

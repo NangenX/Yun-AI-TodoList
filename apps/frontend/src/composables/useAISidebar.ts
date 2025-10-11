@@ -76,7 +76,7 @@ export function useAISidebar() {
         position: 'fixed' as const,
         top: '0',
         left: '0',
-        zIndex: '9999999',
+        zIndex: '2147483647',
       }
     }
     return {
