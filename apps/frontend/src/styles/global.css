@@ -474,7 +474,15 @@ form {
     sans-serif;
 }
 
-/* AI 消息排版增强 */
+/* AI 消息排版增强 - 现代化设计系统 */
+.ai-message-container {
+  font-optical-sizing: auto;
+  font-variation-settings: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .ai-message-container h1,
 .ai-message-container h2,
 .ai-message-container h3,
@@ -482,31 +490,39 @@ form {
 .ai-message-container h5,
 .ai-message-container h6 {
   color: var(--text-color);
-  font-weight: 600;
-  line-height: 1.4;
-  margin-top: 20px;
-  margin-bottom: 12px;
+  font-weight: 650; /* 现代字体权重，介于 semibold 和 bold 之间 */
+  line-height: 1.35; /* 更紧凑的行高 */
+  margin-top: 24px; /* 增加顶部间距 */
+  margin-bottom: 16px; /* 增加底部间距 */
+  letter-spacing: -0.01em; /* 现代标题常用负字间距 */
 }
 
 .ai-message-container h1 {
-  font-size: 1.25rem;
+  font-size: 1.375rem; /* 增大 10%，提升视觉层次 */
   border-bottom: 2px solid rgba(125, 179, 165, 0.2);
-  padding-bottom: 6px;
+  padding-bottom: 8px; /* 增加底部间距 */
+  margin-top: 32px; /* 顶级标题更多间距 */
 }
 
 .ai-message-container h2 {
-  font-size: 1.125rem;
+  font-size: 1.25rem; /* 增大一级，保持层级关系 */
+  margin-top: 28px; /* 次级标题适当间距 */
 }
 
 .ai-message-container h3 {
-  font-size: 1rem;
+  font-size: 1.125rem; /* 增大一级，确保可读性 */
+  margin-top: 24px; /* 三级标题标准间距 */
 }
 
 .ai-message-container p {
-  line-height: 1.6;
-  margin-bottom: 12px;
+  line-height: 1.65; /* 优化行高，提升长文本可读性 */
+  margin-bottom: 16px; /* 增加段落间距 */
   color: var(--text-color);
   font-size: 16px;
+  font-weight: 425; /* 现代字体权重，介于 normal 和 medium 之间 */
+  letter-spacing: 0.01em; /* 轻微字间距，提升可读性 */
+  text-align: justify; /* 两端对齐，提升视觉整洁度 */
+  text-justify: inter-word; /* 单词间对齐，适合中英文混排 */
 }
 
 .ai-message-container ul,
@@ -516,10 +532,12 @@ form {
 }
 
 .ai-message-container li {
-  margin: 6px 0;
-  line-height: 1.5;
+  margin: 8px 0; /* 增加列表项间距 */
+  line-height: 1.6; /* 与段落保持一致 */
   color: var(--text-color);
   font-size: 16px;
+  font-weight: 425; /* 与段落保持一致 */
+  letter-spacing: 0.01em; /* 与段落保持一致 */
 }
 
 .ai-message-container li::marker {
@@ -529,52 +547,161 @@ form {
 .ai-message-container code:not(pre code) {
   background: rgba(125, 179, 165, 0.1);
   color: rgba(125, 179, 165, 0.9);
-  padding: 2px 5px;
-  border-radius: 5px;
-  font-size: 0.9em;
-  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  padding: 3px 6px; /* 增加内边距 */
+  border-radius: 6px; /* 增大圆角 */
+  font-size: 0.92em; /* 稍微增大字体 */
+  font-family: 'JetBrains Mono', 'Consolas', 'SF Mono', 'Monaco', monospace; /* 增加字体备选 */
   border: 1px solid rgba(125, 179, 165, 0.15);
+  font-weight: 500; /* 代码字体使用 medium 权重 */
+  letter-spacing: 0.02em; /* 代码字体稍微增加字间距 */
 }
 
 [data-theme='dark'] .ai-message-container code:not(pre code) {
   background: rgba(125, 179, 165, 0.15);
   color: rgba(125, 179, 165, 1);
   border-color: rgba(125, 179, 165, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* 暗色模式添加微妙阴影 */
 }
 
-/* 响应式优化 */
+/* 暗色模式全局优化 */
+[data-theme='dark'] .ai-message-container {
+  font-weight: 350; /* 暗色模式使用稍细字体权重 */
+  -webkit-font-smoothing: subpixel-antialiased; /* 暗色模式优化字体平滑 */
+}
+
+/* 现代阅读体验增强 */
+.ai-message-container {
+  scroll-behavior: smooth; /* 平滑滚动 */
+  word-wrap: break-word; /* 长单词换行 */
+  overflow-wrap: break-word; /* 现代浏览器长单词换行 */
+  hyphens: auto; /* 自动断词 */
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .ai-message-container p,
+  .ai-message-container li {
+    font-weight: 500; /* 高对比度模式增加字体权重 */
+  }
+
+  .ai-message-container code:not(pre code) {
+    font-weight: 600; /* 高对比度模式代码字体更粗 */
+  }
+}
+
+/* 减少动画偏好支持 */
+@media (prefers-reduced-motion: reduce) {
+  .ai-message-container {
+    scroll-behavior: auto; /* 关闭平滑滚动 */
+  }
+}
+
+/* 暗色模式响应式优化 */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+  .ai-message-container {
+    background: rgba(26, 31, 36, 0.95); /* 移动端暗色模式半透明背景 */
+    backdrop-filter: blur(8px); /* 移动端暗色模式模糊效果 */
+  }
+
+  .ai-message-container p,
+  .ai-message-container li {
+    font-weight: 375; /* 移动端暗色模式稍粗字体 */
+  }
+}
+
+/* 打印样式优化 */
+@media print {
+  .ai-message-container {
+    background: white !important; /* 打印时强制白色背景 */
+    color: black !important; /* 打印时强制黑色文字 */
+    box-shadow: none !important; /* 打印时移除阴影 */
+    border: 1px solid #ddd !important; /* 打印时添加边框 */
+  }
+
+  .ai-message-container p,
+  .ai-message-container li {
+    font-size: 12pt !important; /* 打印时标准字体大小 */
+    line-height: 1.4 !important; /* 打印时紧凑行高 */
+    color: black !important;
+  }
+
+  .ai-message-container h1,
+  .ai-message-container h2,
+  .ai-message-container h3 {
+    color: black !important;
+    font-weight: bold !important;
+    page-break-after: avoid; /* 避免标题后分页 */
+  }
+
+  .ai-message-container code:not(pre code) {
+    background: #f5f5f5 !important; /* 打印时代码灰色背景 */
+    border: 1px solid #ccc !important; /* 打印时代码边框 */
+    color: #333 !important;
+  }
+}
+
+/* 响应式优化 - 现代移动优先设计 */
 @media (max-width: 768px) {
   .ai-message-container {
-    padding: 16px 12px;
-    margin: 10px 0;
-    border-radius: 16px;
+    padding: 20px 16px; /* 增加内边距 */
+    margin: 12px 0; /* 增加外边距 */
+    border-radius: 18px; /* 增大圆角 */
   }
 
   .ai-message-container pre {
-    padding: 12px;
-    margin: 12px 0;
-    border-radius: 10px;
-    font-size: 13px;
+    padding: 16px; /* 增加代码块内边距 */
+    margin: 16px 0; /* 增加代码块间距 */
+    border-radius: 12px; /* 增大代码块圆角 */
+    font-size: 13.5px; /* 稍微增大代码字体 */
+    overflow-x: auto; /* 确保代码块可滚动 */
   }
 
   .ai-message-container h1 {
-    font-size: 1.125rem;
+    font-size: 1.25rem; /* 移动端保持较大标题 */
+    margin-top: 28px; /* 移动端标题间距 */
   }
 
   .ai-message-container h2 {
-    font-size: 1rem;
+    font-size: 1.15rem; /* 移动端次级标题 */
+    margin-top: 24px;
   }
 
   .ai-message-container h3 {
-    font-size: 0.9rem;
+    font-size: 1.05rem; /* 移动端三级标题 */
+    margin-top: 20px;
   }
 
   .ai-message-container p {
-    font-size: 14px;
+    font-size: 15px; /* 移动端增大字体 */
+    line-height: 1.7; /* 移动端增大行高 */
+    margin-bottom: 18px; /* 移动端增大段落间距 */
+    text-align: left; /* 移动端左对齐，提升可读性 */
   }
 
   .ai-message-container li {
-    font-size: 14px;
+    font-size: 15px; /* 移动端列表项增大 */
+    line-height: 1.7; /* 与段落保持一致 */
+    margin: 10px 0; /* 移动端增大列表项间距 */
+  }
+
+  .ai-message-container code:not(pre code) {
+    font-size: 0.95em; /* 移动端内联代码增大 */
+    padding: 4px 7px; /* 移动端内联代码增大内边距 */
+  }
+
+  /* 移动端代码块优化 */
+  .ai-message-container pre {
+    overflow-x: auto; /* 确保代码块可滚动 */
+    -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
+    font-size: 13px; /* 移动端代码块字体 */
+    line-height: 1.5; /* 移动端代码块行高 */
+  }
+
+  .ai-message-container pre code {
+    font-size: inherit; /* 继承父元素字体大小 */
+    padding: 0; /* 移除内边距 */
+    background: none; /* 移除背景 */
+    border: none; /* 移除边框 */
   }
 }
 
