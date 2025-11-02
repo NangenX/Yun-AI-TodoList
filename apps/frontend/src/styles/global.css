@@ -1315,6 +1315,65 @@ select {
   border-color: var(--primary-color);
 }
 
+/* Mermaid 复制按钮在缩放控制栏中的样式，保持与缩放按钮一致 */
+.mermaid-zoom-controls .copy-button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--input-border-color);
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  gap: 0;
+  opacity: 1;
+}
+
+.mermaid-zoom-controls .copy-button .copy-text {
+  display: none;
+}
+
+.mermaid-zoom-controls .copy-button:hover {
+  background: var(--hover-bg-color);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.mermaid-zoom-controls .copy-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .mermaid-zoom-controls .copy-button {
+  background: var(--card-bg-color-dark);
+  border-color: var(--input-border-color-dark);
+  color: var(--text-color-dark);
+}
+
+[data-theme='dark'] .mermaid-zoom-controls .copy-button:hover {
+  background: var(--hover-bg-color-dark);
+  border-color: var(--primary-color);
+}
+
+/* 复制成功/失败的视觉反馈（Mermaid 控制条） */
+.mermaid-zoom-controls .copy-button.copied {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.mermaid-zoom-controls .copy-button.error {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
 /* 代码块样式 - 优化版本 */
 .code-block-container {
   position: relative;

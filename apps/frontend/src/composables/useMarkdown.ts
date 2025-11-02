@@ -703,6 +703,13 @@ export function useMarkdown() {
             <button class="mermaid-zoom-btn" data-action="in" title="放大" aria-label="放大">+</button>
             <button class="mermaid-zoom-btn" data-action="out" title="缩小" aria-label="缩小">−</button>
             <button class="mermaid-zoom-btn" data-action="reset" title="重置" aria-label="重置">⌂</button>
+            <button class="mermaid-zoom-btn copy-button" data-action="copy" title="复制 Mermaid 源码" aria-label="复制 Mermaid 源码" data-code="${encodeURIComponent(match[1].trim())}">
+              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span class="copy-text" style="display:none;">复制</span>
+            </button>
           </div>
           <div class="mermaid-diagram">${optimizedSvg}</div>
         </div>`
