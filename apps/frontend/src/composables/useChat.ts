@@ -164,7 +164,8 @@ export function useChat() {
       return
     }
 
-    const message = userMessage.value
+    // 在请求 API 前，自动去除前后的空格和换行
+    const message = userMessage.value.trim()
     userMessage.value = ''
     isGenerating.value = true
     retryCount.value = 0
@@ -293,7 +294,8 @@ export function useChat() {
     isLoading.value = true
 
     try {
-      const optimizedText = await optimizeText(userMessage.value)
+      // 对用户输入进行 trim 后再调用优化 API，避免多余空白影响结果
+      const optimizedText = await optimizeText(userMessage.value.trim())
       userMessage.value = optimizedText
     } catch (error) {
       handleError(error, 'optimizeMessage')

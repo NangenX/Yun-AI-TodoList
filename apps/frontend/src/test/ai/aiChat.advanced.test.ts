@@ -95,6 +95,24 @@ describe('AI 对话功能高级测试', () => {
       expect(chatHistory.value).toHaveLength(0)
     })
 
+    it('发送消息时应自动修剪前后空白和换行', async () => {
+      const { sendMessage, chatHistory, userMessage } = useChat()
+
+      // 模拟流式响应，立即结束
+      mockGetAIStreamResponse.mockImplementation(async (messages, onChunk) => {
+        const callback = onChunk as (chunk: string) => void
+        callback('OK')
+        callback('[DONE]')
+      })
+
+      userMessage.value = '  前后有空白的消息  \n\n'
+      await sendMessage()
+
+      expect(chatHistory.value).toHaveLength(2)
+      // 第一条用户消息的内容应为已修剪后的文本
+      expect(chatHistory.value[0].content).toBe('前后有空白的消息')
+    })
+
     it('应该在发送消息时设置加载状态', async () => {
       const { sendMessage, userMessage, isGenerating } = useChat()
 
