@@ -126,6 +126,7 @@ export default [
         Headers: 'readonly',
 
         Worker: 'readonly',
+        MutationObserver: 'readonly',
         ResizeObserver: 'readonly',
         PerformanceObserver: 'readonly',
         FormData: 'readonly',
@@ -357,6 +358,7 @@ export default [
         FormData: 'readonly',
 
         Worker: 'readonly',
+        MutationObserver: 'readonly',
         ResizeObserver: 'readonly',
         PerformanceObserver: 'readonly',
 
