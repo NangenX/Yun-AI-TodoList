@@ -111,8 +111,13 @@ const emit = defineEmits<{
   (e: 'edit-message', messageIndex: number, newContent: string): void
 }>()
 
-const { renderMarkdown, getMermaidSvgMap, extractThinkingContent, setupCodeCopyFunction } =
-  useMarkdown()
+const {
+  renderMarkdown,
+  getMermaidSvgMap,
+  extractThinkingContent,
+  setupCodeCopyFunction,
+  reinitializeMermaid,
+} = useMarkdown()
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 
 // ChatMessage 组件引用管理
@@ -370,6 +375,31 @@ onMounted(() => {
   scrollToBottomInstantly()
   // 设置代码复制功能
   setupCodeCopyFunction()
+
+  // 监听主题切换（通过 data-theme 属性），在切换时重新初始化 Mermaid 并重新渲染消息
+  try {
+    const observer = new MutationObserver(async (mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'data-theme' &&
+          mutation.target === document.documentElement
+        ) {
+          // 重新初始化 Mermaid，以应用新的主题配置
+          await reinitializeMermaid()
+          // 重新处理消息和当前流式响应，以重新生成新的主题下的 SVG
+          await processSanitizedMessages()
+          if (props.currentResponse) {
+            await processCurrentResponse()
+          }
+          break
+        }
+      }
+    })
+    observer.observe(document.documentElement, { attributes: true })
+  } catch (err) {
+    console.warn('无法监听主题切换:', err)
+  }
 })
 
 watch(

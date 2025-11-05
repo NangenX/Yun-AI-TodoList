@@ -6,17 +6,28 @@ import { marked } from 'marked'
 // 使用动态导入避免初始化问题
 let mermaid: typeof import('mermaid').default | null = null
 let mermaidLoadPromise: Promise<typeof import('mermaid').default> | null = null
+// Mermaid 全局初始化状态（避免多个组件重复初始化）
+let mermaidInitialized = false
+let currentMermaidTheme: 'default' | 'dark' | null = null
 
 // 全局缩放函数 - 确保在全局作用域中可访问
 declare global {
   interface Window {
     zoomMermaid: (button: HTMLElement, action: 'in' | 'out' | 'reset') => void
+    // 防止在 HMR 或多次加载下重复安装全局事件监听器
+    __mermaidEventsInstalled?: boolean
   }
 }
 
 // 事件委托处理 Mermaid 缩放和拖拽功能
 ;(() => {
   if (typeof window !== 'undefined') {
+    // 仅安装一次全局事件委托，避免在 HMR 或多次导入时重复绑定
+    if ((window as unknown as { __mermaidEventsInstalled?: boolean }).__mermaidEventsInstalled) {
+      return
+    }
+    ;(window as unknown as { __mermaidEventsInstalled?: boolean }).__mermaidEventsInstalled = true
+
     let isDragging = false
     let dragStartX = 0
     let dragStartY = 0
@@ -261,12 +272,22 @@ const getLanguageDisplayName = (lang: string): string => {
 
 // 存储 Mermaid SVG 的 Map，以便在 DOMPurify 清理后注入
 const mermaidSvgMap = new Map<string, string>()
+// 基于源码和主题的渲染缓存，避免重复的 mermaid.render 调用
+const mermaidCodeCache = new Map<string, string>()
+
+// 稳定的字符串哈希（djb2），用于生成缓存键
+const stableHash = (str: string): string => {
+  let hash = 5381
+  for (let i = 0; i < str.length; i++) {
+    // 通过位运算保持为 32 位整数
+    hash = (hash << 5) + hash + str.charCodeAt(i)
+    hash |= 0
+  }
+  // 返回非负十六进制字符串
+  return (hash >>> 0).toString(16)
+}
 
 export function useMarkdown() {
-  // Mermaid 初始化状态管理
-  let mermaidInitialized = false
-  let currentMermaidTheme: 'default' | 'dark' | null = null
-
   // 获取当前主题
   const getCurrentTheme = (): 'default' | 'dark' => {
     if (typeof document !== 'undefined') {
@@ -663,57 +684,74 @@ export function useMarkdown() {
     for (const match of matches) {
       try {
         let diagramCode = match[1]
-
-        // 在这里调用修复函数
+        // 修复常见语法问题，并进行规范化以提升缓存命中率
         diagramCode = fixMermaidSyntax(diagramCode)
+        const normalizedCode = diagramCode.trim()
 
-        // 使用更稳健的 ID
+        // 基于当前主题和源码生成缓存键
+        const currentTheme = getCurrentTheme()
+        const cacheKey = `${currentTheme}:${stableHash(normalizedCode)}`
+
+        // 使用更稳健的 ID（仅用于 mermaid.render，不影响缓存）
         const id = `mermaid-svg-${Math.random().toString(36).substr(2, 9)}`
         const placeholderId = `mermaid-placeholder-${id}`
 
-        // 确保 mermaid 已加载并渲染
-        const mermaidInstance = await loadMermaid()
+        let fullHtml = mermaidCodeCache.get(cacheKey)
+        if (!fullHtml) {
+          // 确保 mermaid 已加载并渲染
+          const mermaidInstance = await loadMermaid()
 
-        // 验证 mermaidInstance 和 render 方法
-        if (!mermaidInstance || typeof mermaidInstance.render !== 'function') {
-          throw new Error('Mermaid instance is invalid or missing render method')
+          // 验证 mermaidInstance 和 render 方法
+          if (!mermaidInstance || typeof mermaidInstance.render !== 'function') {
+            throw new Error('Mermaid instance is invalid or missing render method')
+          }
+
+          const { svg } = await mermaidInstance.render(id, normalizedCode)
+
+          // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
+          let optimizedSvg = svg
+            .replace(
+              '<svg',
+              `<svg preserveAspectRatio="xMidYMid meet" style="background: transparent; shape-rendering: geometricPrecision; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;"`
+            )
+            .replace(
+              /<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"']*"[^>]*>/g,
+              (match: string) => {
+                // 只移除全尺寸的画布背景矩形
+                return match.replace(/fill="[^"']*"/, 'fill="transparent"')
+              }
+            )
+
+          // 确保顶层 SVG 具备宽高属性，避免部分渲染缺省导致容器不填满
+          if (!/\bwidth="[^"]*"/.test(optimizedSvg)) {
+            optimizedSvg = optimizedSvg.replace('<svg', '<svg width="100%"')
+          }
+          if (!/\bheight="[^"]*"/.test(optimizedSvg)) {
+            optimizedSvg = optimizedSvg.replace('<svg', '<svg height="100%"')
+          }
+
+          // 将 SVG 和控制按钮包装为完整容器
+          fullHtml = `<div class="mermaid-container">
+            <div class="mermaid-zoom-controls" role="toolbar" aria-label="Mermaid 图表缩放控件">
+              <button class="mermaid-zoom-btn" data-action="in" title="放大" aria-label="放大">+</button>
+              <button class="mermaid-zoom-btn" data-action="out" title="缩小" aria-label="缩小">−</button>
+              <button class="mermaid-zoom-btn" data-action="reset" title="重置" aria-label="重置">⌂</button>
+              <button class="mermaid-zoom-btn copy-button" data-action="copy" title="复制 Mermaid 源码" aria-label="复制 Mermaid 源码" data-code="${encodeURIComponent(match[1].trim())}">
+                <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span class="copy-text" style="display:none;">复制</span>
+              </button>
+            </div>
+            <div class="mermaid-diagram">${optimizedSvg}</div>
+          </div>`
+
+          // 缓存渲染结果，提升后续重复图表的性能
+          mermaidCodeCache.set(cacheKey, fullHtml)
         }
 
-        const { svg } = await mermaidInstance.render(id, diagramCode)
-
-        // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
-        const optimizedSvg = svg
-          .replace(
-            '<svg',
-            `<svg preserveAspectRatio="xMidYMid meet" style="background: transparent; shape-rendering: geometricPrecision; text-rendering: geometricPrecision; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;"`
-          )
-          .replace(/width="[^"']*"/, 'width="100%"')
-          .replace(/height="[^"']*"/, 'height="100%"')
-          .replace(
-            /<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"']*"[^>]*>/g,
-            (match: string) => {
-              // 只移除全尺寸的画布背景矩形
-              return match.replace(/fill="[^"']*"/, 'fill="transparent"')
-            }
-          )
-
-        // 关键改动：将 SVG 和控制按钮包装后存入 Map，并用占位符替换
-        const fullHtml = `<div class="mermaid-container">
-          <div class="mermaid-zoom-controls" role="toolbar" aria-label="Mermaid 图表缩放控件">
-            <button class="mermaid-zoom-btn" data-action="in" title="放大" aria-label="放大">+</button>
-            <button class="mermaid-zoom-btn" data-action="out" title="缩小" aria-label="缩小">−</button>
-            <button class="mermaid-zoom-btn" data-action="reset" title="重置" aria-label="重置">⌂</button>
-            <button class="mermaid-zoom-btn copy-button" data-action="copy" title="复制 Mermaid 源码" aria-label="复制 Mermaid 源码" data-code="${encodeURIComponent(match[1].trim())}">
-              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"></path>
-              </svg>
-              <span class="copy-text" style="display:none;">复制</span>
-            </button>
-          </div>
-          <div class="mermaid-diagram">${optimizedSvg}</div>
-        </div>`
-
+        // 存入占位符映射，供后续注入使用
         mermaidSvgMap.set(placeholderId, fullHtml)
 
         // 使用稳定的占位骨架，避免渲染时页面发生明显布局抖动
