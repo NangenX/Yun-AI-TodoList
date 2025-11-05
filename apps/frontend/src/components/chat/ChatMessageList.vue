@@ -170,6 +170,21 @@ const injectMermaidSVGs = async () => {
   svgMap.clear()
 }
 
+// 使用 requestAnimationFrame 对注入进行调度，避免在高频更新时造成布局抖动
+let injectionRaf: number | null = null
+const scheduleMermaidInjection = () => {
+  if (injectionRaf !== null) {
+    cancelAnimationFrame(injectionRaf)
+  }
+  injectionRaf = requestAnimationFrame(async () => {
+    try {
+      await injectMermaidSVGs()
+    } finally {
+      injectionRaf = null
+    }
+  })
+}
+
 // 异步处理消息内容
 const processSanitizedMessages = async () => {
   // 在开始处理整个消息列表前，清空一次 Mermaid Map
@@ -192,7 +207,7 @@ const processSanitizedMessages = async () => {
 
   sanitizedMessages.value = newSanitizedMessages
   // 所有消息的 HTML（包括占位符）都已生成，现在可以安全地注入 SVG
-  await injectMermaidSVGs()
+  scheduleMermaidInjection()
 }
 
 // 异步处理当前响应
@@ -200,14 +215,17 @@ const processCurrentResponse = async () => {
   // 为当前响应的渲染也清空一次 map，避免和历史消息冲突
   getMermaidSvgMap().clear()
   currentResponseSanitized.value = await renderMarkdown(props.currentResponse)
-  await injectMermaidSVGs()
+  scheduleMermaidInjection()
 }
 
 // 监听消息变化
 watch(
   () => props.messages,
   async (newMessages, oldMessages) => {
-    await processSanitizedMessages()
+    // 在高频消息更新时，使用 rAF 调度渲染，降低布局抖动风险
+    requestAnimationFrame(() => {
+      processSanitizedMessages()
+    })
 
     // 当消息数组发生变化时（通常是切换对话），重置所有编辑状态
     if (newMessages !== oldMessages) {

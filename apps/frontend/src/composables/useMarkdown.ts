@@ -716,9 +716,18 @@ export function useMarkdown() {
 
         mermaidSvgMap.set(placeholderId, fullHtml)
 
-        const placeholderHtml = `<div id="${placeholderId}"></div>`
+        // 使用稳定的占位骨架，避免渲染时页面发生明显布局抖动
+        const placeholderHtml = `
+          <div id="${placeholderId}" class="mermaid-container" aria-busy="true">
+            <div class="mermaid-diagram">
+              <div class="mermaid-loading" role="status" aria-live="polite">
+                Mermaid 图表加载中…
+              </div>
+            </div>
+          </div>
+        `.trim()
 
-        // 替换原始的 mermaid 代码块为占位符
+        // 替换原始的 mermaid 代码块为占位符骨架
         processedMarkdown = processedMarkdown.replace(match[0], placeholderHtml)
       } catch (error: unknown) {
         console.error('Mermaid rendering error:', error)
