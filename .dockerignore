@@ -154,12 +154,7 @@ tools/
 !tools/*/package.json
 !tools/typescript-config/*.json
 
-# Workers
-workers-site/
 
 # Electron builder
 electron-builder.config.js
 electron/
-
-# Wrangler
-wrangler.toml

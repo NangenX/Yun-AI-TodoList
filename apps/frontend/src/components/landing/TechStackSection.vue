@@ -63,7 +63,6 @@
             <h4>部署层</h4>
             <div class="arch-items">
               <span>Docker</span>
-              <span>Cloudflare</span>
               <span>Electron</span>
               <span>PWA</span>
             </div>
@@ -166,12 +165,6 @@ const techCategories: TechCategory[] = [
         version: 'Latest',
         description: '容器化部署',
         icon: 'i-carbon-container-registry',
-      },
-      {
-        name: 'Cloudflare',
-        version: 'Workers',
-        description: '全球 CDN 和边缘计算',
-        icon: 'i-carbon-cloud-foundry-1',
       },
       {
         name: 'Electron',

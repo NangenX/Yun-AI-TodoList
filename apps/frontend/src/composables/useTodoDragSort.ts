@@ -153,15 +153,4 @@ export function useTodoDragSort(
   }
 }
 
-/**
- * 拖拽排序的样式类名
- */
-export const dragSortClasses = {
-  container: 'todo-sortable-container',
-  item: 'todo-draggable',
-  handle: 'todo-drag-handle',
-  ghost: 'todo-ghost',
-  chosen: 'todo-chosen',
-  drag: 'todo-drag',
-  fallback: 'todo-fallback',
-} as const
+// 已移除未被引用的 dragSortClasses 导出，以减少冗余代码

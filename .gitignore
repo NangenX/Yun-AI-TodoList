@@ -65,9 +65,6 @@ playwright-report/
 performance-results.json
 bundle-analysis.json
 
-# Cloudflare Workers
-.wrangler
-wrangler.toml.bak
 
 # 调试和临时文件
 test-*.txt

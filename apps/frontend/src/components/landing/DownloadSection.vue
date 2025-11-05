@@ -119,14 +119,6 @@
           </div>
           <div class="guide-item">
             <div class="guide-icon">
-              <i class="i-carbon-cloud-foundry-1" />
-            </div>
-            <h4>Cloudflare 部署</h4>
-            <p>部署到 Cloudflare Workers 获得全球加速</p>
-            <code class="guide-code">pnpm deploy:cf:prod</code>
-          </div>
-          <div class="guide-item">
-            <div class="guide-icon">
               <i class="i-carbon-development" />
             </div>
             <h4>本地开发</h4>
