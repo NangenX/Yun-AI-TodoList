@@ -183,6 +183,13 @@ export async function getAIStreamResponse(
       throw new Error(i18n.global.t('streamError'))
     }
 
+    // 统计与健壮性增强
+    let emittedDone = false
+    let totalBytes = 0
+    let dataLineCount = 0
+    let eventCount = 0
+    const textDecoder = new TextDecoder()
+
     while (isReading) {
       const { done, value } = await reader.read()
       if (done) {
@@ -190,35 +197,55 @@ export async function getAIStreamResponse(
         break
       }
 
-      buffer += new TextDecoder().decode(value)
-      const lines = buffer.split('\n')
+      // 累计读取字节数
+      totalBytes += value?.length || 0
+
+      buffer += textDecoder.decode(value)
+      // 兼容 CRLF 与 LF 的换行符
+      const lines = buffer.split(/\r?\n/)
       buffer = lines.pop() || ''
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const jsonData = line.slice(6)
-          if (jsonData === '[DONE]') {
-            isReading = false
-            onChunk('[DONE]')
-            return
-          }
-          try {
-            const parsedData: AIStreamResponse = JSON.parse(jsonData)
-            const content = parsedData.choices[0]?.delta?.content
-            const reasoningContent = parsedData.choices[0]?.delta?.reasoning_content
+      for (const rawLine of lines) {
+        const line = rawLine.trim()
+        // 只处理以 data: 开头的事件，兼容 "data:" 与 "data: "
+        if (!line.startsWith('data:')) continue
+        const payload = line.substring(5).trim()
+        dataLineCount++
+        if (payload === '[DONE]') {
+          emittedDone = true
+          isReading = false
+          onChunk('[DONE]')
+          return
+        }
+        try {
+          const parsedData: AIStreamResponse = JSON.parse(payload)
+          const content = parsedData.choices[0]?.delta?.content
+          const reasoningContent = parsedData.choices[0]?.delta?.reasoning_content
 
-            if (content) {
-              onChunk(content)
-            }
-
-            if (reasoningContent && onThinking) {
-              onThinking(reasoningContent)
-            }
-          } catch (error) {
-            handleError(error, i18n.global.t('jsonParseError'), 'DeepSeekService')
+          if (content) {
+            eventCount++
+            onChunk(content)
           }
+
+          if (reasoningContent && onThinking) {
+            eventCount++
+            onThinking(reasoningContent)
+          }
+        } catch (error) {
+          // 保持鲁棒性：解析失败不阻塞后续事件
+          handleError(error, i18n.global.t('jsonParseError'), 'DeepSeekService')
         }
       }
+    }
+
+    // 流正常结束但未接收到 [DONE]，补发一次 done 以保证 UI 收尾
+    if (!emittedDone) {
+      logger.debug(
+        '流式响应结束但未收到 [DONE]，执行补发收尾',
+        { totalBytes, dataLineCount, eventCount },
+        'DeepSeekService'
+      )
+      onChunk('[DONE]')
     }
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
