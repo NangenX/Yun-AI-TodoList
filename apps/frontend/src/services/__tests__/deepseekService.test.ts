@@ -267,7 +267,8 @@ describe('deepseekService', () => {
 
       await getAIStreamResponse(messages, onChunk)
 
-      expect(chunks).toEqual([])
+      // 服务在流结束但未收到有效数据时，会补发一次 '[DONE]' 以便 UI 做收尾
+      expect(chunks).toEqual(['[DONE]'])
     })
   })
 
