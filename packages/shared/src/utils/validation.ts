@@ -164,19 +164,3 @@ export function validateCreateUserDto(dto: CreateUserDto): string[] {
 
   return errors
 }
-
-// 清理和标准化数据
-export function sanitizeTodoTitle(title: string): string {
-  if (!title || typeof title !== 'string') return ''
-  return title.trim().replace(/\s+/g, ' ')
-}
-
-export function sanitizeEmail(email: string): string {
-  if (!email || typeof email !== 'string') return ''
-  return email.trim().toLowerCase()
-}
-
-export function sanitizeUsername(username: string): string {
-  if (!username || typeof username !== 'string') return ''
-  return username.trim().toLowerCase()
-}

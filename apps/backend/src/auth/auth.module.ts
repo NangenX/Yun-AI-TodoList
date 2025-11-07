@@ -7,7 +7,6 @@ import { UsersModule } from '../users/users.module'
 import { VerificationModule } from '../verification/verification.module'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { EmailVerificationService } from './email-verification.service'
 import { GitHubStrategy } from './strategies/github.strategy'
 import { GoogleStrategy } from './strategies/google.strategy'
 import { JwtStrategy } from './strategies/jwt.strategy'
@@ -30,14 +29,7 @@ import { LocalStrategy } from './strategies/local.strategy'
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    EmailVerificationService,
-    GitHubStrategy,
-    GoogleStrategy,
-    JwtStrategy,
-    LocalStrategy,
-  ],
+  providers: [AuthService, GitHubStrategy, GoogleStrategy, JwtStrategy, LocalStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
