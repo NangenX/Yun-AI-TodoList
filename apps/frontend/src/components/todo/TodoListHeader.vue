@@ -6,6 +6,7 @@
     <div class="header-actions">
       <button
         class="icon-button ai-assistant-button"
+        ref="aiBtnRef"
         :title="t('aiAssistant')"
         :aria-label="t('aiAssistant')"
         @click="$emit('openAiSidebar')"
@@ -48,6 +49,7 @@
 
       <button
         class="icon-button search-button"
+        ref="searchBtnRef"
         :class="{ active: showSearch }"
         :title="`${showSearch ? t('closeSearch') : t('openSearch')}`"
         :aria-label="showSearch ? t('closeSearch') : t('openSearch')"
@@ -72,6 +74,7 @@
 
       <button
         class="icon-button charts-button"
+        ref="chartsBtnRef"
         :class="{ active: showCharts }"
         :title="`${showCharts ? t('closeCharts') : t('openCharts')} (Ctrl+S)`"
         :aria-label="showCharts ? t('closeCharts') : t('openCharts')"
@@ -98,6 +101,7 @@
       <!-- 布局切换：单列 / 双列 -->
       <button
         class="icon-button layout-button"
+        ref="layoutBtnRef"
         :class="{ active: layoutMode === 'two_column' }"
         :title="
           layoutMode === 'two_column'
@@ -128,12 +132,22 @@
           <rect x="13" y="4" width="8" height="16" rx="2" ry="2" />
         </svg>
       </button>
+
+      <!-- 首次使用顶部功能引导 -->
+      <HeaderOnboarding
+        :steps="onboardingSteps"
+        :visible="showHeaderOnboarding"
+        @finish="finishOnboarding"
+        @skip="skipOnboarding"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import HeaderOnboarding from '@/components/onboarding/HeaderOnboarding.vue'
 
 interface Props {
   showCharts: boolean
@@ -157,6 +171,59 @@ const { t } = useI18n()
 defineOptions({
   name: 'TodoListHeader',
 })
+
+// 引导相关：四个按钮的引用
+const aiBtnRef = ref<HTMLButtonElement | null>(null)
+const searchBtnRef = ref<HTMLButtonElement | null>(null)
+const chartsBtnRef = ref<HTMLButtonElement | null>(null)
+const layoutBtnRef = ref<HTMLButtonElement | null>(null)
+
+const showHeaderOnboarding = ref(false)
+const ONBOARDING_STORAGE_KEY = 'onboarding.header.seen'
+
+const onboardingSteps = [
+  {
+    targetRef: aiBtnRef,
+    title: t('aiAssistant'),
+    description: t('onboarding.header.aiDesc', '打开侧边栏，与 AI 交流、生成建议或进行优先级排序'),
+  },
+  {
+    targetRef: searchBtnRef,
+    title: t('openSearch'),
+    description: t('onboarding.header.searchDesc', '打开搜索栏，按关键字快速过滤待办事项'),
+  },
+  {
+    targetRef: chartsBtnRef,
+    title: t('openCharts'),
+    description: t(
+      'onboarding.header.chartsDesc',
+      '查看统计图表，了解完成率与任务分布（Ctrl+S 快捷键）'
+    ),
+  },
+  {
+    targetRef: layoutBtnRef,
+    title: t('switchToTwoColumn', '布局切换'),
+    description: t('onboarding.header.layoutDesc', '在单列与双列布局之间切换，提升浏览效率'),
+  },
+]
+
+onMounted(() => {
+  // 仅在首次使用时显示引导
+  const seen = localStorage.getItem(ONBOARDING_STORAGE_KEY)
+  if (!seen) {
+    showHeaderOnboarding.value = true
+  }
+})
+
+function finishOnboarding() {
+  showHeaderOnboarding.value = false
+  localStorage.setItem(ONBOARDING_STORAGE_KEY, '1')
+}
+
+function skipOnboarding() {
+  showHeaderOnboarding.value = false
+  localStorage.setItem(ONBOARDING_STORAGE_KEY, '1')
+}
 </script>
 
 <style scoped>

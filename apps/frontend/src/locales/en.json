@@ -248,6 +248,18 @@
   "pause": "Pause",
   "resume": "Resume",
   "reset": "Reset",
+  "onboarding": {
+    "header": {
+      "title": "Quick tour of top toolbar",
+      "aiDesc": "Open sidebar to chat with AI, generate suggestions or do priority sorting",
+      "searchDesc": "Open search bar to quickly filter todos by keyword",
+      "chartsDesc": "Open charts to see completion rate and distribution (Ctrl+S shortcut)",
+      "layoutDesc": "Toggle between single-column and two-column layout for better browsing",
+      "next": "Next",
+      "skip": "Skip",
+      "gotIt": "Got it"
+    }
+  },
   "pomodoroComplete": "Pomodoro Complete!",
   "breakTimeStarted": "Break time started. Time to relax!",
   "workTimeStarted": "Work time started. Let's focus!",
