@@ -28,11 +28,13 @@ describe('TodoListHeader', () => {
     })
 
     const buttons = wrapper.findAll('.icon-button')
-    expect(buttons).toHaveLength(3)
+    // 目前包含：AI 按钮、搜索按钮、图表按钮、布局切换按钮 共 4 个
+    expect(buttons).toHaveLength(4)
 
     expect(wrapper.find('.ai-assistant-button').exists()).toBe(true)
     expect(wrapper.find('.search-button').exists()).toBe(true)
     expect(wrapper.find('.charts-button').exists()).toBe(true)
+    expect(wrapper.find('.layout-button').exists()).toBe(true)
 
     expect(wrapper.find('.ai-assistant-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.search-button .button-icon').exists()).toBe(true)

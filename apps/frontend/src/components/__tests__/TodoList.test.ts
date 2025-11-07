@@ -62,6 +62,9 @@ vi.mock('@/composables/useTodoListState', () => ({
     handlePomodoroComplete: vi.fn(),
     error: vi.fn(),
     success: vi.fn(),
+    // 新增：布局模式相关，避免组件访问 layoutMode.value 报错
+    layoutMode: ref<'list' | 'two_column'>('list'),
+    toggleLayoutMode: vi.fn(),
   }),
 }))
 

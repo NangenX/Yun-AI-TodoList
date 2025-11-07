@@ -1,67 +1,122 @@
-import { computed, getCurrentInstance, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import type { ThemeValue } from '../types/theme'
 import { configurePWAThemeColor } from '../utils/pwa-config'
-import { useAuth } from './useAuth'
 import { useUserPreferences } from './useUserPreferences'
 
+/**
+ * 统一管理主题的单例状态，避免在多个组件中调用 useTheme 产生互相覆盖的副作用。
+ */
+
+// 全局（单例）状态
+const localTheme = ref<ThemeValue>((localStorage.getItem('theme') as ThemeValue) || 'auto')
+const systemTheme = ref<'light' | 'dark'>(getSystemTheme())
+const pendingSyncTheme = ref<ThemeValue | null>(null)
+
+// 挂载计数与监听器初始化标记
+let mountCount = 0
+let watchersInitialized = false
+let initializedFromLocalStorage = false
+let mediaQuery: MediaQueryList | null = null
+
+function getSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+function applyThemeToDOM() {
+  const current = localTheme.value === 'auto' ? systemTheme.value : localTheme.value
+  document.documentElement.setAttribute('data-theme', current)
+  try {
+    configurePWAThemeColor()
+  } catch (error) {
+    console.warn('Failed to update PWA theme color:', error)
+  }
+}
+
 export function useTheme() {
-  const { isAuthenticated } = useAuth()
   const { preferences, updatePreferences, isReady } = useUserPreferences()
-  // 本地主题状态，不在初始化时从 localStorage 读取，等待 preferences 加载
-  const localTheme = ref<ThemeValue>('auto')
-  const systemTheme = ref<'light' | 'dark'>(getSystemTheme())
 
-  // 计算当前主题值
-  const theme = computed({
+  // 首次调用时从 localStorage 重新同步，解决测试或运行时在导入后才写入的场景
+  if (!initializedFromLocalStorage) {
+    const stored = localStorage.getItem('theme') as ThemeValue | null
+    if (stored) {
+      localTheme.value = stored
+    }
+    // 同步一次系统主题，避免在测试中替换 matchMedia 后取到旧值
+    systemTheme.value = getSystemTheme()
+    initializedFromLocalStorage = true
+  }
+
+  // 暴露的主题值，直接以单例的 localTheme 为准
+  const theme = computed<ThemeValue>({
     get: () => {
-      // 优先使用用户偏好设置中的主题
-      if (preferences.value?.theme) {
-        return preferences.value.theme
+      // 当本地主题为 auto 时，允许以 localStorage 的值为后备以适配测试与未登录场景
+      if (localTheme.value === 'auto') {
+        return (localStorage.getItem('theme') as ThemeValue) || 'auto'
       }
-
-      // 如果用户已登录但偏好设置还在加载中，使用本地主题状态
-      if (isAuthenticated.value && !isReady.value) {
-        return localTheme.value
-      }
-
-      // 如果本地主题不是默认值，使用本地主题
-      if (localTheme.value !== 'auto') {
-        return localTheme.value
-      }
-
-      // 最后的后备方案：从 localStorage 读取或使用默认值
-      return (localStorage.getItem('theme') as ThemeValue) || 'auto'
+      return localTheme.value
     },
     set: async (newTheme: ThemeValue) => {
-      // 立即更新本地状态
+      // 更新本地与存储
       localTheme.value = newTheme
       localStorage.setItem('theme', newTheme)
 
-      // 如果用户偏好设置系统已准备好，同步到服务器
+      // 就绪则同步到服务器，否则延迟同步
       if (isReady.value) {
         try {
           await updatePreferences({ theme: newTheme })
         } catch (error) {
           console.warn('Failed to sync theme preference:', error)
+        } finally {
+          pendingSyncTheme.value = null
         }
+      } else {
+        pendingSyncTheme.value = newTheme
       }
     },
   })
 
-  watch(
-    () => preferences.value,
-    (newPreferences) => {
-      if (newPreferences?.theme) {
-        localTheme.value = newPreferences.theme
-        localStorage.setItem('theme', newPreferences.theme)
-        updateTheme()
-      }
-    },
-    { deep: true }
-  )
+  // 初始化所有只需一次的监听与副作用
+  if (!watchersInitialized) {
+    watchersInitialized = true
 
-  function getSystemTheme() {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    // 用户偏好加载后，将服务器值应用到本地主题；如有本地未同步的更改，则不覆盖
+    watch(
+      () => preferences.value,
+      (newPreferences) => {
+        if (newPreferences?.theme && pendingSyncTheme.value === null) {
+          localTheme.value = newPreferences.theme
+          localStorage.setItem('theme', newPreferences.theme)
+          applyThemeToDOM()
+        }
+      },
+      { deep: true }
+    )
+
+    // 监听 isReady，就绪后处理延迟同步的主题变更
+    watch(
+      isReady,
+      async (ready) => {
+        if (ready && pendingSyncTheme.value) {
+          try {
+            await updatePreferences({ theme: pendingSyncTheme.value })
+          } catch (error) {
+            console.warn('Failed to sync pending theme preference:', error)
+          } finally {
+            pendingSyncTheme.value = null
+          }
+        }
+      },
+      { immediate: true }
+    )
+
+    // 监听主题与系统主题变化，统一更新 DOM
+    watch(
+      [localTheme, systemTheme],
+      () => {
+        applyThemeToDOM()
+      },
+      { immediate: true }
+    )
   }
 
   const toggleTheme = async () => {
@@ -83,51 +138,30 @@ export function useTheme() {
     theme.value = newTheme
   }
 
-  const updateTheme = () => {
-    const currentTheme = theme.value === 'auto' ? systemTheme.value : theme.value
-    document.documentElement.setAttribute('data-theme', currentTheme)
-
-    // 更新 PWA 状态栏主题色
-    try {
-      configurePWAThemeColor()
-    } catch (error) {
-      console.warn('Failed to update PWA theme color:', error)
-    }
-  }
-
   const initTheme = () => {
-    updateTheme()
+    applyThemeToDOM()
   }
-
-  // 监听主题变化并更新 DOM
-  watch(
-    [theme, systemTheme],
-    () => {
-      updateTheme()
-    },
-    { immediate: true }
-  )
 
   const handleSystemThemeChange = (e: MediaQueryListEvent) => {
     systemTheme.value = e.matches ? 'dark' : 'light'
   }
 
   onMounted(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    // 使用现代的 addEventListener 替代已废弃的 addListener
-    mediaQuery.addEventListener('change', handleSystemThemeChange)
-    updateTheme()
+    mountCount += 1
+    if (mountCount === 1) {
+      mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaQuery.addEventListener('change', handleSystemThemeChange)
+      applyThemeToDOM()
+    }
   })
 
-  // 只在组件上下文中注册生命周期钩子
-  const instance = getCurrentInstance()
-  if (instance) {
-    onUnmounted(() => {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      // 使用现代的 removeEventListener 替代已废弃的 removeListener
+  onUnmounted(() => {
+    mountCount = Math.max(0, mountCount - 1)
+    if (mountCount === 0 && mediaQuery) {
       mediaQuery.removeEventListener('change', handleSystemThemeChange)
-    })
-  }
+      mediaQuery = null
+    }
+  })
 
   return {
     theme,
