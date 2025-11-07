@@ -17,12 +17,6 @@
       ></div>
     </div>
 
-    <ApiKeyReminder
-      :show="showApiKeyReminder"
-      @close="closeReminder"
-      @go-to-settings="goToSettings"
-    />
-
     <!-- Toast 通知组件 -->
     <SimpleToast ref="toastRef" />
 
@@ -39,22 +33,21 @@
 
 <script setup lang="ts">
 import { useWindowSize } from '@vueuse/core'
-import { computed, onErrorCaptured, provide, ref } from 'vue'
+import { computed, onErrorCaptured, provide, ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AISidebar from './components/AISidebar.vue'
 import NotificationContainer from './components/common/NotificationContainer.vue'
 import SimpleToast from './components/common/SimpleToast.vue'
 import SyncStatusIndicator from './components/common/SyncStatusIndicator.vue'
-import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
 import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAISidebar } from './composables/useAISidebar'
-import { useAppState } from './composables/useAppState'
 import { useTheme } from './composables/useTheme'
 import { useToast } from './composables/useToast'
 import { getPlatformClasses } from './utils/platform'
+import { getApiKey, hideApiKeyReminder, shouldShowApiKeyReminder } from './services/configService'
 
 const { theme, systemTheme, initTheme } = useTheme()
-
-const { showApiKeyReminder, closeReminder, goToSettings } = useAppState()
+const { t } = useI18n()
 
 // 认证状态管理已在 main.ts 中初始化
 
@@ -93,6 +86,13 @@ onMounted(() => {
     // 设置 Toast 实例
     if (toastRef.value) {
       toast.setToastInstance(toastRef.value)
+    }
+
+    // 使用 Toast 提示用户配置 API Key（替代原先的弹窗提醒）
+    if (!getApiKey() && shouldShowApiKeyReminder()) {
+      toast.info(t('apiKeyReminder'))
+      // 首次提示后不再重复显示
+      hideApiKeyReminder()
     }
   } catch (error) {
     console.error('Error initializing app:', error)
