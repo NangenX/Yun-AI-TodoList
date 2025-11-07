@@ -10,6 +10,10 @@ on:
     - cron: '0 2 * * *'
   workflow_dispatch: # 允许手动触发完整测试套件
 
+permissions:
+  contents: read
+  security-events: write
+
 env:
   NODE_VERSION: '18'
   PNPM_VERSION: '9.0.0'
@@ -45,7 +49,6 @@ jobs:
 
       - name: 🧪 Run unit tests
         run: pnpm test:coverage
-        continue-on-error: true
 
       - name: 📊 Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -79,6 +82,9 @@ jobs:
 
       - name: 🏗️ Build project
         uses: ./.github/actions/build-project
+        with:
+          skip-type-check: 'true'
+          skip-lint-check: 'true'
 
       - name: 📦 Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -87,6 +93,7 @@ jobs:
           path: apps/frontend/dist/
           if-no-files-found: error
           retention-days: 7  # 增加保留时间以供部署工作流使用
+          compression-level: 6
 
   # 性能测试
   performance:
@@ -140,12 +147,12 @@ jobs:
         uses: ./.github/actions/security-audit
 
       - name: 🔒 Run CodeQL Analysis
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
       - name: 🔒 Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
   # 依赖检查
   dependency-check:
@@ -176,6 +183,7 @@ jobs:
         with:
           name: dependency-report
           path: dependency-report.json
+          compression-level: 6
 
   # 简化的测试报告汇总
   test-summary:

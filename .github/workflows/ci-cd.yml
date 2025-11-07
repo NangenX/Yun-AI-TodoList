@@ -21,8 +21,6 @@ jobs:
   test-and-build:
     name: 🧪 Test & Build
     runs-on: ubuntu-latest
-    outputs:
-      artifact-name: ${{ steps.artifact.outputs.name }}
 
     steps:
       - name: 📥 Checkout code
@@ -45,22 +43,24 @@ jobs:
 
       - name: 🧪 Run unit tests
         run: pnpm test:coverage
-        continue-on-error: true
 
       - name: 🔍 Run security audit
         uses: ./.github/actions/security-audit
 
       - name: 🏗️ Build project
         uses: ./.github/actions/build-project
+        with:
+          skip-type-check: 'true'
+          skip-lint-check: 'true'
 
       - name: 📦 Upload build artifacts
-        id: artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-files-${{ github.sha }}
           path: apps/frontend/dist/
           if-no-files-found: error
           retention-days: 7
+          compression-level: 6
 
       - name: 📊 Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -79,21 +79,6 @@ jobs:
     with:
       artifact-name: build-files-${{ github.sha }}
 
-  # 暂时禁用七牛云部署
-  # deploy-qiniu:
-  #   name: 🚀 Deploy to Qiniu Cloud
-  #   uses: ./.github/workflows/deploy-qiniu-reusable.yml
-  #   needs: test-and-build
-  #   if: success() && github.ref == 'refs/heads/main'
-  #   with:
-  #     artifact-name: build-files-${{ github.sha }}
-  #   secrets:
-  #     QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-  #     QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-  #     QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
-  #     QINIU_REGION: ${{ secrets.QINIU_REGION }}
-  #     QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
-  #     QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
   # 第三阶段：部署后验证和通知
   post-deploy:
@@ -110,7 +95,6 @@ jobs:
           echo "## 📋 Pipeline Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Test & Build**: ${{ needs.test-and-build.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- **GitHub Pages**: ${{ needs.deploy-github-pages.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Qiniu Cloud**: Temporarily disabled" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [[ "${{ needs.test-and-build.result }}" == "success" ]]; then

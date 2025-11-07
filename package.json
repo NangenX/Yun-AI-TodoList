@@ -45,9 +45,6 @@
     "migration:generate": "pnpm --filter backend migration:generate",
     "migration:run": "pnpm --filter backend migration:run",
     "seed": "pnpm --filter backend seed",
-    "deploy:qiniu": "./scripts/deploy-qiniu.sh",
-    "deploy:qiniu:s3": "node scripts/deploy-qiniu-s3.cjs",
-    "test:qiniu": "node scripts/test-qiniu-config.cjs",
     "electron:dev": "pnpm --filter frontend electron:dev",
     "electron:build": "node scripts/build-electron.js"
   },
