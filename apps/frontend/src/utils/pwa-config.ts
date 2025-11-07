@@ -124,9 +124,11 @@ export function configurePWALogging() {
 export function configurePWAThemeColor() {
   // 获取当前主题
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark'
-
-  // 设置主题色 - 使用柔和护眼的配色
-  const themeColor = isDarkTheme ? '#1a1f24' : '#7db3a5'
+  // 从 CSS 变量读取当前背景色，避免使用高饱和主色作为状态栏色
+  const styles = getComputedStyle(document.documentElement)
+  const bgColorVar = styles.getPropertyValue('--bg-color').trim()
+  // 兜底值：暗色用深背景、亮色用温和米白
+  const themeColor = bgColorVar || (isDarkTheme ? '#1a1f24' : '#faf9f7')
 
   // 更新 meta 标签
   let themeColorMeta = document.querySelector('meta[name="theme-color"]')

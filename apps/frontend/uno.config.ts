@@ -173,6 +173,10 @@ export default defineConfig({
         DEFAULT: 'var(--link-color)',
         hover: 'var(--link-hover-color)',
       },
+      // 语义状态色
+      success: 'var(--success-color)',
+      warning: 'var(--warning-color)',
+      info: 'var(--info-color)',
       error: 'var(--error-color)',
       hover: 'var(--hover-bg-color)',
     },
