@@ -94,6 +94,40 @@
           <line x1="6" y1="20" x2="6" y2="14" />
         </svg>
       </button>
+
+      <!-- 布局切换：单列 / 双列 -->
+      <button
+        class="icon-button layout-button"
+        :class="{ active: layoutMode === 'two_column' }"
+        :title="
+          layoutMode === 'two_column'
+            ? t('switchToSingleColumn', '切换为单列')
+            : t('switchToTwoColumn', '切换为双列')
+        "
+        :aria-label="
+          layoutMode === 'two_column'
+            ? t('switchToSingleColumn', '切换为单列')
+            : t('switchToTwoColumn', '切换为双列')
+        "
+        @click="$emit('toggleLayoutMode')"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="button-icon"
+        >
+          <!-- 双列图标 -->
+          <rect x="3" y="4" width="8" height="16" rx="2" ry="2" />
+          <rect x="13" y="4" width="8" height="16" rx="2" ry="2" />
+        </svg>
+      </button>
     </div>
   </div>
 </template>
@@ -105,12 +139,14 @@ interface Props {
   showCharts: boolean
   showSearch: boolean
   isLoading?: boolean
+  layoutMode?: 'list' | 'two_column'
 }
 
 interface Emits {
   (e: 'toggleCharts'): void
   (e: 'toggleSearch'): void
   (e: 'openAiSidebar'): void
+  (e: 'toggleLayoutMode'): void
 }
 
 defineProps<Props>()

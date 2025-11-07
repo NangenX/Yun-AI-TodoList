@@ -1,6 +1,11 @@
 <template>
   <div class="todo-container" :class="{ 'small-screen': isSmallScreen }">
-    <div class="todo-list scrollbar-thin">
+    <div
+      class="todo-list scrollbar-thin"
+      :class="{
+        'two-column': layoutMode === 'two_column',
+      }"
+    >
       <div class="todo-card-header">
         <PomodoroTimer
           class="pomodoro-timer-integrated"
@@ -35,9 +40,11 @@
       <TodoListHeader
         :show-charts="showCharts"
         :show-search="showSearch"
+        :layout-mode="layoutMode"
         @toggle-charts="toggleCharts"
         @toggle-search="toggleSearch"
         @open-ai-sidebar="$emit('openAiSidebar')"
+        @toggle-layout-mode="toggleLayoutMode"
       />
 
       <TodoInput
@@ -70,7 +77,10 @@
       <div
         ref="todoListRef"
         class="todo-grid"
-        :class="{ 'todo-sortable-container': isDragEnabled }"
+        :class="{
+          'todo-sortable-container': isDragEnabled,
+          'two-column': layoutMode === 'two_column',
+        }"
       >
         <div v-if="filteredTodos.length === 0 && filter === 'active'" class="empty-hint">
           <svg
@@ -206,6 +216,8 @@ const {
   handlePomodoroComplete,
   error,
   success,
+  layoutMode,
+  toggleLayoutMode,
 } = useTodoListState()
 
 // 从 useTodoManagement 获取任务拆分相关功能和批量分析功能
@@ -220,7 +232,11 @@ const hasUnanalyzedTodos = computed(() => {
 // 拖拽排序功能 - 始终显示拖拽手柄以保持布局一致性
 const isDragEnabled = computed(
   () =>
-    filter.value === 'active' && !isSorting.value && !isGenerating.value && !isBatchAnalyzing.value
+    layoutMode.value !== 'two_column' &&
+    filter.value === 'active' &&
+    !isSorting.value &&
+    !isGenerating.value &&
+    !isBatchAnalyzing.value
 )
 
 // 拖拽交互性 - 只有多个 todo 时才允许拖拽交互
@@ -395,6 +411,11 @@ onUnmounted(() => {
   border-radius: calc(var(--border-radius) * 1.5);
 }
 
+/* 双列模式下，适当扩大容器宽度，提高每列卡片的有效宽度 */
+.todo-list.two-column {
+  max-width: 1000px;
+}
+
 .todo-card-header {
   @apply mb-4 rounded p-4 mb-3 relative z-10;
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 126, 103, 0.02) 100%);
@@ -422,6 +443,36 @@ onUnmounted(() => {
   @apply overflow-y-auto flex h-40vh max-h-125 flex-col mb-4 rounded;
   gap: 0.75rem;
   padding: 0.75rem 0.75rem 0.75rem 0;
+}
+
+/* 双列布局（桌面端） */
+.todo-grid.two-column {
+  display: grid;
+  /* 自动适配列数，保证每列至少 420px，根据容器宽度在 2~3 列间切换 */
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  grid-auto-flow: row dense;
+  align-items: start;
+  /* 三列时列间稍宽，层次更清晰 */
+  column-gap: 1rem;
+  /* 始终两列时的容器高度行为：内容不多时自动收缩，内容多时产生滚动 */
+  height: auto;
+  max-height: clamp(360px, 55vh, 700px);
+  overflow-y: auto;
+}
+
+/* 双列布局下的卡片去掉额外外边距，使用 grid 间距 */
+.todo-grid.two-column :deep(.card-todo) {
+  margin-bottom: 0;
+}
+
+/* 双列/三列布局下控制长文本显示，避免溢出 */
+.todo-grid.two-column :deep(.todo-text-display) {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* 最多显示 3 行 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal; /* 允许换行 */
+  line-height: 1.5; /* 多列阅读更柔和 */
 }
 
 /* 拖拽容器样式 */
@@ -528,6 +579,10 @@ onUnmounted(() => {
   .todo-container {
     @apply px-4;
   }
+
+  .todo-list.two-column {
+    max-width: clamp(1000px, 90vw, 1280px);
+  }
 }
 
 @media (max-width: 1200px) {
@@ -538,6 +593,11 @@ onUnmounted(() => {
   .todo-list {
     @apply w-full max-w-2xl;
   }
+
+  /* 双列模式下在中等屏幕上适当加宽 */
+  .todo-list.two-column {
+    max-width: clamp(960px, 92vw, 1100px);
+  }
 }
 
 @media (min-width: 769px) and (max-width: 1200px) {
@@ -547,6 +607,22 @@ onUnmounted(() => {
 
   .todo-grid {
     @apply h-45vh max-h-150;
+  }
+
+  /* 中屏幕下双列仍然保持 */
+  .todo-grid.two-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 超宽屏优化：三列布局与更宽的容器 */
+@media (min-width: 1600px) {
+  .todo-container {
+    max-width: 1680px;
+  }
+
+  .todo-list {
+    max-width: 1500px;
   }
 }
 
@@ -574,6 +650,12 @@ onUnmounted(() => {
     -webkit-overflow-scrolling: touch;
   }
 
+  /* 小屏幕强制单列 */
+  .todo-grid.two-column {
+    display: flex;
+    flex-direction: column;
+  }
+
   .todo-card-header {
     @apply mb-2 p-2;
   }
@@ -596,8 +678,16 @@ onUnmounted(() => {
     gap: 0.5rem;
   }
 
+  /* 最小屏幕下仍然使用单列 */
+  .todo-grid.two-column {
+    display: flex;
+    flex-direction: column;
+  }
+
   .todo-card-header {
     @apply mb-1 p-1.5;
   }
 }
 </style>
+/* 双列模式容器宽度（使用 clamp 提供更平滑的响应式宽度）*/ .todo-list.two-column { max-width:
+clamp(960px, 90vw, 1280px); }

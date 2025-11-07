@@ -110,6 +110,22 @@ export function useTodoListState() {
     originalOnKeyDown(event)
   }
 
+  // 布局模式：'list' | 'two_column'
+  const savedLayout = localStorage.getItem('todoLayoutMode')
+  const layoutMode = ref<'list' | 'two_column'>(
+    savedLayout === 'two_column' ? 'two_column' : 'list'
+  )
+
+  const toggleLayoutMode = () => {
+    layoutMode.value = layoutMode.value === 'two_column' ? 'list' : 'two_column'
+    localStorage.setItem('todoLayoutMode', layoutMode.value)
+  }
+
+  const setLayoutMode = (mode: 'list' | 'two_column') => {
+    layoutMode.value = mode
+    localStorage.setItem('todoLayoutMode', mode)
+  }
+
   // AI 分析处理函数
   const handleUpdateTodo = (id: string, updates: Partial<Todo>) => {
     try {
@@ -216,6 +232,11 @@ export function useTodoListState() {
     // AI 分析功能
     handleUpdateTodo,
     handleAnalyzeTodo,
+
+    // 布局模式
+    layoutMode,
+    toggleLayoutMode,
+    setLayoutMode,
 
     showCharts,
     showSearch,
