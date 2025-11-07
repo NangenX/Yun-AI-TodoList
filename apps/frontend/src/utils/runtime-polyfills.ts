@@ -10,14 +10,14 @@
 
 declare global {
   // Augment globalThis with the __name helper used by esbuild
-   
+
   interface GlobalThis {
     __name?: (fn: Function, name: string) => Function
   }
 }
 
 // Define a safe global fallback if not already provided by a chunk
-if (typeof (globalThis as any).__name !== 'function') {
+if (typeof globalThis.__name !== 'function') {
   try {
     Object.defineProperty(globalThis, '__name', {
       // Keep signature compatible with esbuild's helper
@@ -36,7 +36,7 @@ if (typeof (globalThis as any).__name !== 'function') {
     })
   } catch {
     // In extremely constrained environments, fall back to direct assignment
-    ;(globalThis as any).__name = (fn: Function, _name: string) => fn
+    globalThis.__name = (fn: Function, _name: string) => fn
   }
 }
 

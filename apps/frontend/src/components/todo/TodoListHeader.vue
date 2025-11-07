@@ -5,8 +5,8 @@
     </h1>
     <div class="header-actions">
       <button
-        class="icon-button ai-assistant-button"
         ref="aiBtnRef"
+        class="icon-button ai-assistant-button"
         :title="t('aiAssistant')"
         :aria-label="t('aiAssistant')"
         @click="$emit('openAiSidebar')"
@@ -48,8 +48,8 @@
       </button>
 
       <button
-        class="icon-button search-button"
         ref="searchBtnRef"
+        class="icon-button search-button"
         :class="{ active: showSearch }"
         :title="`${showSearch ? t('closeSearch') : t('openSearch')}`"
         :aria-label="showSearch ? t('closeSearch') : t('openSearch')"
@@ -73,8 +73,8 @@
       </button>
 
       <button
-        class="icon-button charts-button"
         ref="chartsBtnRef"
+        class="icon-button charts-button"
         :class="{ active: showCharts }"
         :title="`${showCharts ? t('closeCharts') : t('openCharts')} (Ctrl+S)`"
         :aria-label="showCharts ? t('closeCharts') : t('openCharts')"
@@ -100,8 +100,8 @@
 
       <!-- 布局切换：单列 / 双列 -->
       <button
-        class="icon-button layout-button"
         ref="layoutBtnRef"
+        class="icon-button layout-button"
         :class="{ active: layoutMode === 'two_column' }"
         :title="
           layoutMode === 'two_column'
