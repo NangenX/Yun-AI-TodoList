@@ -483,8 +483,8 @@ export default defineConfig({
     esbuildOptions: {
       target: 'es2020',
       format: 'esm',
-      // 确保正确处理模块导出
-      keepNames: true,
+      // 关闭 keepNames，避免注入 __name 辅助函数导致运行时未定义
+      keepNames: false,
       // 支持 CommonJS 和 ES 模块混合
       platform: 'browser',
     },

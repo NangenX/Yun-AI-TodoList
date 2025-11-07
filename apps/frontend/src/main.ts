@@ -1,3 +1,4 @@
+import './utils/runtime-polyfills'
 import 'highlight.js/styles/github-dark.css'
 import 'highlight.js/styles/github.css'
 import 'katex/dist/katex.min.css'
