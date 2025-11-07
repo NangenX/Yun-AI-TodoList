@@ -95,6 +95,7 @@ export default [
         MouseEvent: 'readonly',
         MessageEvent: 'readonly',
         MediaQueryListEvent: 'readonly',
+        MediaQueryList: 'readonly',
         HTMLElement: 'readonly',
         HTMLInputElement: 'readonly',
         HTMLTextAreaElement: 'readonly',
@@ -332,6 +333,7 @@ export default [
         HTMLSelectElement: 'readonly',
         HTMLCanvasElement: 'readonly',
         HTMLDivElement: 'readonly',
+        HTMLButtonElement: 'readonly',
         HTMLImageElement: 'readonly',
         EventTarget: 'readonly',
 
