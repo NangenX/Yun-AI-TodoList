@@ -84,6 +84,8 @@
   "switchToDarkMode": "切换到深色模式",
   "switchToLightMode": "切换到浅色模式",
   "switchToAutoMode": "切换到自动模式",
+  "switchToSingleColumn": "切换为单列",
+  "switchToTwoColumn": "切换为双列",
   "add": "添加",
   "todoSummary": "已完成 {completed}/{total}",
   "locale": "zh-CN",
@@ -137,6 +139,15 @@
 
   "generateSuggestionsPrompt": "请为我生成5个实用的待办事项建议，涵盖工作、学习、生活等不同方面。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。",
   "generateSuggestionsWithHistoryPrompt": "请为我生成5个待办事项建议。\n\n我已完成的相关任务：\n{completedTodos}\n\n请按以下要求生成：\n1. 从我的历史记录中分析我的兴趣和需求\n2. 生成5个实用的待办事项建议\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。",
+
+  "onboarding": {
+    "header": {
+      "aiDesc": "打开侧边栏，与 AI 交流、生成建议或进行优先级排序",
+      "searchDesc": "打开搜索栏，按关键字快速过滤待办事项",
+      "chartsDesc": "查看统计图表，了解完成率与任务分布（Ctrl+S 快捷键）",
+      "layoutDesc": "在单列与双列布局之间切换，提升浏览效率"
+    }
+  },
 
   "login": {
     "title": "登录",

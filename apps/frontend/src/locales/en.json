@@ -86,6 +86,8 @@
   "switchToDarkMode": "Switch to Dark Mode",
   "switchToLightMode": "Switch to Light Mode",
   "switchToAutoMode": "Switch to Auto Mode",
+  "switchToSingleColumn": "Switch to single column",
+  "switchToTwoColumn": "Switch to two columns",
   "add": "Add",
   "todoSummary": "{completed}/{total} completed",
   "locale": "en-US",
@@ -140,6 +142,15 @@
 
   "generateSuggestionsPrompt": "Please generate 5 practical todo suggestions covering work, study, life and other aspects. Each suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line.",
   "generateSuggestionsWithHistoryPrompt": "Please generate 5 todo suggestions.\n\nMy completed related tasks:\n{completedTodos}\n\nPlease generate according to the following requirements:\n1. Analyze my interests and needs from my history\n2. Generate 5 practical todo suggestions\n\nEach suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line, total 5 suggestions.",
+
+  "onboarding": {
+    "header": {
+      "aiDesc": "Open the sidebar to chat with AI, generate suggestions, or prioritize tasks",
+      "searchDesc": "Open the search bar to quickly filter todos by keywords",
+      "chartsDesc": "View charts to understand completion rate and task distribution (Ctrl+S shortcut)",
+      "layoutDesc": "Switch between single and two-column layouts to improve browsing efficiency"
+    }
+  },
 
   "login": {
     "title": "Login",
