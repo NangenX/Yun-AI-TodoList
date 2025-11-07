@@ -638,7 +638,7 @@ onUnmounted(() => {
   }
 
   .todo-container.small-screen {
-    @apply p-2 pt-2;
+    @apply p-2 pt-16;
   }
 
   .todo-list {
