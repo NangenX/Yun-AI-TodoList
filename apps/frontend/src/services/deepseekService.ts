@@ -23,6 +23,9 @@ const getSystemPromptConfig = () => {
   }
 }
 
+// 简单的 Todo 系统提示缓存（基于 todos 的 JSON 快照）
+let todoPromptCache: { hash: string; content: string } | null = null
+
 // 获取所有激活的系统提示词消息
 const getSystemMessages = async (): Promise<Message[]> => {
   const systemMessages: Message[] = []
@@ -64,11 +67,54 @@ const getSystemMessages = async (): Promise<Message[]> => {
       const parsed = JSON.parse(todoAssistantData)
       if (parsed.isActive) {
         // 动态生成最新的 Todo 助手系统提示词
-        const todos = JSON.parse(localStorage.getItem('todos') || '[]')
+        // 优先从运行时状态（useTodos）读取，确保云端模式也能获取到最新数据；失败时回退到 localStorage 快照
+        let todos: unknown = []
+        let todosSource: 'runtime' | 'localStorage' = 'runtime'
+        try {
+          const { useTodos } = await import('../composables/useTodos')
+          const { todos: todosRef, isInitialized } = useTodos()
+          const runtimeTodos = Array.isArray(todosRef?.value) ? todosRef.value : []
 
-        // 动态导入生成函数
-        const { generateTodoSystemPrompt } = await import('../services/aiAnalysisService')
-        const freshContent = generateTodoSystemPrompt(todos)
+          // 如果运行时已初始化或存在数据，则优先使用运行时数据
+          if ((isInitialized?.value ?? false) || (runtimeTodos && runtimeTodos.length > 0)) {
+            todos = runtimeTodos
+          } else {
+            // 回退到本地存储快照（兼容旧键名）
+            todosSource = 'localStorage'
+            const raw = localStorage.getItem('local_todos') ?? localStorage.getItem('todos') ?? '[]'
+            const parsed = JSON.parse(raw)
+            todos = Array.isArray(parsed) ? parsed : []
+          }
+        } catch {
+          // 运行时读取失败时，继续尝试本地快照
+          todosSource = 'localStorage'
+          try {
+            const raw = localStorage.getItem('local_todos') ?? localStorage.getItem('todos') ?? '[]'
+            const parsed = JSON.parse(raw)
+            todos = Array.isArray(parsed) ? parsed : []
+          } catch {
+            todos = []
+          }
+        }
+
+        // 轻量缓存：避免重复生成相同内容
+        const todosHash = (() => {
+          try {
+            return JSON.stringify(todos)
+          } catch {
+            return `${Array.isArray(todos) ? todos.length : 0}`
+          }
+        })()
+
+        let freshContent = ''
+        if (todoPromptCache && todoPromptCache.hash === todosHash) {
+          freshContent = todoPromptCache.content
+        } else {
+          // 动态导入生成函数
+          const { generateTodoSystemPrompt } = await import('../services/aiAnalysisService')
+          freshContent = generateTodoSystemPrompt(todos as any)
+          todoPromptCache = { hash: todosHash, content: freshContent }
+        }
 
         systemMessages.push({
           role: 'system',
@@ -77,7 +123,8 @@ const getSystemMessages = async (): Promise<Message[]> => {
         logger.debug(
           '添加动态生成的 Todo 助手系统提示词',
           {
-            todosCount: todos.length,
+            todosCount: Array.isArray(todos) ? todos.length : 0,
+            source: todosSource,
             contentLength: freshContent.length,
           },
           'DeepSeekService'

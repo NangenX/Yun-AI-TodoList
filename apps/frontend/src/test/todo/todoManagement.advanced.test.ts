@@ -13,7 +13,6 @@ vi.mock('../../services/aiAnalysisService', () => ({
   }),
   reanalyzeTodo: vi.fn(),
   analyzeTask: vi.fn(),
-  generateSmartQuestion: vi.fn(),
   generateTodoSystemPrompt: vi.fn(),
 }))
 

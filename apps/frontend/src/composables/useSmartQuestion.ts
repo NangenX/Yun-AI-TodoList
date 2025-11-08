@@ -38,8 +38,20 @@ export function useTodoSystemPrompt() {
       // 直接激活 Todo 助手（内容将在每次发送消息时动态生成）
       await activateTodoAssistant()
 
-      // 显示成功提示
-      showSuccess(t('todoPromptActivated', 'Todo 任务助手已激活，现在可以询问关于您任务的任何问题'))
+      // 根据任务数量显示更贴切的提示（不再限制样本数量）
+      const count = Array.isArray(_todos) ? _todos.filter((t) => !t.completed).length : 0
+      if (count === 0) {
+        showSuccess(
+          t(
+            'todoPromptActivatedEmpty',
+            'Todo 任务助手已激活（当前无待办），AI 将提供通用的任务管理建议'
+          )
+        )
+      } else {
+        showSuccess(
+          t('todoPromptActivated', 'Todo 任务助手已激活，现在可以询问关于您任务的任何问题')
+        )
+      }
 
       return true
     } catch (error) {

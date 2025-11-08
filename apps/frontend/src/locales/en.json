@@ -659,6 +659,7 @@
   "todoAssistantTitle": "Click to activate Todo Assistant, AI will understand all your task information",
   "todoAssistantActiveTitle": "Click to deactivate Todo Assistant",
   "todoPromptActivated": "Todo Assistant activated, you can now ask any questions about your tasks",
+  "todoPromptActivatedEmpty": "Todo Assistant activated (no active todos), AI will offer general task management advice",
   "todoPromptDeactivated": "Todo Assistant deactivated",
   "todoPromptError": "Failed to activate Todo Assistant, please try again",
   "todoPromptDeactivateError": "Failed to deactivate Todo Assistant, please try again",

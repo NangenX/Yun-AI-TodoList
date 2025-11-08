@@ -676,6 +676,7 @@
   "todoAssistantTitle": "点击激活 Todo 任务助手，AI 将了解您的所有任务信息",
   "todoAssistantActiveTitle": "点击停用 Todo 任务助手",
   "todoPromptActivated": "Todo 任务助手已激活，现在可以询问关于您任务的任何问题",
+  "todoPromptActivatedEmpty": "Todo 任务助手已激活（当前无待办），AI 将提供通用的任务管理建议",
   "todoPromptDeactivated": "Todo 任务助手已停用",
   "todoPromptError": "激活 Todo 任务助手失败，请重试",
   "todoPromptDeactivateError": "停用 Todo 任务助手失败，请重试",
