@@ -282,6 +282,30 @@ form {
   will-change: transform, opacity;
 }
 
+/* AI 消息文本选中高亮 - 提升对比度（浅色与深色主题均适用） */
+.ai-message-container ::selection,
+.ai-message-container ::-moz-selection {
+  background: rgba(var(--primary-color-rgb), 0.5);
+}
+[data-theme='dark'] .ai-message-container ::selection,
+[data-theme='dark'] .ai-message-container ::-moz-selection {
+  background: rgba(var(--primary-color-rgb), 0.7);
+}
+
+/* 代码块与内联代码的选中高亮（稍强一些，避免可读性问题） */
+.ai-message-container pre ::selection,
+.ai-message-container pre ::-moz-selection,
+.ai-message-container code ::selection,
+.ai-message-container code ::-moz-selection {
+  background: rgba(var(--primary-color-rgb), 0.7);
+}
+[data-theme='dark'] .ai-message-container pre ::selection,
+[data-theme='dark'] .ai-message-container pre ::-moz-selection,
+[data-theme='dark'] .ai-message-container code ::selection,
+[data-theme='dark'] .ai-message-container code ::-moz-selection {
+  background: rgba(var(--primary-color-rgb), 0.85);
+}
+
 .ai-message-container:hover {
   transform: translateY(-2px);
   box-shadow:
