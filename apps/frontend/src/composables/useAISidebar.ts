@@ -118,10 +118,10 @@ export function useAISidebar() {
     const isMobileOrTablet = window.innerWidth < 1024
     if (isMobileOrTablet) {
       isFullscreen.value = true
-      document.documentElement.style.overflow = 'hidden'
     }
 
-    // 防止背景滚动
+    // 防止背景滚动（统一加锁 html 与 body）
+    document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
 
     // 动画完成后重置状态
@@ -143,10 +143,10 @@ export function useAISidebar() {
     // 如果在全屏模式，退出全屏
     if (isFullscreen.value) {
       isFullscreen.value = false
-      document.documentElement.style.overflow = ''
     }
 
-    // 恢复背景滚动
+    // 恢复背景滚动（统一解锁 html 与 body）
+    document.documentElement.style.overflow = ''
     document.body.style.overflow = ''
 
     // 动画完成后重置状态
@@ -169,17 +169,9 @@ export function useAISidebar() {
   // 移动端全屏模式管理（移动端固定全屏，桌面端可切换）
   const updateFullscreenForViewport = () => {
     const isMobile = window.innerWidth <= 639
-    if (isMobile) {
-      isFullscreen.value = true
-      document.documentElement.style.overflow = 'hidden'
-      document.body.style.overflow = 'hidden'
-    } else {
-      // 桌面端保持当前状态或默认非全屏
-      if (isFullscreen.value) {
-        document.documentElement.style.overflow = 'hidden'
-        document.body.style.overflow = 'hidden'
-      }
-    }
+    // 根据视口更新全屏状态，但不直接操作滚动锁定
+    // 滚动锁定仅在侧边栏打开时由 open/close 或 enter/exit 全屏控制
+    isFullscreen.value = isMobile ? true : isFullscreen.value
   }
 
   /**
@@ -191,6 +183,7 @@ export function useAISidebar() {
       openSidebar()
     }
     isFullscreen.value = true
+    // 保持背景滚动锁定（统一加锁 html 与 body）
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
   }
@@ -201,8 +194,14 @@ export function useAISidebar() {
   const exitFullscreen = () => {
     if (window.innerWidth <= 639) return // 移动端固定全屏
     isFullscreen.value = false
-    document.documentElement.style.overflow = ''
-    document.body.style.overflow = ''
+    // 侧边栏仍然打开时应保持背景滚动锁定；仅在侧边栏关闭时解锁
+    if (isOpen.value) {
+      document.documentElement.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
+    }
   }
 
   /**
