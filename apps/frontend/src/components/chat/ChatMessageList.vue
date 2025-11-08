@@ -156,6 +156,8 @@ type ExtendedMessage = ChatMessageType & {
 // 处理消息，提取思考内容（异步版本）
 const sanitizedMessages = ref<ExtendedMessage[]>([])
 const currentResponseSanitized = ref('')
+// 会话结束状态标记（需在相关 watch 之前声明）
+const isConversationEnding = ref(false)
 
 // 实现 Mermaid SVG 注入逻辑
 const injectMermaidSVGs = async () => {
@@ -304,7 +306,6 @@ const handleEditMessage = (messageIndex: number, newContent: string) => {
 
 const isUserScrolling = ref(false)
 const lastScrollTop = ref(0)
-const isConversationEnding = ref(false)
 
 // 是否偏好减少动画
 const prefersReducedMotion = ref(false)

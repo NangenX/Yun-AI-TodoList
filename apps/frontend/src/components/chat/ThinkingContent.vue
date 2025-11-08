@@ -69,8 +69,7 @@ const toggleExpanded = () => {
 }
 
 const updateContentHeight = async () => {
-  if (!contentRef.value) return
-
+  if (!contentRef.value || !isExpanded.value) return
   await nextTick()
 
   // 临时展开以测量高度
@@ -109,12 +108,6 @@ watch(
     // 如果启用自动折叠且内容从空变为有内容，则展开
     if (props.autoCollapse && !oldContent && newContent) {
       isExpanded.value = true
-    }
-    // 如果启用自动折叠且内容稳定（思考完成），延迟折叠
-    if (props.autoCollapse && newContent && oldContent && newContent === oldContent) {
-      setTimeout(() => {
-        isExpanded.value = false
-      }, 3000) // 3秒后自动折叠
     }
   },
   { immediate: true }
