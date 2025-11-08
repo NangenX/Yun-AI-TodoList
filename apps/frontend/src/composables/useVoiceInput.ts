@@ -23,6 +23,17 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
   const isRecognitionSupported = ref(true)
   const recognitionStatus = ref<'idle' | 'listening' | 'processing' | 'error'>('idle')
   const lastError = ref('')
+  // 在组合式函数初始化时，优先检测浏览器是否支持语音识别，以便提前禁用按钮，减少用户困惑
+  // 该检测不会触发麦克风权限弹窗
+  ;(() => {
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognitionAPI) {
+      isRecognitionSupported.value = false
+      recognitionStatus.value = 'error'
+      lastError.value = t('browserNotSupported')
+      logger.error(t('browserSpeechNotSupported'), undefined, 'VoiceInput')
+    }
+  })()
 
   const checkSpeechRecognitionSupport = () => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -137,10 +148,14 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
 
       recognition.value.onaudiostart = () => {
         logger.debug(t('audioDetected'), undefined, 'VoiceInput')
+        // 音频流开始，更新为 processing 状态以便 UI 提示“正在识别”
+        recognitionStatus.value = 'processing'
       }
 
       recognition.value.onaudioend = () => {
         logger.debug(t('audioEnded'), undefined, 'VoiceInput')
+        // 音频流结束，回到监听状态
+        if (isListening.value) recognitionStatus.value = 'listening'
       }
 
       recognition.value.onnomatch = () => {

@@ -26,7 +26,11 @@
         'bg-button-hover text-white border-button-hover': recognitionStatus === 'processing',
       }"
       :disabled="!isRecognitionSupported"
-      :title="lastError || t(isListening ? 'stopListening' : 'listening')"
+      :title="
+        isRecognitionSupported
+          ? lastError || t(isListening ? 'stopListening' : 'listening')
+          : t('browserNotSupported')
+      "
       @click="isListening ? $emit('stopListening') : $emit('startListening')"
     >
       <MicrophoneIcon class="w-5 h-5" />
@@ -95,9 +99,8 @@ defineOptions({
   }
 
   /* 移动端隐藏语音输入按钮 */
-  .voice-btn {
-    display: none !important;
-  }
+  /* 原先在移动端隐藏语音输入按钮的规则已移除，以便在支持的设备上也可使用语音输入。
+     如果需要再次隐藏，可根据具体设备或支持情况在模板中添加条件渲染。 */
 
   .send-btn {
     background: linear-gradient(

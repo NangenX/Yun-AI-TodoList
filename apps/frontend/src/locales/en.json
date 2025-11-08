@@ -384,6 +384,10 @@
   "audioDetected": "Audio input detected",
   "audioEnded": "Audio input ended",
   "noMatchFound": "No matching speech content found",
+  "micPermissionGranted": "Microphone permission granted",
+  "micPermissionError": "Failed to get microphone permission: {error}",
+  "stopOldInstance": "Stopped previous instance: {error}",
+  "restartRecognitionError": "Failed to restart recognition: {error}",
 
   "modelSelection": "Model Selection",
   "modelSelectionDescription": "Choose the AI model to use",
