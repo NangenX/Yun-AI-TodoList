@@ -99,7 +99,6 @@ interface Conversation {
   messages: ChatMessage[]
   createdAt: number
   lastUpdated: string
-  tags?: string[]
   summary?: string
   messageCount?: number
   wordCount?: number

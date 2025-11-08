@@ -39,7 +39,6 @@ export interface GeneratedTask {
   priority?: number
   estimatedTime?: string
   category?: string
-  tags?: string[]
   reasoning?: string
 }
 

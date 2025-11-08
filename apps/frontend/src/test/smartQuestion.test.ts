@@ -122,7 +122,7 @@ describe('Smart Question Generation', () => {
 })
 
 describe('Todo System Prompt Generation', () => {
-  const mockTodos: (Todo & { tags?: string[] })[] = [
+  const mockTodos: Array<Todo & { tags?: string[] }> = [
     {
       id: 'test-todo-1',
       title: '完成项目报告',
@@ -164,7 +164,6 @@ describe('Todo System Prompt Generation', () => {
     expect(systemPrompt).toContain('完成项目报告')
     expect(systemPrompt).toContain('[优先级:4星]')
     expect(systemPrompt).toContain('[时间:2小时]')
-    expect(systemPrompt).toContain('[标签:工作,重要]')
   })
 
   it('should include completed tasks information', () => {

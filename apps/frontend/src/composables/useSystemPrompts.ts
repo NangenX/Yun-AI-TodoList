@@ -1,3 +1,5 @@
+import { useAuth } from '@/composables/useAuth'
+import { useUserPreferences } from '@/composables/useUserPreferences'
 import type {
   SystemPrompt,
   SystemPromptConfig,
@@ -6,8 +8,6 @@ import type {
 } from '@/services/types'
 import { logger } from '@/utils/logger'
 import { computed, onMounted, ref } from 'vue'
-import { useUserPreferences } from '@/composables/useUserPreferences'
-import { useAuth } from '@/composables/useAuth'
 
 /**
  * 系统提示词管理 Composable
@@ -279,7 +279,6 @@ export function useSystemPrompts() {
         isActive: true,
         createdAt: now,
         updatedAt: now,
-        tags: input.tags || [],
       }
 
       systemPrompts.value.push(newPrompt)
@@ -474,7 +473,6 @@ export function useSystemPrompts() {
           isActive: true,
           createdAt: now,
           updatedAt: now,
-          tags: ['todo', '任务管理', '内置'],
         }
       }
 
@@ -502,7 +500,6 @@ export function useSystemPrompts() {
           isActive: true,
           createdAt: now,
           updatedAt: now,
-          tags: ['todo', '任务管理', '内置'],
         }
       }
 

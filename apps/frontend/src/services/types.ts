@@ -1,10 +1,10 @@
 export interface AIStreamResponse {
-  choices: {
+  choices: Array<{
     delta: {
       content?: string
       reasoning_content?: string
     }
-  }[]
+  }>
 }
 
 export interface Message {
@@ -27,7 +27,6 @@ export interface Conversation {
   messages: ChatMessage[]
   createdAt: number
   lastUpdated: string
-  tags?: string[]
   summary?: string
   messageCount?: number
   wordCount?: number
@@ -50,7 +49,6 @@ export interface SystemPrompt {
   isDefault?: boolean
   createdAt: string
   updatedAt: string
-  tags?: string[]
 }
 
 export interface SystemPromptConfig {
@@ -61,12 +59,10 @@ export interface SystemPromptConfig {
 export interface SystemPromptCreateInput {
   name: string
   content: string
-  tags?: string[]
 }
 
 export interface SystemPromptUpdateInput {
   name?: string
   content?: string
   isActive?: boolean
-  tags?: string[]
 }

@@ -44,7 +44,6 @@ describe('aiTaskGenerationService - TODO 完成功能测试', () => {
             priority: 3,
             estimatedTime: '1小时',
             category: '测试',
-            tags: ['test'],
             reasoning: '测试原因',
           },
         ],

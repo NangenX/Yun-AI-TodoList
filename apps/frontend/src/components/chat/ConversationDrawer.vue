@@ -92,18 +92,6 @@
 
             <div class="conversation-meta">
               <span class="message-count">{{ conversation.messages.length }} 条消息</span>
-              <div v-if="conversation.tags?.length" class="conversation-tags">
-                <span
-                  v-for="tag in conversation.tags.slice(0, 2)"
-                  :key="tag"
-                  class="conversation-tag"
-                >
-                  {{ tag }}
-                </span>
-                <span v-if="conversation.tags.length > 2" class="more-tags">
-                  +{{ conversation.tags.length - 2 }}
-                </span>
-              </div>
             </div>
           </div>
 

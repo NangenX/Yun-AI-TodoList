@@ -6,7 +6,6 @@ export interface ConversationFilter {
     start: Date
     end: Date
   }
-  tags?: string[]
   messageCount?: {
     min?: number
     max?: number
@@ -105,13 +104,7 @@ export class ConversationHistoryService {
         }
       }
 
-      // 标签过滤
-      if (filter.tags && filter.tags.length > 0) {
-        const conversationTags = conversation.tags || []
-        if (!filter.tags.some((tag) => conversationTags.includes(tag))) {
-          return false
-        }
-      }
+      // 标签过滤已移除
 
       // 消息数量过滤
       if (filter.messageCount) {

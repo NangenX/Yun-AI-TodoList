@@ -192,7 +192,6 @@ function buildTaskGenerationPrompt(
       "priority": 1-5,
       "estimatedTime": "预估时间（如：30分钟、2小时、1天）",
       "category": "任务分类",
-      "tags": ["标签1", "标签2"],
       "reasoning": "生成此任务的理由",
       "confidence": 0.0-1.0
     }
@@ -234,7 +233,6 @@ function parseAIResponse(
           priority?: unknown
           estimatedTime?: unknown
           category?: unknown
-          tags?: unknown[]
           reasoning?: unknown
         },
         index: number
@@ -244,7 +242,6 @@ function parseAIResponse(
         priority: typeof task.priority === 'number' ? Math.max(1, Math.min(5, task.priority)) : 3,
         estimatedTime: task.estimatedTime ? String(task.estimatedTime) : undefined,
         category: task.category ? String(task.category) : undefined,
-        tags: Array.isArray(task.tags) ? task.tags.map(String) : [],
         reasoning: task.reasoning ? String(task.reasoning) : undefined,
       })
     )
@@ -285,7 +282,6 @@ function createFallbackResult(
       description: '请手动细化此任务的具体步骤',
       priority: 3,
       estimatedTime: '待评估',
-      tags: [],
       reasoning: 'AI 分析失败，使用原始描述作为任务',
     },
   ]

@@ -14,7 +14,6 @@ export interface SystemPrompt {
   isDefault?: boolean
   createdAt: string
   updatedAt: string
-  tags?: string[]
 }
 
 export interface UserPreferences {
