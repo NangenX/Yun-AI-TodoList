@@ -82,8 +82,16 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       recognition.value.interimResults = true
       recognition.value.maxAlternatives = 1
 
-      const preferredLang = t('locale') === 'zh' ? 'zh-CN' : 'en-US'
+      // 根据当前界面语言智能设置识别语言，兼容 zh / zh-CN / en / en-US
+      const rawLocale = String(t('locale')).toLowerCase()
+      const preferredLang = rawLocale.startsWith('zh') ? 'zh-CN' : 'en-US'
       recognition.value.lang = preferredLang
+      // 可选：记录识别语言设置日志，便于调试
+      try {
+        logger.info(t('speechRecognitionLang', { lang: preferredLang }), undefined, 'VoiceInput')
+      } catch (e) {
+        logger.error(t('speechRecognitionLangError', { lang: preferredLang }), e, 'VoiceInput')
+      }
 
       recognition.value.onstart = () => {
         isListening.value = true

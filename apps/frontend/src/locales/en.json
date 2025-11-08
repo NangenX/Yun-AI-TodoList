@@ -388,6 +388,11 @@
   "micPermissionError": "Failed to get microphone permission: {error}",
   "stopOldInstance": "Stopped previous instance: {error}",
   "restartRecognitionError": "Failed to restart recognition: {error}",
+  "initRecognitionError": "Error initializing speech recognition: {error}",
+  "startRecognitionError": "Error starting speech recognition: {error}",
+  "stopRecognitionError": "Error stopping speech recognition: {error}",
+  "browserSpeechNotSupported": "Your browser does not support speech recognition.",
+  "speechRecognitionLang": "Speech recognition language set to: {lang}",
 
   "modelSelection": "Model Selection",
   "modelSelectionDescription": "Choose the AI model to use",
