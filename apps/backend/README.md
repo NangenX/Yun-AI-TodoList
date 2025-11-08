@@ -153,18 +153,8 @@ pnpm start:prod
 # 运行单元测试
 pnpm test
 
-# 运行 E2E 测试
-pnpm test:e2e
-
-# 运行所有测试
-pnpm test:all
-
-# 生成测试覆盖率报告
-pnpm test:ci
-
 # 监听模式运行测试
 pnpm test:watch
-pnpm test:e2e:watch
 ```
 
 ## 📁 项目结构
