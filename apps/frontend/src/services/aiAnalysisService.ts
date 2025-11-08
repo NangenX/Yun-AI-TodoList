@@ -433,7 +433,7 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
   // 工具：截断文本，避免系统提示过长
   const truncate = (text: string, max = 80) => (text.length > max ? `${text.slice(0, max)}…` : text)
 
-  // 获取详细的任务列表（按优先级排序并限量）
+  // 获取详细的任务列表（按优先级排序，不限制数量）
   const sortedActiveTodos = [...activeTodos].sort((a, b) => {
     const priorityA = a.priority || 0
     const priorityB = b.priority || 0
