@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
@@ -119,6 +119,15 @@ const {
   reinitializeMermaid,
 } = useMarkdown()
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
+
+// 环境安全检查（SSR/测试场景下避免直接访问 window/document）
+const isClient = typeof window !== 'undefined' && typeof document !== 'undefined'
+
+// 滚动到底部的阈值统一常量，便于后续统一调整
+const NEAR_BOTTOM_THRESHOLD = 80
+
+// 保存主题切换监听器引用，便于卸载时断开，防止内存泄漏
+const mutationObserver = ref<MutationObserver | null>(null)
 
 // ChatMessage 组件引用管理
 const chatMessageRefs = ref<Map<number, InstanceType<typeof ChatMessage>>>(new Map())
@@ -207,12 +216,22 @@ const processSanitizedMessages = async () => {
   // 使用 Promise.all 并行处理所有消息的渲染，提高效率
   const processingPromises = props.messages.map(async (message) => {
     const { thinking, response } = extractThinkingContent(message.content)
-    const sanitized = await renderMarkdown(response)
-    return {
-      ...message,
-      content: response,
-      thinkingContent: thinking,
-      sanitizedContent: sanitized,
+    try {
+      const sanitized = await renderMarkdown(response)
+      return {
+        ...message,
+        content: response,
+        thinkingContent: thinking,
+        sanitizedContent: sanitized,
+      }
+    } catch (err) {
+      console.warn('Markdown 渲染失败，使用原始内容作为回退:', err)
+      return {
+        ...message,
+        content: response,
+        thinkingContent: thinking,
+        sanitizedContent: response,
+      }
     }
   })
 
@@ -228,7 +247,12 @@ const processSanitizedMessages = async () => {
 const processCurrentResponse = async () => {
   // 为当前响应的渲染也清空一次 map，避免和历史消息冲突
   getMermaidSvgMap().clear()
-  currentResponseSanitized.value = await renderMarkdown(props.currentResponse)
+  try {
+    currentResponseSanitized.value = await renderMarkdown(props.currentResponse)
+  } catch (err) {
+    console.warn('当前响应 Markdown 渲染失败，使用原始内容作为回退:', err)
+    currentResponseSanitized.value = props.currentResponse
+  }
   scheduleMermaidInjection()
 }
 
@@ -272,7 +296,23 @@ watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
 
 const copyToClipboard = async (text: string) => {
   try {
-    await navigator.clipboard.writeText(text)
+    if (isClient && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(text)
+    } else {
+      // 回退方案：创建不可见 textarea 并执行复制（在部分环境下有效）
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      textarea.style.pointerEvents = 'none'
+      document.body.appendChild(textarea)
+      textarea.select()
+      try {
+        document.execCommand('copy')
+      } finally {
+        document.body.removeChild(textarea)
+      }
+    }
   } catch (err) {
     console.error('复制失败:', err)
   }
@@ -314,7 +354,7 @@ const prefersReducedMotion = ref(false)
 let scrollRafId: number | null = null
 
 // 判断是否接近底部（阈值可微调）
-const isNearBottom = (el: HTMLElement, threshold = 80) => {
+const isNearBottom = (el: HTMLElement, threshold = NEAR_BOTTOM_THRESHOLD) => {
   return el.scrollHeight - el.scrollTop - el.clientHeight <= threshold
 }
 
@@ -386,7 +426,9 @@ const smartScrollToBottom = () => {
 onMounted(() => {
   // 检测用户系统是否偏好减少动画
   try {
-    prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (isClient && typeof window.matchMedia === 'function') {
+      prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    }
   } catch (err) {
     console.warn('无法检测动画偏好:', err)
   }
@@ -416,8 +458,32 @@ onMounted(() => {
       }
     })
     observer.observe(document.documentElement, { attributes: true })
+    // 保存引用，用于组件卸载时断开监听，避免内存泄漏
+    mutationObserver.value = observer
   } catch (err) {
     console.warn('无法监听主题切换:', err)
+  }
+})
+
+// 组件卸载时的清理：取消 rAF、断开 MutationObserver、清理 Mermaid Map
+onBeforeUnmount(() => {
+  if (injectionRaf !== null) {
+    cancelAnimationFrame(injectionRaf)
+    injectionRaf = null
+  }
+  if (scrollRafId !== null) {
+    cancelAnimationFrame(scrollRafId)
+    scrollRafId = null
+  }
+  try {
+    mutationObserver.value?.disconnect()
+  } catch (err) {
+    console.warn('断开 MutationObserver 失败:', err)
+  }
+  try {
+    getMermaidSvgMap().clear()
+  } catch (err) {
+    console.warn('清除 Mermaid SVG Map 失败:', err)
   }
 })
 
