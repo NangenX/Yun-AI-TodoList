@@ -197,6 +197,7 @@
         @delete-conversation="handleDeleteConversation"
         @clear-conversations="clearAllConversations"
         @new-conversation="newConversation"
+        @switch-previous-conversation="handleSwitchToPreviousConversation"
         @optimize="optimizeMessage"
         @retry="retry"
         @send="sendMessage"
@@ -272,6 +273,7 @@ const {
   stopGenerating,
   optimizeMessage,
   clearError,
+  showError,
   // 重试相关
   retryLastMessage,
   isRetrying,
@@ -389,6 +391,27 @@ const updateUserMessage = (...args: unknown[]) => {
 const handleSwitchConversation = (...args: unknown[]) => {
   const [id] = args as [string]
   switchConversation(id)
+}
+
+// 切换到上一次历史对话
+const handleSwitchToPreviousConversation = () => {
+  try {
+    // 如果正在生成回复，禁止切换
+    if (isGenerating.value) {
+      return
+    }
+
+    const prev = conversationHistory.value[1]
+    if (prev && prev.id) {
+      switchConversation(prev.id)
+    } else {
+      // 提示无上一条历史对话
+      showError(t('noPreviousConversation', '暂无上一条历史对话'))
+    }
+  } catch (error) {
+    console.error('切换到上一次历史对话失败:', error)
+    showError(t('noPreviousConversation', '暂无上一条历史对话'))
+  }
 }
 
 // 删除对话包装函数

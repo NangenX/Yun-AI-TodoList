@@ -23,6 +23,33 @@
       {{ t('newConversation') }}
     </button>
 
+    <!-- 切换到上一次历史对话按钮 -->
+    <button
+      :disabled="isGenerating || !hasPreviousConversation"
+      :class="[
+        'px-4 py-2.5 text-sm border rounded-lg flex items-center gap-2 transition-all duration-200 h-10 md:px-3 md:py-2 md:text-[13px] md:h-9',
+        isGenerating || !hasPreviousConversation
+          ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
+          : 'bg-input-bg text-text border-input-border cursor-pointer hover:bg-button-hover hover:text-white hover:border-button-bg hover:shadow-[0_2px_8px_rgba(121,180,166,0.2)]',
+      ]"
+      :title="t('switchPreviousConversationTitle', '切换到上一次的历史对话')"
+      @click="!(isGenerating || !hasPreviousConversation) && $emit('switchPrevious')"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        class="md:w-3.5 md:h-3.5"
+      >
+        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span class="hidden sm:inline">{{ t('previousConversation', '上一个对话') }}</span>
+    </button>
+
     <!-- Todo 任务助手按钮 -->
     <button
       :disabled="isGenerating || isGeneratingPrompt"
@@ -112,11 +139,13 @@ import { useI18n } from 'vue-i18n'
 
 defineProps<{
   isGenerating?: boolean
+  hasPreviousConversation?: boolean
 }>()
 
 defineEmits<{
   (e: 'new'): void
   (e: 'toggleDrawer'): void
+  (e: 'switchPrevious'): void
 }>()
 
 const { t } = useI18n()
@@ -179,7 +208,7 @@ const getButtonTitle = (): string => {
     height: 0.75rem !important;
   }
 
-  /* 缩小 Todo 助手按钮 */
+  /* 缩小上一条对话按钮 */
   button:nth-child(2) {
     padding: 0.25rem 0.5rem !important;
     height: 1.75rem !important;
@@ -189,6 +218,20 @@ const getButtonTitle = (): string => {
   }
 
   button:nth-child(2) svg {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+
+  /* 缩小 Todo 助手按钮（现在是第 3 个） */
+  button:nth-child(3) {
+    padding: 0.25rem 0.5rem !important;
+    height: 1.75rem !important;
+    font-size: 0.7rem !important;
+    min-width: auto !important;
+    gap: 0.25rem !important;
+  }
+
+  button:nth-child(3) svg {
     width: 0.75rem !important;
     height: 0.75rem !important;
   }

@@ -59,8 +59,10 @@
     >
       <ChatToolbar
         :is-generating="isGenerating"
+        :has-previous-conversation="conversationHistory.length > 1"
         @new="$emit('newConversation')"
         @toggle-drawer="$emit('toggleDrawer')"
+        @switch-previous="$emit('switchPreviousConversation')"
       />
 
       <ChatInput
@@ -138,6 +140,7 @@ interface Emits {
   (e: 'deleteConversation', id: string): void
   (e: 'clearConversations'): void
   (e: 'newConversation'): void
+  (e: 'switchPreviousConversation'): void
   (e: 'optimize'): void
   (e: 'retry', messageIndex: number): void
   (e: 'send'): void

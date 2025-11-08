@@ -305,6 +305,9 @@
   "randomMode": "Random Play",
 
   "newConversation": "New Conversation",
+  "previousConversation": "Previous Conversation",
+  "switchPreviousConversationTitle": "Switch to previous conversation",
+  "noPreviousConversation": "No previous conversation",
   "showConversations": "Show Conversations",
   "hideConversations": "Hide Conversations",
   "conversations": "Conversations",
