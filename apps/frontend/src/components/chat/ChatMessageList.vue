@@ -314,7 +314,7 @@ const prefersReducedMotion = ref(false)
 let scrollRafId: number | null = null
 
 // 判断是否接近底部（阈值可微调）
-const isNearBottom = (el: HTMLElement, threshold = 80) => {
+const isNearBottom = (el: HTMLElement, threshold = 160) => {
   return el.scrollHeight - el.scrollTop - el.clientHeight <= threshold
 }
 
