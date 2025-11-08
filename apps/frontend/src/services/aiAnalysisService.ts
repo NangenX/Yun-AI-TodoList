@@ -465,16 +465,52 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
 
   // 已完成任务详情如不需要展示，避免未使用变量导致的 lint 错误
 
-  // 生成精简的系统提示词（根据数据情况自适应）
-  let systemPrompt = ''
+  // 计算已完成任务用时（基于创建到完成的时间差）
+  const calcUsedMinutes = (todo: Todo): number | null => {
+    if (!todo.completedAt || !todo.createdAt) return null
+    const start = new Date(todo.createdAt).getTime()
+    const end = new Date(todo.completedAt).getTime()
+    const diffMs = end - start
+    if (!isFinite(diffMs) || diffMs <= 0) return null
+    return Math.round(diffMs / (60 * 1000))
+  }
 
-  // 始终包含任务数量概览（即使为 0）
-  systemPrompt = `你是专业的任务管理助手。用户当前有 ${dataSummary.totalActive} 个待完成任务。请基于以下具体任务信息提供个性化建议。
+  // 格式化分钟为更友好的中文文本
+  const formatMinutes = (m: number): string => {
+    if (m >= 60) {
+      const h = Math.floor(m / 60)
+      const min = m % 60
+      if (min === 0) return `${h}小时`
+      return `${h}小时${min}分钟`
+    }
+    return `${m}分钟`
+  }
+
+  // 构建已完成任务的详细信息（包含优先级与用时）
+  const completedTasksDetail = completedTodos
+    .map((todo, index) => {
+      const parts: string[] = []
+      if (typeof todo.priority === 'number') parts.push(`[优先级:${todo.priority}星]`)
+
+      const used = calcUsedMinutes(todo)
+      const usedText = used !== null ? formatMinutes(used) : null
+      if (usedText) parts.push(`[用时:${usedText}]`)
+
+      return `${index + 1}. ${truncate(todo.title)}${parts.length ? ' ' + parts.join(' ') : ''}`
+    })
+    .join('\n')
+
+  // 生成系统提示词（包含待完成与已完成任务信息）
+  const systemPrompt = `你是专业的任务管理助手。用户当前有 ${dataSummary.totalActive} 个待完成任务、${dataSummary.totalCompleted} 个已完成任务。请基于以下具体任务信息提供个性化建议。
 
 ## 待完成任务 (${dataSummary.totalActive}个)
 ${activeTodos.length > 0 ? activeTasksDetail : '暂无待完成任务'}
 
-请基于以上待完成任务信息回答用户问题，提供针对性的任务管理建议。`
+## 已完成任务 (${dataSummary.totalCompleted}个)
+${completedTodos.length > 0 ? completedTasksDetail : '暂无已完成任务'}
+
+请基于以上待完成任务信息回答用户问题，提供针对性的任务管理建议。
+可以直接引用任务内容、优先级和时间信息。`
 
   return systemPrompt
 }
