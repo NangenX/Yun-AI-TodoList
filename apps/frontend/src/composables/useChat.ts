@@ -168,7 +168,6 @@ export function useChat() {
     const message = userMessage.value.trim()
     userMessage.value = ''
     isGenerating.value = true
-    retryCount.value = 0
 
     try {
       // 如果没有当前对话 ID，创建新对话
@@ -279,7 +278,14 @@ export function useChat() {
       handleError(error, 'sendMessage')
 
       if (retryCount.value < MAX_RETRIES) {
+        // 防止重复追加用户消息，移除最后一条与当前重试消息相同的用户消息
+        const lastMsg = chatHistory.value[chatHistory.value.length - 1]
+        if (lastMsg && lastMsg.role === 'user' && lastMsg.content === message) {
+          chatHistory.value.pop()
+        }
         retryCount.value++
+        // 重新设置用户消息以确保重试有效
+        userMessage.value = message
         await sendMessage()
       }
     }
