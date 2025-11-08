@@ -1,5 +1,5 @@
 import i18n from '@/i18n'
-import type { AIAnalysisResult, AISubtaskResult, Todo } from '@/types/todo'
+import type { AIAnalysisResult, AISubtaskResult, TimeEstimate, Todo } from '@/types/todo'
 // 缓存功能已移除
 import { handleError } from '@/utils/logger'
 import { handleAIResponse, logAIResponseError } from './aiResponseHandler'
@@ -441,11 +441,11 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
   })
 
   // 时间文本提取（兼容字符串或对象格式）
-  const getTimeText = (todo: any): string | null => {
-    const t = (todo as any).estimatedTime
+  const getTimeText = (todo: { estimatedTime?: string | TimeEstimate }): string | null => {
+    const t = todo.estimatedTime
     if (!t) return null
     if (typeof t === 'string') return t
-    if (typeof t === 'object' && typeof t.text === 'string') return t.text
+    if (typeof t === 'object' && typeof (t as TimeEstimate).text === 'string') return t.text
     return null
   }
 
@@ -461,47 +461,20 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     })
     .join('\n')
 
-  // 计算已完成任务用时（若无法计算则标记为“未知”）
-  const formatTimeSpent = (todo: Todo): string => {
-    if (todo.completedAt && todo.createdAt) {
-      try {
-        const start = new Date(todo.createdAt).getTime()
-        const end = new Date(todo.completedAt).getTime()
-        const diffMinutes = Math.max(0, Math.round((end - start) / 60000))
-        if (diffMinutes <= 0) return '未知'
-        if (diffMinutes >= 60) {
-          const hours = Math.floor(diffMinutes / 60)
-          const minutes = diffMinutes % 60
-          return minutes === 0 ? `${hours}小时` : `${hours}小时${minutes}分钟`
-        }
-        return `${diffMinutes}分钟`
-      } catch {
-        return '未知'
-      }
-    }
-    return '未知'
-  }
+  // 已完成任务用时计算函数在当前精简提示词中未使用，移除以避免未使用变量的 lint 警告
 
-  const completedTasksDetail = completedTodos
-    .map((todo, index) => {
-      const spent = formatTimeSpent(todo)
-      return `${index + 1}. ${truncate(todo.title)} [用时:${spent}]`
-    })
-    .join('\n')
+  // 已完成任务详情如不需要展示，避免未使用变量导致的 lint 错误
 
   // 生成精简的系统提示词（根据数据情况自适应）
   let systemPrompt = ''
 
   // 始终包含任务数量概览（即使为 0）
-  systemPrompt = `你是专业的任务管理助手。用户当前有 ${dataSummary.totalActive} 个待完成任务，另有 ${dataSummary.totalCompleted} 个已完成任务。请基于以下具体任务信息提供个性化建议。
+  systemPrompt = `你是专业的任务管理助手。用户当前有 ${dataSummary.totalActive} 个待完成任务。请基于以下具体任务信息提供个性化建议。
 
 ## 待完成任务 (${dataSummary.totalActive}个)
 ${activeTodos.length > 0 ? activeTasksDetail : '暂无待完成任务'}
 
-## 已完成任务 (${dataSummary.totalCompleted}个)
-${completedTodos.length > 0 ? completedTasksDetail : '暂无已完成任务'}
-
-请基于以上具体任务信息回答用户问题，提供针对性的任务管理建议。在回答中，可以直接引用任务内容、优先级和时间信息。`
+请基于以上待完成任务信息回答用户问题，提供针对性的任务管理建议。`
 
   return systemPrompt
 }

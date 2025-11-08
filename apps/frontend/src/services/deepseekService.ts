@@ -1,5 +1,7 @@
 import i18n from '../i18n'
+import type { Todo } from '../types/todo'
 import { logger } from '../utils/logger'
+import { TodoValidator } from '../utils/todoValidator'
 import { getAIModel, getApiKey, getBaseUrl } from './configService'
 import { AIStreamResponse, Message, SystemPrompt } from './types'
 
@@ -112,7 +114,19 @@ const getSystemMessages = async (): Promise<Message[]> => {
         } else {
           // 动态导入生成函数
           const { generateTodoSystemPrompt } = await import('../services/aiAnalysisService')
-          freshContent = generateTodoSystemPrompt(todos as any)
+          // 将未知数据安全转换为 Todo[]，避免使用 any
+          const ensureTodosArray = (input: unknown): Todo[] => {
+            if (!Array.isArray(input)) return []
+            try {
+              const { validTodos } = TodoValidator.validateTodos(input as unknown[])
+              return validTodos
+            } catch {
+              return []
+            }
+          }
+
+          const sanitizedTodos = ensureTodosArray(todos)
+          freshContent = generateTodoSystemPrompt(sanitizedTodos)
           todoPromptCache = { hash: todosHash, content: freshContent }
         }
 
