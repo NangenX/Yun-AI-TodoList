@@ -444,7 +444,8 @@ onUnmounted(() => {
   gap: 0.75rem;
   padding: 0.75rem 0.75rem 0.75rem 0;
   /* 固定高度，避免列表随内容增长 */
-  height: clamp(360px, 55vh, 700px);
+  /* 整体高度下调，减少占屏面积 */
+  height: clamp(280px, 45vh, 600px);
 }
 
 /* 双列布局（桌面端） */
@@ -458,10 +459,11 @@ onUnmounted(() => {
   column-gap: 1rem;
   /* 始终两列时的容器高度行为：内容不多时自动收缩，内容多时产生滚动 */
   height: auto;
-  max-height: clamp(360px, 55vh, 700px);
+  /* 下调最大高度，避免整体过高 */
+  height: clamp(280px, 45vh, 600px);
   overflow-y: auto;
   /* 固定高度 + 滚动，彻底避免随着 todo 增加而变高 */
-  height: clamp(360px, 55vh, 700px);
+  /* 取消重复设置的较高固定高度，保持上面的自适应行为 */
 }
 
 /* 双列布局下的卡片去掉额外外边距，使用 grid 间距 */
@@ -612,7 +614,7 @@ onUnmounted(() => {
   .todo-grid {
     @apply h-45vh max-h-150;
     /* 保持固定高度（覆盖上面的 h-45vh） */
-    height: clamp(360px, 55vh, 700px);
+    height: clamp(280px, 45vh, 600px);
   }
 
   /* 中屏幕下双列仍然保持 */
@@ -647,8 +649,9 @@ onUnmounted(() => {
 
   .todo-grid {
     @apply gap-2 mb-3;
-    height: clamp(280px, 50vh, 600px);
-    max-height: 60vh;
+    /* 移动端进一步降低高度 */
+    height: clamp(240px, 45vh, 540px);
+    max-height: 55vh;
     min-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -677,8 +680,8 @@ onUnmounted(() => {
   }
 
   .todo-grid {
-    height: clamp(240px, 52vh, 560px);
-    max-height: 65vh;
+    height: clamp(220px, 45vh, 500px);
+    max-height: 55vh;
     min-height: 250px;
     padding: 0.25rem 0.25rem 0.25rem 0;
     gap: 0.5rem;
