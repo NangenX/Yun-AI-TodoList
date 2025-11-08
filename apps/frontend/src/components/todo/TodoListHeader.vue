@@ -363,7 +363,8 @@ h1 {
 
 .icon-button {
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border: 1px solid rgba(255, 126, 103, 0.1);
+  /* 统一到更柔和的主题边框色 */
+  border: 1px solid var(--settings-card-border);
   border-radius: 12px;
   cursor: pointer;
   padding: 0.75rem;
@@ -390,7 +391,13 @@ h1 {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 126, 103, 0.1), transparent);
+  /* 悬停闪光效果统一到主题色 */
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--primary-color-rgb), 0.12),
+    transparent
+  );
   transition: left 0.5s ease;
   z-index: 0;
 }
@@ -408,12 +415,13 @@ h1 {
 }
 
 .icon-button:hover {
-  color: #ff7e67;
+  /* 悬停颜色统一为更柔和的主题主色 */
+  color: var(--primary-color);
   opacity: 1;
   transform: translateY(-1px);
-  border-color: rgba(255, 126, 103, 0.3);
+  border-color: var(--settings-primary-medium);
   box-shadow:
-    0 4px 16px rgba(255, 126, 103, 0.15),
+    0 4px 16px rgba(var(--primary-color-rgb), 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
@@ -424,11 +432,15 @@ h1 {
 .icon-button.active {
   color: #ffffff;
   opacity: 1;
-  background: linear-gradient(135deg, #ff7e67 0%, #ff6b6b 100%);
-  border-color: rgba(255, 126, 103, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-color-rgb), 0.88) 0%,
+    rgba(var(--primary-color-rgb), 0.76) 100%
+  );
+  border-color: var(--settings-primary-medium);
   box-shadow:
-    0 2px 12px rgba(255, 126, 103, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 2px 12px rgba(var(--primary-color-rgb), 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .icon-button.active .button-icon {

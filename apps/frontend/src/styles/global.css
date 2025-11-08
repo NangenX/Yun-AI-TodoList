@@ -285,11 +285,13 @@ form {
 /* AI 消息文本选中高亮 - 提升对比度（浅色与深色主题均适用） */
 .ai-message-container ::selection,
 .ai-message-container ::-moz-selection {
-  background: rgba(var(--primary-color-rgb), 0.5);
+  /* 进一步加深选中高亮，提高对比度（浅色主题） */
+  background: rgba(var(--primary-color-rgb), 0.9);
 }
 [data-theme='dark'] .ai-message-container ::selection,
 [data-theme='dark'] .ai-message-container ::-moz-selection {
-  background: rgba(var(--primary-color-rgb), 0.7);
+  /* 深色主题下更明显的高亮 */
+  background: rgba(var(--primary-color-rgb), 0.96);
 }
 
 /* 代码块与内联代码的选中高亮（稍强一些，避免可读性问题） */
@@ -297,13 +299,14 @@ form {
 .ai-message-container pre ::-moz-selection,
 .ai-message-container code ::selection,
 .ai-message-container code ::-moz-selection {
-  background: rgba(var(--primary-color-rgb), 0.7);
+  /* 代码块与内联代码的选中高亮进一步增强 */
+  background: rgba(var(--primary-color-rgb), 0.92);
 }
 [data-theme='dark'] .ai-message-container pre ::selection,
 [data-theme='dark'] .ai-message-container pre ::-moz-selection,
 [data-theme='dark'] .ai-message-container code ::selection,
 [data-theme='dark'] .ai-message-container code ::-moz-selection {
-  background: rgba(var(--primary-color-rgb), 0.85);
+  background: rgba(var(--primary-color-rgb), 0.97);
 }
 
 .ai-message-container:hover {
