@@ -37,7 +37,6 @@ export interface PaginationQuery {
 
 export interface FilterQuery {
   search?: string
-  tags?: string[]
   status?: string
   dateFrom?: string
   dateTo?: string

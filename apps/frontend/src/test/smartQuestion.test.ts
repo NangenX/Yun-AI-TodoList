@@ -122,7 +122,7 @@ describe('Smart Question Generation', () => {
 })
 
 describe('Todo System Prompt Generation', () => {
-  const mockTodos: Array<Todo & { tags?: string[] }> = [
+  const mockTodos: Todo[] = [
     {
       id: 'test-todo-1',
       title: '完成项目报告',
@@ -133,7 +133,6 @@ describe('Todo System Prompt Generation', () => {
       priority: 4,
       estimatedTime: '2小时',
       aiAnalyzed: true,
-      tags: ['工作', '重要'],
     },
     {
       id: 'test-todo-2',
