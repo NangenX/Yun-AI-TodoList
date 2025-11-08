@@ -133,6 +133,72 @@
         </svg>
       </button>
 
+      <!-- 单独图标：一键分析（批量分析） -->
+      <button
+        ref="batchAnalyzeBtnRef"
+        class="icon-button batch-analyze-button"
+        :disabled="isBatchAnalyzing || isAnalyzing || isSorting || !hasUnanalyzedTodos"
+        :title="
+          isBatchAnalyzing
+            ? t('batchAnalyzing', '批量分析中...')
+            : isAnalyzing || isSorting
+              ? t('loading', '正在进行其他操作，请稍候...')
+              : t('batchAnalyze', '一键分析')
+        "
+        :aria-label="t('batchAnalyze')"
+        @click="handleBatchAnalyzeClick"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="button-icon"
+        >
+          <path d="M9 12l2 2 4-4" />
+          <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3" />
+          <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3" />
+        </svg>
+      </button>
+
+      <!-- 单独图标：AI 优先级排序 -->
+      <button
+        ref="aiSortBtnRef"
+        class="icon-button ai-sort-button"
+        :disabled="isSorting || isAnalyzing || isBatchAnalyzing || !hasActiveTodos"
+        :title="
+          isSorting
+            ? t('sorting')
+            : isAnalyzing || isBatchAnalyzing
+              ? t('loading', '正在进行 AI 分析，请稍候...')
+              : t('aiPrioritySort', 'AI 优先级排序')
+        "
+        :aria-label="t('aiPrioritySort')"
+        @click="handleSortWithAIClick"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="button-icon"
+        >
+          <path d="M3 6h18" />
+          <path d="M7 12h10" />
+          <path d="M10 18h4" />
+        </svg>
+      </button>
+
       <!-- 首次使用顶部功能引导 -->
       <HeaderOnboarding
         :steps="onboardingSteps"
@@ -145,15 +211,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import HeaderOnboarding from '@/components/onboarding/HeaderOnboarding.vue'
+import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   showCharts: boolean
   showSearch: boolean
   isLoading?: boolean
   layoutMode?: 'list' | 'two_column'
+  // 新增：用于控制 AI 菜单条目的禁用状态
+  isAnalyzing?: boolean
+  isSorting?: boolean
+  isBatchAnalyzing?: boolean
+  isGenerating?: boolean
+  hasUnanalyzedTodos?: boolean
+  hasActiveTodos?: boolean
 }
 
 interface Emits {
@@ -161,10 +234,13 @@ interface Emits {
   (e: 'toggleSearch'): void
   (e: 'openAiSidebar'): void
   (e: 'toggleLayoutMode'): void
+  // 新增：AI 相关操作事件
+  (e: 'sort-with-ai'): void
+  (e: 'batchAnalyze'): void
 }
 
 defineProps<Props>()
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 
@@ -177,6 +253,8 @@ const aiBtnRef = ref<HTMLButtonElement | null>(null)
 const searchBtnRef = ref<HTMLButtonElement | null>(null)
 const chartsBtnRef = ref<HTMLButtonElement | null>(null)
 const layoutBtnRef = ref<HTMLButtonElement | null>(null)
+const batchAnalyzeBtnRef = ref<HTMLButtonElement | null>(null)
+const aiSortBtnRef = ref<HTMLButtonElement | null>(null)
 
 const showHeaderOnboarding = ref(false)
 const ONBOARDING_STORAGE_KEY = 'onboarding.header.seen'
@@ -205,6 +283,22 @@ const onboardingSteps = [
     title: t('switchToTwoColumn', '布局切换'),
     description: t('onboarding.header.layoutDesc', '在单列与双列布局之间切换，提升浏览效率'),
   },
+  {
+    targetRef: batchAnalyzeBtnRef,
+    title: t('batchAnalyze', '一键分析'),
+    description: t(
+      'onboarding.header.batchAnalyzeDesc',
+      '批量分析未分析的待办事项，自动生成建议与优先级信息（进行其他 AI 操作时会暂时不可用）'
+    ),
+  },
+  {
+    targetRef: aiSortBtnRef,
+    title: t('aiPrioritySort', 'AI 优先级排序'),
+    description: t(
+      'onboarding.header.aiSortDesc',
+      '基于重要性与紧急性，为待完成事项进行智能排序（需要至少 2 个活跃任务）'
+    ),
+  },
 ]
 
 onMounted(() => {
@@ -223,6 +317,15 @@ function finishOnboarding() {
 function skipOnboarding() {
   showHeaderOnboarding.value = false
   localStorage.setItem(ONBOARDING_STORAGE_KEY, '1')
+}
+
+function handleSortWithAIClick() {
+  // 透传到父组件，由父组件负责具体逻辑
+  emit('sort-with-ai')
+}
+
+function handleBatchAnalyzeClick() {
+  emit('batchAnalyze')
 }
 </script>
 
@@ -406,6 +509,12 @@ h1 {
     opacity 0.15s ease,
     visibility 0.15s ease,
     transform 0.15s ease;
+}
+
+/* 顶部独立 AI 操作按钮（与其他 icon-button 保持一致风格） */
+.batch-analyze-button,
+.ai-sort-button {
+  /* 使用通用样式，不额外突出显示，保证不显眼 */
 }
 
 @media (max-width: 768px) {

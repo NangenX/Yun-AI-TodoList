@@ -41,10 +41,18 @@
         :show-charts="showCharts"
         :show-search="showSearch"
         :layout-mode="layoutMode"
+        :is-analyzing="isAnalyzing"
+        :is-sorting="isSorting"
+        :is-batch-analyzing="isBatchAnalyzing"
+        :is-generating="isGenerating"
+        :has-unanalyzed-todos="hasUnanalyzedTodos"
+        :has-active-todos="hasActiveTodos"
         @toggle-charts="toggleCharts"
         @toggle-search="toggleSearch"
         @open-ai-sidebar="$emit('openAiSidebar')"
         @toggle-layout-mode="toggleLayoutMode"
+        @sort-with-ai="sortActiveTodosWithAI"
+        @batch-analyze="handleBatchAnalyze"
       />
 
       <TodoInput
@@ -115,17 +123,7 @@
         />
       </div>
 
-      <TodoActions
-        :filter="filter"
-        :has-active-todos="hasActiveTodos"
-        :has-unanalyzed-todos="hasUnanalyzedTodos"
-        :is-generating="isGenerating"
-        :is-sorting="isSorting"
-        :is-batch-analyzing="isBatchAnalyzing"
-        :is-analyzing="isAnalyzing"
-        @sort-with-ai="sortActiveTodosWithAI"
-        @batch-analyze="handleBatchAnalyze"
-      />
+      <!-- 依据方案 B：将批量分析与 AI 排序入口合并到顶部工具栏，这里不再显示底部操作按钮 -->
 
       <ConfirmDialog
         :show="showConfirmDialog"
@@ -168,7 +166,7 @@ import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 
 import LoadingOverlay from './common/LoadingOverlay.vue'
-import { ChartsDialog, TodoActions, TodoListHeader } from './todo'
+import { ChartsDialog, TodoListHeader } from './todo'
 
 const { t } = useI18n()
 
@@ -445,7 +443,8 @@ onUnmounted(() => {
   padding: 0.75rem 0.75rem 0.75rem 0;
   /* 固定高度，避免列表随内容增长 */
   /* 整体高度下调，减少占屏面积 */
-  height: clamp(280px, 45vh, 600px);
+  /* 整体加高：提高视区占比与最大高度 */
+  height: clamp(320px, 55vh, 700px);
 }
 
 /* 双列布局（桌面端） */
@@ -460,7 +459,8 @@ onUnmounted(() => {
   /* 始终两列时的容器高度行为：内容不多时自动收缩，内容多时产生滚动 */
   height: auto;
   /* 下调最大高度，避免整体过高 */
-  height: clamp(280px, 45vh, 600px);
+  /* 整体加高 */
+  height: clamp(320px, 55vh, 700px);
   overflow-y: auto;
   /* 固定高度 + 滚动，彻底避免随着 todo 增加而变高 */
   /* 取消重复设置的较高固定高度，保持上面的自适应行为 */
@@ -612,9 +612,9 @@ onUnmounted(() => {
   }
 
   .todo-grid {
-    @apply h-45vh max-h-150;
-    /* 保持固定高度（覆盖上面的 h-45vh） */
-    height: clamp(280px, 45vh, 600px);
+    @apply h-55vh max-h-150;
+    /* 保持固定高度（覆盖上面的 h-55vh） */
+    height: clamp(320px, 55vh, 700px);
   }
 
   /* 中屏幕下双列仍然保持 */
@@ -636,7 +636,8 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .todo-container {
-    @apply p-1 min-h-[calc(100vh-100px)] justify-start pt-2;
+    /* 整体加高：减少顶部预留，从而增大有效高度 */
+    @apply p-1 min-h-[calc(100vh-80px)] justify-start pt-2;
   }
 
   .todo-container.small-screen {
@@ -650,8 +651,8 @@ onUnmounted(() => {
   .todo-grid {
     @apply gap-2 mb-3;
     /* 移动端进一步降低高度 */
-    height: clamp(240px, 45vh, 540px);
-    max-height: 55vh;
+    height: clamp(260px, 55vh, 620px);
+    max-height: 60vh;
     min-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -680,8 +681,9 @@ onUnmounted(() => {
   }
 
   .todo-grid {
-    height: clamp(220px, 45vh, 500px);
-    max-height: 55vh;
+    /* 最小屏幕整体也适当加高，但保持适度以免遮挡底部内容 */
+    height: clamp(240px, 52vh, 560px);
+    max-height: 58vh;
     min-height: 250px;
     padding: 0.25rem 0.25rem 0.25rem 0;
     gap: 0.5rem;

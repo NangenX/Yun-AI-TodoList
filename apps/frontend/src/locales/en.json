@@ -261,11 +261,13 @@
   "reset": "Reset",
   "onboarding": {
     "header": {
-      "title": "Quick tour of top toolbar",
+      "title": "Quick tour of top toolbar (6 actions)",
       "aiDesc": "Open sidebar to chat with AI, generate suggestions or do priority sorting",
       "searchDesc": "Open search bar to quickly filter todos by keyword",
       "chartsDesc": "Open charts to see completion rate and distribution (Ctrl+S shortcut)",
       "layoutDesc": "Toggle between single-column and two-column layout for better browsing",
+      "batchAnalyzeDesc": "Batch analyze un-analyzed todos to auto generate suggestions & priority (temporarily disabled during other AI operations)",
+      "aiSortDesc": "Intelligently sort active todos by importance and urgency (requires at least 2 active tasks)",
       "next": "Next",
       "skip": "Skip",
       "gotIt": "Got it"
