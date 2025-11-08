@@ -305,6 +305,7 @@ const handleEditMessage = (messageIndex: number, newContent: string) => {
 const isUserScrolling = ref(false)
 const lastScrollTop = ref(0)
 const isConversationEnding = ref(false)
+const lastUserScrollAt = ref(0)
 
 // 是否偏好减少动画
 const prefersReducedMotion = ref(false)
@@ -313,7 +314,7 @@ const prefersReducedMotion = ref(false)
 let scrollRafId: number | null = null
 
 // 判断是否接近底部（阈值可微调）
-const isNearBottom = (el: HTMLElement, threshold = 80) => {
+const isNearBottom = (el: HTMLElement, threshold = 40) => {
   return el.scrollHeight - el.scrollTop - el.clientHeight <= threshold
 }
 
@@ -353,9 +354,11 @@ const handleScroll = () => {
     if (element.scrollTop < lastScrollTop.value) {
       // 向上滚动，禁用自动滚动
       isUserScrolling.value = true
+      lastUserScrollAt.value = Date.now()
     } else if (element.scrollTop > lastScrollTop.value && !isAtBottom) {
       // 向下滚动但未到达底部，也表明用户有主动滚动意图
       isUserScrolling.value = true
+      lastUserScrollAt.value = Date.now()
     } else if (isAtBottom) {
       // 用户滚动到底部，重新启用自动滚动
       isUserScrolling.value = false
@@ -370,6 +373,15 @@ const handleScroll = () => {
       clientHeight: element.clientHeight,
     })
   }
+}
+
+// 仅在满足自动滚动条件时滚动：用户未主动滚动、靠近底部，且最近 1s 内没有手动滚动
+const shouldAutoScroll = (): boolean => {
+  const element = chatHistoryRef.value
+  if (!element) return false
+  const timeSinceUserScroll = Date.now() - lastUserScrollAt.value
+  const userIdle = timeSinceUserScroll > 1000
+  return !isUserScrolling.value && isNearBottom(element) && userIdle
 }
 
 const smartScrollToBottom = () => {
@@ -428,24 +440,20 @@ watch(
       // 检查最新添加的消息是否是用户消息
       const lastMessage = newMessages[newMessages.length - 1]
       if (lastMessage && lastMessage.role === 'user') {
-        // 用户发送消息时，重置滚动状态并强制滚动到底部
+        // 用户发送消息时：强制瞬间滚到底部，符合用户预期
         isUserScrolling.value = false
         nextTick(() => {
-          // 使用 setTimeout 确保 DOM 完全更新后再滚动
           setTimeout(() => {
             scrollToBottomInstantly()
           }, 0)
         })
-      }
-      // 只有在用户主动滚动时才对AI消息进行滚动
-      else if (!isUserScrolling.value && lastMessage && lastMessage.role === 'assistant') {
-        // AI消息完成时，只有在用户没有主动滚动的情况下才自动滚动
-        // 如果对话刚刚结束，不执行滚动，避免与 currentResponse 的监听器冲突
-        if (!isConversationEnding.value) {
-          nextTick(() => {
+      } else if (lastMessage && lastMessage.role === 'assistant') {
+        // AI消息完成时：仅在满足自动滚动条件且不处于结束切换状态时滚动
+        nextTick(() => {
+          if (shouldAutoScroll() && !isConversationEnding.value) {
             smartScrollToBottom()
-          })
-        }
+          }
+        })
       }
     }
   },
@@ -458,11 +466,10 @@ watch(
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
       nextTick(() => {
-        // 只有在用户没有主动滚动的情况下才自动滚动
-        if (!isUserScrolling.value) {
-          // 如果对话正在结束（从有内容到无内容），不执行滚动
-          // 因为这会在消息列表更新时由 messages 的监听器处理
-          if (!(oldVal && oldVal.length > 0 && !newVal)) {
+        // 如果对话正在结束（从有内容到无内容），不执行滚动
+        // 因为这会在消息列表更新时由 messages 的监听器处理
+        if (!(oldVal && oldVal.length > 0 && !newVal)) {
+          if (shouldAutoScroll()) {
             smartScrollToBottom()
           }
         }
@@ -477,12 +484,9 @@ watch(
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
       nextTick(() => {
-        // 只有在用户没有主动滚动的情况下才自动滚动
-        if (!isUserScrolling.value) {
-          // 如果对话正在结束，不执行滚动
-          if (!isConversationEnding.value) {
-            smartScrollToBottom()
-          }
+        // 如果对话正在结束，不执行滚动；且仅在满足自动滚动条件时滚动
+        if (!isConversationEnding.value && shouldAutoScroll()) {
+          smartScrollToBottom()
         }
       })
     }
