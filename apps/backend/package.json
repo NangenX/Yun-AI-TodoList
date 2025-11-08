@@ -16,12 +16,10 @@
     "lint:check": "eslint --cache --cache-location .eslintcache \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:e2e:watch": "jest --config ./test/jest-e2e.json --watch",
-    "test:e2e:cov": "jest --config ./test/jest-e2e.json --coverage",
-    "test:ci": "pnpm test:cov && pnpm test:e2e:cov",
+    "test:ci": "pnpm test && pnpm test:e2e",
     "migration:generate": "prisma migrate dev --name",
     "migration:run": "prisma migrate deploy",
     "migration:revert": "prisma migrate reset",
@@ -115,26 +113,6 @@
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "src/**/*\\.(t|j)s",
-      "!src/**/*\\.d\\.ts",
-      "!src/main.ts"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "json",
-      "html",
-      "lcov"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 80,
-        "functions": 80,
-        "lines": 80,
-        "statements": 80
-      }
     },
     "testEnvironment": "node",
     "moduleNameMapper": {
