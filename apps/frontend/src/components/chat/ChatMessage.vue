@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative opacity-100 translate-y-0 transition-all-300 m-0 group"
+    class="relative opacity-100 translate-y-0 m-0 group"
     :class="{
       'user-message-responsive': message.role === 'user',
       'ai-message-responsive self-start': message.role === 'assistant',

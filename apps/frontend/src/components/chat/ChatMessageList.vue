@@ -123,8 +123,15 @@ const chatHistoryRef = ref<HTMLDivElement | null>(null)
 // ChatMessage 组件引用管理
 const chatMessageRefs = ref<Map<number, InstanceType<typeof ChatMessage>>>(new Map())
 
+// 模板 ref 回调会传入 Element | ComponentPublicInstance | null 的联合类型。
+// 这里通过是否存在 resetEditState 方法来收窄为 ChatMessage 组件实例，再进行存储；否则删除引用。
 const setChatMessageRef = (el: unknown, index: number) => {
-  if (el && typeof el === 'object' && '$' in el) {
+  if (
+    el &&
+    typeof el === 'object' &&
+    'resetEditState' in el &&
+    typeof (el as { resetEditState?: unknown }).resetEditState === 'function'
+  ) {
     chatMessageRefs.value.set(index, el as InstanceType<typeof ChatMessage>)
   } else {
     chatMessageRefs.value.delete(index)
