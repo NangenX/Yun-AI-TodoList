@@ -92,12 +92,7 @@ export function useChat() {
     }
   }
 
-  const createNewConversation = (title: string = t('newConversation'), force = false) => {
-    // 如果当前对话没有消息且不是强制创建，则不创建新对话
-    if (!force && chatHistory.value.length === 0) {
-      return
-    }
-
+  const createNewConversation = (title: string = t('newConversation'), _force = false) => {
     const now = Date.now()
     const newConversation: Conversation = {
       id: now.toString(),
@@ -196,6 +191,9 @@ export function useChat() {
             : undefined,
       }
       chatHistory.value = [...chatHistory.value, userMsg]
+
+      // 立即保存到对话历史，确保侧边栏列表中的消息数与更新时间即时同步
+      saveConversationHistory()
 
       currentAIResponse.value = ''
       currentThinkingContent.value = ''
@@ -348,13 +346,19 @@ export function useChat() {
     abortCurrentRequest()
 
     if (currentAIResponse.value) {
-      const aiMsg: ChatMessage = {
-        role: 'assistant',
-        content: currentAIResponse.value,
+      // 如果有思考内容，将其与当前已生成内容合并
+      let finalContent = currentAIResponse.value
+      if (currentThinkingContent.value) {
+        finalContent = `<think>${currentThinkingContent.value}</think>\n\n${finalContent}`
       }
+
+      const aiMsg: ChatMessage = { role: 'assistant', content: finalContent }
       chatHistory.value.push(aiMsg)
       saveConversationHistory()
     }
+    // 重置临时内容状态
+    currentAIResponse.value = ''
+    currentThinkingContent.value = ''
     isGenerating.value = false
   }
 

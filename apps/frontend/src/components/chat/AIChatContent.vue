@@ -60,6 +60,7 @@
       <ChatToolbar
         :is-generating="isGenerating"
         :has-previous-conversation="conversationHistory.length > 1"
+        :is-empty-conversation="chatHistory.length === 0"
         @new="$emit('newConversation')"
         @toggle-drawer="$emit('toggleDrawer')"
         @switch-previous="$emit('switchPreviousConversation')"

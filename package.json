@@ -49,7 +49,11 @@
     "electron:build": "node scripts/build-electron.js"
   },
   "lint-staged": {
-    "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
+    "*.vue": [
+      "prettier --cache --write --ignore-unknown",
+      "eslint --config apps/frontend/eslint.config.js --cache --cache-location .eslintcache --fix --no-error-on-unmatched-pattern"
+    ],
+    "*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
       "prettier --cache --write --ignore-unknown",
       "eslint --cache --cache-location .eslintcache --fix --no-error-on-unmatched-pattern"
     ],
