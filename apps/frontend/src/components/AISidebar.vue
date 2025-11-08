@@ -458,11 +458,6 @@ const newConversation = () => {
   createNewConversation()
 }
 
-// 清空所有对话函数
-const _clearConversations = () => {
-  clearAllConversations()
-}
-
 const closeSidebar = () => {
   emit('close')
 }
