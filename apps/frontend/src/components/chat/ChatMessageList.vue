@@ -1,7 +1,7 @@
 <template>
   <div
     ref="chatHistoryRef"
-    class="flex-grow overflow-y-auto mb-4 flex flex-col px-6 py-6 md:px-4 md:py-4 gap-6 md:gap-4 bg-gradient-to-b from-white/3 to-transparent"
+    class="chat-scroll-container flex-grow overflow-y-auto mb-4 flex flex-col px-6 py-6 md:px-4 md:py-4 gap-6 md:gap-4 bg-gradient-to-b from-white/3 to-transparent"
     @scroll="handleScroll"
   >
     <div v-for="(message, index) in sanitizedMessages" :key="index" class="message-group">
@@ -305,29 +305,43 @@ const handleEditMessage = (messageIndex: number, newContent: string) => {
 const isUserScrolling = ref(false)
 const lastScrollTop = ref(0)
 const isConversationEnding = ref(false)
-const scrollTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
+
+// 是否偏好减少动画
+const prefersReducedMotion = ref(false)
+
+// 使用 rAF 合并滚动操作，避免频繁设置 scrollTop 导致卡顿
+let scrollRafId: number | null = null
+
+// 判断是否接近底部（阈值可微调）
+const isNearBottom = (el: HTMLElement, threshold = 80) => {
+  return el.scrollHeight - el.scrollTop - el.clientHeight <= threshold
+}
+
+const scheduleScrollToBottom = (smooth = true) => {
+  const element = chatHistoryRef.value
+  if (!element) return
+
+  if (scrollRafId !== null) {
+    cancelAnimationFrame(scrollRafId)
+  }
+  scrollRafId = requestAnimationFrame(() => {
+    try {
+      element.scrollTo({
+        top: element.scrollHeight,
+        behavior: smooth && !prefersReducedMotion.value ? 'smooth' : 'auto',
+      })
+    } finally {
+      scrollRafId = null
+    }
+  })
+}
 
 const scrollToBottomInstantly = () => {
-  if (chatHistoryRef.value) {
-    const element = chatHistoryRef.value
-    element.style.scrollBehavior = 'auto'
-    // 强制滚动到底部，使用 requestAnimationFrame 确保渲染完成
-    requestAnimationFrame(() => {
-      element.scrollTop = element.scrollHeight
-      // 双重保险，再次确保滚动到底部
-      requestAnimationFrame(() => {
-        element.scrollTop = element.scrollHeight
-      })
-    })
-  }
+  scheduleScrollToBottom(false)
 }
 
 const scrollToBottom = () => {
-  if (chatHistoryRef.value) {
-    const element = chatHistoryRef.value
-    element.style.scrollBehavior = 'smooth'
-    element.scrollTop = element.scrollHeight
-  }
+  scheduleScrollToBottom(true)
 }
 
 const handleScroll = () => {
@@ -359,26 +373,23 @@ const handleScroll = () => {
 }
 
 const smartScrollToBottom = () => {
-  if (!chatHistoryRef.value) {
-    return
-  }
+  const element = chatHistoryRef.value
+  if (!element) return
 
-  // 清除之前的滚动定时器，避免多次滚动
-  if (scrollTimeout.value) {
-    clearTimeout(scrollTimeout.value)
-    scrollTimeout.value = null
-  }
-
-  // 如果用户没有主动滚动，则执行滚动
-  if (!isUserScrolling.value) {
-    // 使用 setTimeout 确保滚动操作在 DOM 更新后执行
-    scrollTimeout.value = setTimeout(() => {
-      scrollToBottomInstantly()
-    }, 50)
+  // 仅当用户未主动滚动且接近底部时才进行平滑滚动，避免“拉扯感”
+  if (!isUserScrolling.value && isNearBottom(element)) {
+    scrollToBottom()
   }
 }
 
 onMounted(() => {
+  // 检测用户系统是否偏好减少动画
+  try {
+    prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch (err) {
+    console.warn('无法检测动画偏好:', err)
+  }
+
   scrollToBottomInstantly()
   // 设置代码复制功能
   setupCodeCopyFunction()
@@ -485,6 +496,22 @@ defineExpose({
 </script>
 
 <style scoped>
+.chat-scroll-container {
+  scroll-behavior: smooth; /* 默认启用平滑滚动 */
+  -webkit-overflow-scrolling: touch; /* iOS 系统增强 */
+  overscroll-behavior-y: contain; /* 防止上拉/下拉触发浏览器回弹 */
+  will-change: scroll-position; /* 提示浏览器优化滚动 */
+  contain: layout paint; /* 隔离内部绘制，降低滚动重绘开销 */
+  backface-visibility: hidden;
+  transform: translateZ(0); /* 强制 GPU 合成，减少滚动闪烁 */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-scroll-container {
+    scroll-behavior: auto; /* 尊重系统设置，禁用平滑滚动 */
+  }
+}
+
 .message-group {
   display: flex;
   flex-direction: column;
