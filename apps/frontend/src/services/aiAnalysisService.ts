@@ -440,26 +440,71 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     return priorityB - priorityA // 高优先级在前
   })
 
-  // 不再限制样本数量：注入全部未完成任务（按优先级排序）
+  // 时间文本提取（兼容字符串或对象格式）
+  const getTimeText = (todo: any): string | null => {
+    const t = (todo as any).estimatedTime
+    if (!t) return null
+    if (typeof t === 'string') return t
+    if (typeof t === 'object' && typeof t.text === 'string') return t.text
+    return null
+  }
+
+  // 构建未完成任务的详细信息（包含优先级、时间、标签等）
   const activeTasksDetail = sortedActiveTodos
     .map((todo, index) => {
-      return `${index + 1}. ${truncate(todo.title)}`
+      const parts: string[] = []
+      if (typeof todo.priority === 'number') parts.push(`[优先级:${todo.priority}星]`)
+      const timeText = getTimeText(todo)
+      if (timeText) parts.push(`[时间:${timeText}]`)
+      // 测试用例允许传入可选 tags 字段
+      const tags = (todo as any).tags as string[] | undefined
+      if (Array.isArray(tags) && tags.length > 0) parts.push(`[标签:${tags.join(',')}]`)
+
+      return `${index + 1}. ${truncate(todo.title)}${parts.length ? ' ' + parts.join(' ') : ''}`
+    })
+    .join('\n')
+
+  // 计算已完成任务用时（若无法计算则标记为“未知”）
+  const formatTimeSpent = (todo: Todo): string => {
+    if (todo.completedAt && todo.createdAt) {
+      try {
+        const start = new Date(todo.createdAt).getTime()
+        const end = new Date(todo.completedAt).getTime()
+        const diffMinutes = Math.max(0, Math.round((end - start) / 60000))
+        if (diffMinutes <= 0) return '未知'
+        if (diffMinutes >= 60) {
+          const hours = Math.floor(diffMinutes / 60)
+          const minutes = diffMinutes % 60
+          return minutes === 0 ? `${hours}小时` : `${hours}小时${minutes}分钟`
+        }
+        return `${diffMinutes}分钟`
+      } catch {
+        return '未知'
+      }
+    }
+    return '未知'
+  }
+
+  const completedTasksDetail = completedTodos
+    .map((todo, index) => {
+      const spent = formatTimeSpent(todo)
+      return `${index + 1}. ${truncate(todo.title)} [用时:${spent}]`
     })
     .join('\n')
 
   // 生成精简的系统提示词（根据数据情况自适应）
   let systemPrompt = ''
 
-  if (activeTodos.length === 0 && completedTodos.length === 0) {
-    systemPrompt = `你是专业的任务管理助手。用户当前没有任何待办或已完成任务。请直接围绕用户的提问提供一般性的任务管理建议，不要编造不存在的任务或细节。`
-  } else {
-    systemPrompt = `你是专业的任务管理助手。用户当前有 ${dataSummary.totalActive} 个待完成任务${dataSummary.totalCompleted > 0 ? `，另有 ${dataSummary.totalCompleted} 个已完成任务` : ''}。请基于以下具体任务信息提供个性化建议。
+  // 始终包含任务数量概览（即使为 0）
+  systemPrompt = `你是专业的任务管理助手。用户当前有 ${dataSummary.totalActive} 个待完成任务，另有 ${dataSummary.totalCompleted} 个已完成任务。请基于以下具体任务信息提供个性化建议。
 
 ## 待完成任务 (${dataSummary.totalActive}个)
 ${activeTodos.length > 0 ? activeTasksDetail : '暂无待完成任务'}
 
-请基于以上具体任务信息回答用户问题，提供针对性的任务管理建议。`
-  }
+## 已完成任务 (${dataSummary.totalCompleted}个)
+${completedTodos.length > 0 ? completedTasksDetail : '暂无已完成任务'}
+
+请基于以上具体任务信息回答用户问题，提供针对性的任务管理建议。在回答中，可以直接引用任务内容、优先级和时间信息。`
 
   return systemPrompt
 }
