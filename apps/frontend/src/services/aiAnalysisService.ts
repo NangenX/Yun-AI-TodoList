@@ -449,16 +449,13 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     return null
   }
 
-  // 构建未完成任务的详细信息（包含优先级、时间、标签等）
+  // 构建未完成任务的详细信息（包含优先级、时间）
   const activeTasksDetail = sortedActiveTodos
     .map((todo, index) => {
       const parts: string[] = []
       if (typeof todo.priority === 'number') parts.push(`[优先级:${todo.priority}星]`)
       const timeText = getTimeText(todo)
       if (timeText) parts.push(`[时间:${timeText}]`)
-      // 测试用例允许传入可选 tags 字段
-      const tags = (todo as any).tags as string[] | undefined
-      if (Array.isArray(tags) && tags.length > 0) parts.push(`[标签:${tags.join(',')}]`)
 
       return `${index + 1}. ${truncate(todo.title)}${parts.length ? ' ' + parts.join(' ') : ''}`
     })
