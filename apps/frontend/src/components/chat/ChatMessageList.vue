@@ -447,13 +447,6 @@ watch(
             scrollToBottomInstantly()
           }, 0)
         })
-      } else if (lastMessage && lastMessage.role === 'assistant') {
-        // AI消息完成时：仅在满足自动滚动条件且不处于结束切换状态时滚动
-        nextTick(() => {
-          if (shouldAutoScroll() && !isConversationEnding.value) {
-            smartScrollToBottom()
-          }
-        })
       }
     }
   },
