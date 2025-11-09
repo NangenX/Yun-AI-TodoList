@@ -45,12 +45,12 @@
       />
     </div>
     <!-- AI 助手正在准备回复的 loading 状态 -->
-    <!-- <div
+    <div
       v-if="props.isGenerating && !props.currentResponse && !props.currentThinking"
       class="message-group"
     >
       <LoadingIndicator />
-    </div> -->
+    </div>
     <!-- 当前流式响应 -->
     <div v-if="props.currentResponse || props.currentThinking" class="message-group">
       <!-- 思考内容组件 -->
@@ -84,6 +84,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
+import LoadingIndicator from './LoadingIndicator.vue'
 import ThinkingContent from './ThinkingContent.vue'
 
 const props = defineProps<{
