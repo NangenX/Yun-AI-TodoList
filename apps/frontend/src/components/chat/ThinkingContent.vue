@@ -139,6 +139,8 @@ defineOptions({
   background: var(--ai-message-bg);
   border-color: var(--ai-message-border);
   color: var(--text-color);
+  /* 防止思考内容展开/折叠引起的滚动锚点跳动 */
+  overflow-anchor: none;
 }
 
 .thinking-header h4 {
@@ -166,5 +168,7 @@ defineOptions({
 
 .thinking-body {
   transition: max-height 0.3s ease-in-out;
+  /* 提示浏览器该属性会频繁变化，减少布局抖动 */
+  will-change: max-height;
 }
 </style>
