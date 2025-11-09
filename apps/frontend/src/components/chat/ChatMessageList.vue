@@ -388,7 +388,9 @@ const scrollToBottom = () => {
 const handleScroll = () => {
   if (chatHistoryRef.value) {
     const element = chatHistoryRef.value
-    const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 30
+    // 使用统一的阈值判断是否接近底部，避免与 isNearBottom 判定不一致导致的滚动状态异常
+    const isAtBottom =
+      element.scrollHeight - element.scrollTop <= element.clientHeight + NEAR_BOTTOM_THRESHOLD
 
     // 检测用户滚动方向
     if (element.scrollTop < lastScrollTop.value) {
