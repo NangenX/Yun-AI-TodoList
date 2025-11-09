@@ -69,7 +69,8 @@ const toggleExpanded = () => {
 }
 
 const updateContentHeight = async () => {
-  if (!contentRef.value || !isExpanded.value) return
+  if (!contentRef.value) return
+
   await nextTick()
 
   // 临时展开以测量高度
@@ -109,6 +110,12 @@ watch(
     if (props.autoCollapse && !oldContent && newContent) {
       isExpanded.value = true
     }
+    // 如果启用自动折叠且内容稳定（思考完成），延迟折叠
+    if (props.autoCollapse && newContent && oldContent && newContent === oldContent) {
+      setTimeout(() => {
+        isExpanded.value = false
+      }, 3000) // 3秒后自动折叠
+    }
   },
   { immediate: true }
 )
@@ -139,8 +146,6 @@ defineOptions({
   background: var(--ai-message-bg);
   border-color: var(--ai-message-border);
   color: var(--text-color);
-  /* 防止思考内容展开/折叠引起的滚动锚点跳动 */
-  overflow-anchor: none;
 }
 
 .thinking-header h4 {
@@ -168,7 +173,5 @@ defineOptions({
 
 .thinking-body {
   transition: max-height 0.3s ease-in-out;
-  /* 提示浏览器该属性会频繁变化，减少布局抖动 */
-  will-change: max-height;
 }
 </style>
