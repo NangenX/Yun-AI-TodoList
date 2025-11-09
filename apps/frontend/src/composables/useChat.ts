@@ -4,6 +4,7 @@ import { abortCurrentRequest, getAIStreamResponse, optimizeText } from '../servi
 import type { ChatMessage, Conversation, Message } from '../services/types'
 
 export function useChat() {
+  const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
   const { t } = useI18n()
   const chatHistory = ref<ChatMessage[]>([])
   const currentAIResponse = ref('')
@@ -180,6 +181,7 @@ export function useChat() {
       }
 
       const userMsg: ChatMessage = {
+        id: generateId(),
         role: 'user',
         content: message,
         fileInfo:
@@ -239,6 +241,7 @@ export function useChat() {
               }
 
               const aiMsg: ChatMessage = {
+                id: generateId(),
                 role: 'assistant',
                 content: finalContent,
               }
@@ -352,7 +355,7 @@ export function useChat() {
         finalContent = `<think>${currentThinkingContent.value}</think>\n\n${finalContent}`
       }
 
-      const aiMsg: ChatMessage = { role: 'assistant', content: finalContent }
+      const aiMsg: ChatMessage = { id: generateId(), role: 'assistant', content: finalContent }
       chatHistory.value.push(aiMsg)
       saveConversationHistory()
     }

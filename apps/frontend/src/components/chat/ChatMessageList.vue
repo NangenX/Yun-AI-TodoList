@@ -1,10 +1,13 @@
 <template>
   <div
-    ref="chatHistoryRef"
-    class="chat-scroll-container flex-grow overflow-y-auto mb-4 flex flex-col px-6 py-6 md:px-4 md:py-4 gap-6 md:gap-4 bg-gradient-to-b from-white/3 to-transparent"
-    @scroll="handleScroll"
+    ref="chatScrollContainerRef"
+    class="chat-scroll-container flex-grow overflow-y-auto mb-4 flex flex-col px-6 py-6 md:px-4 md:py-4 gap-6 md:gap-4"
   >
-    <div v-for="(message, index) in sanitizedMessages" :key="index" class="message-group">
+    <div
+      v-for="(message, index) in sanitizedMessages"
+      :key="message.id || index"
+      class="message-group"
+    >
       <!-- 思考内容组件（仅对助手消息显示） -->
       <ThinkingContent
         v-if="message.role === 'assistant' && message.thinkingContent"
@@ -42,12 +45,12 @@
       />
     </div>
     <!-- AI 助手正在准备回复的 loading 状态 -->
-    <div
+    <!-- <div
       v-if="props.isGenerating && !props.currentResponse && !props.currentThinking"
       class="message-group"
     >
       <LoadingIndicator />
-    </div>
+    </div> -->
     <!-- 当前流式响应 -->
     <div v-if="props.currentResponse || props.currentThinking" class="message-group">
       <!-- 思考内容组件 -->
@@ -81,7 +84,6 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
-import LoadingIndicator from './LoadingIndicator.vue'
 import ThinkingContent from './ThinkingContent.vue'
 
 const props = defineProps<{
@@ -96,38 +98,14 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (
-    e: 'scroll',
-    value: {
-      isAtBottom: boolean
-      scrollTop: number
-      scrollHeight: number
-      clientHeight: number
-    }
-  ): void
   (e: 'retry', messageIndex: number): void
   (e: 'generate-chart', content: string): void
   (e: 'check-errors', content: string): void
   (e: 'edit-message', messageIndex: number, newContent: string): void
 }>()
 
-const {
-  renderMarkdown,
-  getMermaidSvgMap,
-  extractThinkingContent,
-  setupCodeCopyFunction,
-  reinitializeMermaid,
-} = useMarkdown()
-const chatHistoryRef = ref<HTMLDivElement | null>(null)
-
-// 环境安全检查（SSR/测试场景下避免直接访问 window/document）
-const isClient = typeof window !== 'undefined' && typeof document !== 'undefined'
-
-// 滚动到底部的阈值统一常量，便于后续统一调整
-const NEAR_BOTTOM_THRESHOLD = 80
-
-// 保存主题切换监听器引用，便于卸载时断开，防止内存泄漏
-const mutationObserver = ref<MutationObserver | null>(null)
+const { renderMarkdown, getMermaidSvgMap, extractThinkingContent, setupCodeCopyFunction } =
+  useMarkdown()
 
 // ChatMessage 组件引用管理
 const chatMessageRefs = ref<Map<number, InstanceType<typeof ChatMessage>>>(new Map())
@@ -165,8 +143,7 @@ type ExtendedMessage = ChatMessageType & {
 // 处理消息，提取思考内容（异步版本）
 const sanitizedMessages = ref<ExtendedMessage[]>([])
 const currentResponseSanitized = ref('')
-// 会话结束状态标记（需在相关 watch 之前声明）
-const isConversationEnding = ref(false)
+const chatScrollContainerRef = ref<HTMLElement | null>(null)
 
 // 实现 Mermaid SVG 注入逻辑
 const injectMermaidSVGs = async () => {
@@ -241,6 +218,8 @@ const processSanitizedMessages = async () => {
   sanitizedMessages.value = newSanitizedMessages
   // 所有消息的 HTML（包括占位符）都已生成，现在可以安全地注入 SVG
   scheduleMermaidInjection()
+  // 列表完成更新后，滚动到底部，避免消息完成时视图跳动
+  scheduleScrollToBottom()
 }
 
 // 异步处理当前响应
@@ -254,6 +233,8 @@ const processCurrentResponse = async () => {
     currentResponseSanitized.value = props.currentResponse
   }
   scheduleMermaidInjection()
+  // 流式更新时也保持滚动到底部
+  scheduleScrollToBottom()
 }
 
 // 监听消息变化
@@ -275,26 +256,29 @@ watch(
   { immediate: true, deep: true }
 )
 
-// 监听当前响应变化，检测对话是否结束
-watch(
-  () => props.currentResponse,
-  (newVal, oldVal) => {
-    // 检测对话是否结束：当前响应从有内容变为空
-    if (oldVal && oldVal.length > 0 && !newVal) {
-      isConversationEnding.value = true
-      // 设置一个定时器来重置结束状态
-      setTimeout(() => {
-        isConversationEnding.value = false
-      }, 1000)
-    }
-  }
-)
-
 watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
+
+// 简单的滚动到底部调度，避免频繁直接操作引起抖动
+let scrollRaf: number | null = null
+const scheduleScrollToBottom = () => {
+  if (scrollRaf !== null) {
+    cancelAnimationFrame(scrollRaf)
+  }
+  scrollRaf = requestAnimationFrame(() => {
+    try {
+      const el = chatScrollContainerRef.value
+      if (el) {
+        el.scrollTop = el.scrollHeight
+      }
+    } finally {
+      scrollRaf = null
+    }
+  })
+}
 
 const copyToClipboard = async (text: string) => {
   try {
-    if (isClient && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
       await navigator.clipboard.writeText(text)
     } else {
       // 回退方案：创建不可见 textarea 并执行复制（在部分环境下有效）
@@ -342,241 +326,25 @@ const handleEditMessage = (messageIndex: number, newContent: string) => {
   emit('edit-message', messageIndex, newContent)
 }
 
-const isUserScrolling = ref(false)
-const lastScrollTop = ref(0)
-
-// 是否偏好减少动画
-const prefersReducedMotion = ref(false)
-
-// 使用 rAF 合并滚动操作，避免频繁设置 scrollTop 导致卡顿
-let scrollRafId: number | null = null
-
-// 判断是否接近底部（阈值可微调）
-const isNearBottom = (el: HTMLElement, threshold = NEAR_BOTTOM_THRESHOLD) => {
-  return el.scrollHeight - el.scrollTop - el.clientHeight <= threshold
-}
-
-const scheduleScrollToBottom = (smooth = true) => {
-  const element = chatHistoryRef.value
-  if (!element) return
-
-  if (scrollRafId !== null) {
-    cancelAnimationFrame(scrollRafId)
-  }
-  scrollRafId = requestAnimationFrame(() => {
-    try {
-      element.scrollTo({
-        top: element.scrollHeight,
-        behavior: smooth && !prefersReducedMotion.value ? 'smooth' : 'auto',
-      })
-    } finally {
-      scrollRafId = null
-    }
-  })
-}
-
-const scrollToBottomInstantly = () => {
-  scheduleScrollToBottom(false)
-}
-
-const scrollToBottom = () => {
-  scheduleScrollToBottom(true)
-}
-
-const handleScroll = () => {
-  if (chatHistoryRef.value) {
-    const element = chatHistoryRef.value
-    // 使用统一的阈值判断是否接近底部，避免与 isNearBottom 判定不一致导致的滚动状态异常
-    const isAtBottom =
-      element.scrollHeight - element.scrollTop <= element.clientHeight + NEAR_BOTTOM_THRESHOLD
-
-    // 检测用户滚动方向
-    if (element.scrollTop < lastScrollTop.value) {
-      // 向上滚动，禁用自动滚动
-      isUserScrolling.value = true
-    } else if (element.scrollTop > lastScrollTop.value && !isAtBottom) {
-      // 向下滚动但未到达底部，也表明用户有主动滚动意图
-      isUserScrolling.value = true
-    } else if (isAtBottom) {
-      // 用户滚动到底部，重新启用自动滚动
-      isUserScrolling.value = false
-    }
-
-    lastScrollTop.value = element.scrollTop
-
-    emit('scroll', {
-      isAtBottom,
-      scrollTop: element.scrollTop,
-      scrollHeight: element.scrollHeight,
-      clientHeight: element.clientHeight,
-    })
-  }
-}
-
-const smartScrollToBottom = () => {
-  const element = chatHistoryRef.value
-  if (!element) return
-
-  // 仅当用户未主动滚动且接近底部时才进行平滑滚动，避免“拉扯感”
-  if (!isUserScrolling.value && isNearBottom(element)) {
-    scrollToBottom()
-  }
-}
-
 onMounted(() => {
-  // 检测用户系统是否偏好减少动画
-  try {
-    if (isClient && typeof window.matchMedia === 'function') {
-      prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    }
-  } catch (err) {
-    console.warn('无法检测动画偏好:', err)
-  }
-
-  scrollToBottomInstantly()
   // 设置代码复制功能
   setupCodeCopyFunction()
-
-  // 监听主题切换（通过 data-theme 属性），在切换时重新初始化 Mermaid 并重新渲染消息
-  try {
-    const observer = new MutationObserver(async (mutations) => {
-      for (const mutation of mutations) {
-        if (
-          mutation.type === 'attributes' &&
-          mutation.attributeName === 'data-theme' &&
-          mutation.target === document.documentElement
-        ) {
-          // 重新初始化 Mermaid，以应用新的主题配置
-          await reinitializeMermaid()
-          // 重新处理消息和当前流式响应，以重新生成新的主题下的 SVG
-          await processSanitizedMessages()
-          if (props.currentResponse) {
-            await processCurrentResponse()
-          }
-          break
-        }
-      }
-    })
-    observer.observe(document.documentElement, { attributes: true })
-    // 保存引用，用于组件卸载时断开监听，避免内存泄漏
-    mutationObserver.value = observer
-  } catch (err) {
-    console.warn('无法监听主题切换:', err)
-  }
 })
 
-// 组件卸载时的清理：取消 rAF、断开 MutationObserver、清理 Mermaid Map
+// 组件卸载时的清理
 onBeforeUnmount(() => {
-  if (injectionRaf !== null) {
-    cancelAnimationFrame(injectionRaf)
-    injectionRaf = null
-  }
-  if (scrollRafId !== null) {
-    cancelAnimationFrame(scrollRafId)
-    scrollRafId = null
-  }
-  try {
-    mutationObserver.value?.disconnect()
-  } catch (err) {
-    console.warn('断开 MutationObserver 失败:', err)
-  }
   try {
     getMermaidSvgMap().clear()
   } catch (err) {
     console.warn('清除 Mermaid SVG Map 失败:', err)
   }
 })
-
-watch(
-  () => props.messages,
-  (newMessages, oldMessages) => {
-    // 只有在消息数量增加时才可能需要自动滚动
-    if (newMessages.length > (oldMessages?.length || 0)) {
-      // 检查最新添加的消息是否是用户消息
-      const lastMessage = newMessages[newMessages.length - 1]
-      if (lastMessage && lastMessage.role === 'user') {
-        // 用户发送消息时，重置滚动状态并强制滚动到底部
-        isUserScrolling.value = false
-        nextTick(() => {
-          // 使用 setTimeout 确保 DOM 完全更新后再滚动
-          setTimeout(() => {
-            scrollToBottomInstantly()
-          }, 0)
-        })
-      }
-      // 只有在用户主动滚动时才对AI消息进行滚动
-      else if (!isUserScrolling.value && lastMessage && lastMessage.role === 'assistant') {
-        // AI消息完成时，只有在用户没有主动滚动的情况下才自动滚动
-        // 如果对话刚刚结束，不执行滚动，避免与 currentResponse 的监听器冲突
-        if (!isConversationEnding.value) {
-          nextTick(() => {
-            smartScrollToBottom()
-          })
-        }
-      }
-    }
-  },
-  { immediate: true }
-)
-
-// 流式响应过程中的智能滚动
-watch(
-  () => props.currentResponse,
-  (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      nextTick(() => {
-        // 只有在用户没有主动滚动的情况下才自动滚动
-        if (!isUserScrolling.value) {
-          // 如果对话正在结束（从有内容到无内容），不执行滚动
-          // 因为这会在消息列表更新时由 messages 的监听器处理
-          if (!(oldVal && oldVal.length > 0 && !newVal)) {
-            smartScrollToBottom()
-          }
-        }
-      })
-    }
-  }
-)
-
-// 思考内容变化时的智能滚动
-watch(
-  () => props.currentThinking,
-  (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      nextTick(() => {
-        // 只有在用户没有主动滚动的情况下才自动滚动
-        if (!isUserScrolling.value) {
-          // 如果对话正在结束，不执行滚动
-          if (!isConversationEnding.value) {
-            smartScrollToBottom()
-          }
-        }
-      })
-    }
-  }
-)
-
-defineExpose({
-  scrollToBottom,
-  scrollToBottomInstantly,
-})
 </script>
 
 <style scoped>
 .chat-scroll-container {
-  scroll-behavior: smooth; /* 默认启用平滑滚动 */
-  -webkit-overflow-scrolling: touch; /* iOS 系统增强 */
-  overscroll-behavior-y: contain; /* 防止上拉/下拉触发浏览器回弹 */
-  will-change: scroll-position; /* 提示浏览器优化滚动 */
-  contain: layout paint; /* 隔离内部绘制，降低滚动重绘开销 */
-  backface-visibility: hidden;
-  transform: translateZ(0); /* 强制 GPU 合成，减少滚动闪烁 */
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .chat-scroll-container {
-    scroll-behavior: auto; /* 尊重系统设置，禁用平滑滚动 */
-  }
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .message-group {
@@ -594,11 +362,6 @@ defineExpose({
   .flex-grow {
     padding: 1rem 1rem 1rem 1rem !important;
     gap: 1rem !important;
-    background: linear-gradient(
-      180deg,
-      rgba(var(--bg-color-rgb), 0.02) 0%,
-      transparent 100%
-    ) !important;
   }
 
   .message-group {
@@ -638,7 +401,6 @@ defineExpose({
 @media (max-width: 639px) {
   .ai-sidebar.fullscreen .flex-grow {
     padding: 1.25rem 1rem !important;
-    background: rgba(var(--bg-color-rgb), 0.98) !important;
   }
 }
 </style>

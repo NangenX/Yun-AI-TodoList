@@ -202,7 +202,6 @@
         @retry="retry"
         @send="sendMessage"
         @stop="stopGenerating"
-        @scroll="handleScroll"
         @update:user-message="updateUserMessage"
         @generate-chart="handleGenerateChart"
         @check-errors="handleCheckErrors"
@@ -340,11 +339,6 @@ const { theme, systemTheme } = useTheme()
 const currentTheme = computed(() => {
   return theme.value === 'auto' ? systemTheme.value : theme.value
 })
-
-const handleScroll = () => {
-  // 滚动信息传递给父组件或用于其他用途
-  // 自动滚动逻辑现在由 ChatMessageList 内部处理
-}
 
 const handleGenerateChart = async (...args: unknown[]) => {
   const [content] = args as [string]
