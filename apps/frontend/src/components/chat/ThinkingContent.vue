@@ -61,7 +61,8 @@ const props = withDefaults(defineProps<Props>(), {
 const { t } = useI18n()
 
 const isExpanded = ref(props.defaultExpanded)
-const contentRef = ref<HTMLElement>()
+// 使用更严格的类型以避免 TS 警告（初始为 null）
+const contentRef = ref<HTMLElement | null>(null)
 const contentHeight = ref(0)
 
 const toggleExpanded = () => {

@@ -57,12 +57,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { useSettingsState } from '../../composables/useSettingsState'
 import { saveAIModel, saveAIProvider, saveApiKey, saveBaseUrl } from '../../services/configService'
 
 const { t } = useI18n()
-const _router = useRouter()
 
 // 设置状态管理
 const { localProvider, localApiKey, localBaseUrl, localModel } = useSettingsState()

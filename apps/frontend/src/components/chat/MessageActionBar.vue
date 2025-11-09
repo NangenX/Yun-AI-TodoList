@@ -98,7 +98,8 @@ defineOptions({
 
 <style scoped>
 .message-action-bar {
-  @apply absolute -bottom-3.8 -right-5 flex items-center gap-1;
+  /* 修复非法 Tailwind 类：-bottom-3.8 不被支持，改为 -bottom-4 */
+  @apply absolute -bottom-4 -right-5 flex items-center gap-1;
   @apply opacity-0 invisible transition-all duration-300;
   @apply dark:bg-gray-800/95 backdrop-blur-sm;
   @apply border border-white/20 dark:border-gray-700/20 rounded-lg;
