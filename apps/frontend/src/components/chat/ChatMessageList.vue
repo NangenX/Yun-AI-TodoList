@@ -292,8 +292,6 @@ watch(
 
 watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
 
-// 移除 getCurrentStreamingContent 函数，现在分别处理思考内容和响应内容
-
 const copyToClipboard = async (text: string) => {
   try {
     if (isClient && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
