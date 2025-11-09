@@ -91,7 +91,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAIAnalysis as _useAIAnalysis } from '@/composables/useAIAnalysis'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import type { Todo } from '@/types/todo'
 
