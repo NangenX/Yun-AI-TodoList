@@ -1,10 +1,12 @@
 import { nextTick, onMounted, onUnmounted, ref, type Ref } from 'vue'
 
+type ScrollBehaviorOption = 'auto' | 'smooth'
+
 interface UseSmartScrollOptions {
   scrollContainer: Ref<HTMLElement | null>
   stickToBottom?: boolean
   autoScroll?: boolean
-  scrollBehavior?: ScrollBehavior
+  scrollBehavior?: ScrollBehaviorOption
   atBottomThreshold?: number
 }
 
@@ -32,10 +34,9 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
     return offsetFromBottom <= atBottomThreshold
   }
 
-  const scrollToBottom = (behavior: ScrollBehavior = scrollBehavior) => {
+  const scrollToBottom = (behavior: ScrollBehaviorOption = scrollBehavior) => {
     const el = scrollContainer.value
     if (!el) return
-    // Explicit user action uses configured behavior (smooth by default)
     el.scrollTo({
       top: el.scrollHeight,
       behavior,
@@ -45,7 +46,6 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
   const scrollToBottomInstant = () => {
     const el = scrollContainer.value
     if (!el) return
-    // Instant, jank‑free bottom anchoring during streaming
     el.scrollTop = el.scrollHeight
   }
 
@@ -63,7 +63,6 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
         showScrollToBottomButton.value = false
       } else {
         isSticking.value = false
-        // We don't enable the button here; it will be enabled when new content increases height.
       }
     })
   }
@@ -77,12 +76,10 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
     const currentScrollHeight = el.scrollHeight
     const atBottom = isAtBottom()
 
-    // If user is at bottom (or sticking), keep anchored while streaming
     if ((atBottom || isSticking.value) && isAutoScrolling.value) {
       if (preferInstant) {
         scrollToBottomInstant()
       } else {
-        // Use 'auto' to avoid costly smooth animations during frequent updates
         el.scrollTo({ top: el.scrollHeight, behavior: 'auto' })
       }
       showScrollToBottomButton.value = false
@@ -100,7 +97,6 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
       el.addEventListener('scroll', handleScroll, { passive: true })
       lastScrollHeight = el.scrollHeight
       if (isSticking.value) {
-        // Initial anchoring without animation
         scrollToBottomInstant()
       }
     }
