@@ -21,9 +21,7 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
 
   const isSticking = ref(initialStickToBottom)
   const isAutoScrolling = ref(initialAutoScroll)
-  const showScrollToBottomButton = ref(false)
 
-  let lastScrollHeight = 0
   let scrollRafScheduled = false
 
   const isAtBottom = () => {
@@ -60,7 +58,6 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
       scrollRafScheduled = false
       if (isAtBottom()) {
         isSticking.value = true
-        showScrollToBottomButton.value = false
       } else {
         isSticking.value = false
       }
@@ -73,7 +70,6 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
 
     await nextTick()
 
-    const currentScrollHeight = el.scrollHeight
     const atBottom = isAtBottom()
 
     if ((atBottom || isSticking.value) && isAutoScrolling.value) {
@@ -82,20 +78,13 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
       } else {
         el.scrollTo({ top: el.scrollHeight, behavior: 'auto' })
       }
-      showScrollToBottomButton.value = false
-    } else if (currentScrollHeight > lastScrollHeight) {
-      // New content arrived while user is not at bottom
-      showScrollToBottomButton.value = true
     }
-
-    lastScrollHeight = currentScrollHeight
   }
 
   onMounted(() => {
     const el = scrollContainer.value
     if (el) {
       el.addEventListener('scroll', handleScroll, { passive: true })
-      lastScrollHeight = el.scrollHeight
       if (isSticking.value) {
         scrollToBottomInstant()
       }
@@ -110,7 +99,6 @@ export function useSmartScroll(options: UseSmartScrollOptions) {
   })
 
   return {
-    showScrollToBottomButton,
     scrollToBottom,
     checkAndScroll,
   }

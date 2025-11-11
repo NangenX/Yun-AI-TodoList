@@ -36,28 +36,6 @@
     >
       <LoadingIndicator />
     </div>
-    <transition name="fade">
-      <button
-        v-if="showScrollToBottomButton"
-        class="absolute bottom-8 right-8 bg-blue-500 text-white rounded-full p-2 shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        @click="() => scrollToBottom()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
-      </button>
-    </transition>
   </div>
 </template>
 
@@ -117,7 +95,7 @@ const sanitizedMessages = ref<ExtendedMessage[]>([])
 // 缓存 Markdown 渲染结果，避免在流式更新时对整个历史消息重复渲染
 const sanitizationCache = new Map<string, string>()
 const chatScrollContainerRef = ref<HTMLElement | null>(null)
-const { checkAndScroll, scrollToBottom, showScrollToBottomButton } = useSmartScroll({
+const { checkAndScroll } = useSmartScroll({
   scrollContainer: chatScrollContainerRef,
 })
 
