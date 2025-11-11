@@ -163,28 +163,26 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { ChatMessage as ChatMessageType } from '../../services/types'
 import EditIcon from '../common/icons/EditIcon.vue'
 import LoadingIcon from '../common/icons/LoadingIcon.vue'
 import RefreshIcon from '../common/icons/RefreshIcon.vue'
 import EnhancedCopyButton from './EnhancedCopyButton.vue'
 
-interface Message {
-  role: 'user' | 'assistant'
-  content: string
-  sanitizedContent?: string
-}
+const props = withDefaults(
+  defineProps<{
+    message: ChatMessageType & { sanitizedContent?: string }
+    messageIndex: number
+    isStreaming?: boolean
+    isRegenerating?: boolean
+  }>(),
+  {
+    isStreaming: false,
+    isRegenerating: false,
+  }
+)
 
-interface Props {
-  message: Message
-  isStreaming?: boolean
-  isRetrying?: boolean
-  retryCount?: number
-  hasError?: boolean
-  messageIndex?: number
-  isRegenerating?: boolean
-}
-
-interface Emits {
+const emit = defineEmits<{
   (e: 'copy', text: string): void
   (e: 'copy-success', text: string): void
   (e: 'copy-error', error: Error): void
@@ -192,17 +190,7 @@ interface Emits {
   (e: 'generate-chart', content: string): void
   (e: 'check-errors', content: string): void
   (e: 'edit-message', messageIndex: number, newContent: string): void
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  isStreaming: false,
-  isRetrying: false,
-  retryCount: 0,
-  hasError: false,
-  messageIndex: 0,
-  isRegenerating: false,
-})
-const emit = defineEmits<Emits>()
+}>()
 
 const { t } = useI18n()
 
@@ -221,9 +209,7 @@ const handleCopyError = (error: Error) => {
 }
 
 const handleRetry = () => {
-  if (props.messageIndex !== undefined) {
-    emit('retry', props.messageIndex)
-  }
+  emit('retry', props.messageIndex)
 }
 
 const handleGenerateChart = () => {

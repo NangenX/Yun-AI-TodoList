@@ -1,7 +1,7 @@
 <template>
   <div
     ref="chatScrollContainerRef"
-    class="chat-scroll-container flex-grow overflow-y-auto mb-4 flex flex-col px-6 py-6 md:px-4 md:py-4 gap-6 md:gap-4"
+    class="relative chat-scroll-container flex-grow overflow-y-auto mb-4 flex flex-col px-6 py-6 md:px-4 md:py-4 gap-6 md:gap-4"
   >
     <div
       v-for="(message, index) in sanitizedMessages"
@@ -12,32 +12,17 @@
       <ThinkingContent
         v-if="message.role === 'assistant' && message.thinkingContent"
         :content="message.thinkingContent"
-        :default-expanded="false"
+        :default-expanded="message.isStreaming"
+        :auto-collapse="message.isStreaming"
+        :ai-response-started="message.isStreaming && !!message.content"
       />
       <!-- 消息内容 -->
       <ChatMessage
-        :ref="(el) => setChatMessageRef(el, index)"
+        v-if="message.content && message.content.trim() !== ''"
         :message="message"
         :message-index="index"
-        :is-retrying="
-          message.role === 'assistant' && index === sanitizedMessages.length - 1
-            ? props.isRetrying
-            : false
-        "
-        :retry-count="
-          message.role === 'assistant' && index === sanitizedMessages.length - 1
-            ? props.retryCount
-            : 0
-        "
-        :has-error="
-          message.role === 'assistant' && index === sanitizedMessages.length - 1
-            ? props.hasError
-            : false
-        "
+        :is-streaming="message.isStreaming"
         :is-regenerating="props.isRegenerating && message.role === 'user'"
-        @copy="copyToClipboard"
-        @copy-success="handleCopySuccess"
-        @copy-error="handleCopyError"
         @retry="handleRetry"
         @generate-chart="handleGenerateChart"
         @check-errors="handleCheckErrors"
@@ -51,37 +36,35 @@
     >
       <LoadingIndicator />
     </div>
-    <!-- 当前流式响应 -->
-    <div v-if="props.currentResponse || props.currentThinking" class="message-group">
-      <!-- 思考内容组件 -->
-      <ThinkingContent
-        v-if="props.currentThinking"
-        :content="props.currentThinking"
-        :default-expanded="true"
-        :auto-collapse="true"
-        :ai-response-started="!!props.currentResponse"
-      />
-      <!-- 响应内容 -->
-      <ChatMessage
-        v-if="props.currentResponse"
-        :message="{
-          role: 'assistant',
-          content: props.currentResponse,
-          sanitizedContent: currentResponseSanitized,
-        }"
-        :is-streaming="true"
-        @copy="copyToClipboard"
-        @copy-success="handleCopySuccess"
-        @copy-error="handleCopyError"
-        @generate-chart="handleGenerateChart"
-      />
-    </div>
+    <transition name="fade">
+      <button
+        v-if="showScrollToBottomButton"
+        class="absolute bottom-8 right-8 bg-blue-500 text-white rounded-full p-2 shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        @click="() => scrollToBottom()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+          />
+        </svg>
+      </button>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
+import { useSmartScroll } from '../../composables/useSmartScroll'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
 import LoadingIndicator from './LoadingIndicator.vue'
@@ -92,9 +75,6 @@ const props = defineProps<{
   currentResponse: string
   currentThinking?: string
   isGenerating?: boolean
-  isRetrying?: boolean
-  retryCount?: number
-  hasError?: boolean
   isRegenerating?: boolean
 }>()
 
@@ -108,43 +88,38 @@ const emit = defineEmits<{
 const { renderMarkdown, getMermaidSvgMap, extractThinkingContent, setupCodeCopyFunction } =
   useMarkdown()
 
-// ChatMessage 组件引用管理
-const chatMessageRefs = ref<Map<number, InstanceType<typeof ChatMessage>>>(new Map())
-
-// 模板 ref 回调会传入 Element | ComponentPublicInstance | null 的联合类型。
-// 这里通过是否存在 resetEditState 方法来收窄为 ChatMessage 组件实例，再进行存储；否则删除引用。
-const setChatMessageRef = (el: unknown, index: number) => {
-  if (
-    el &&
-    typeof el === 'object' &&
-    'resetEditState' in el &&
-    typeof (el as { resetEditState?: unknown }).resetEditState === 'function'
-  ) {
-    chatMessageRefs.value.set(index, el as InstanceType<typeof ChatMessage>)
-  } else {
-    chatMessageRefs.value.delete(index)
+// 将 currentResponse 合并到消息列表中，以便统一处理
+const combinedMessages = computed(() => {
+  const allMessages: (ChatMessageType & { thinkingContent?: string; isStreaming?: boolean })[] = [
+    ...props.messages,
+  ]
+  if (props.currentResponse || props.currentThinking) {
+    allMessages.push({
+      id: 'streaming-response',
+      role: 'assistant',
+      content: props.currentResponse,
+      thinkingContent: props.currentThinking,
+      isStreaming: true,
+    })
   }
-}
-
-// 重置所有消息的编辑状态
-const resetAllEditStates = () => {
-  chatMessageRefs.value.forEach((chatMessageRef) => {
-    if (chatMessageRef && typeof chatMessageRef.resetEditState === 'function') {
-      chatMessageRef.resetEditState()
-    }
-  })
-}
+  return allMessages
+})
 
 // 扩展消息类型以包含思考内容
 type ExtendedMessage = ChatMessageType & {
   sanitizedContent: string
   thinkingContent?: string
+  isStreaming?: boolean
 }
 
 // 处理消息，提取思考内容（异步版本）
 const sanitizedMessages = ref<ExtendedMessage[]>([])
-const currentResponseSanitized = ref('')
+// 缓存 Markdown 渲染结果，避免在流式更新时对整个历史消息重复渲染
+const sanitizationCache = new Map<string, string>()
 const chatScrollContainerRef = ref<HTMLElement | null>(null)
+const { checkAndScroll, scrollToBottom, showScrollToBottomButton } = useSmartScroll({
+  scrollContainer: chatScrollContainerRef,
+})
 
 // 实现 Mermaid SVG 注入逻辑
 const injectMermaidSVGs = async () => {
@@ -192,24 +167,31 @@ const processSanitizedMessages = async () => {
   getMermaidSvgMap().clear()
 
   // 使用 Promise.all 并行处理所有消息的渲染，提高效率
-  const processingPromises = props.messages.map(async (message) => {
-    const { thinking, response } = extractThinkingContent(message.content)
-    try {
-      const sanitized = await renderMarkdown(response)
-      return {
-        ...message,
-        content: response,
-        thinkingContent: thinking,
-        sanitizedContent: sanitized,
+  const processingPromises = combinedMessages.value.map(async (message, index) => {
+    const { thinking, response } = message.isStreaming
+      ? { thinking: message.thinkingContent, response: message.content }
+      : extractThinkingContent(message.content)
+    const cacheKey = `${message.id ?? `index:${index}`}` + `:${response}`
+    let sanitized: string
+    const cached = sanitizationCache.get(cacheKey)
+    if (cached !== undefined) {
+      sanitized = cached
+    } else {
+      try {
+        sanitized = await renderMarkdown(response)
+        sanitizationCache.set(cacheKey, sanitized)
+      } catch (err) {
+        console.warn('Markdown 渲染失败，使用原始内容作为回退:', err)
+        sanitized = response
+        // 不缓存失败的结果，以便后续有机会重新渲染
       }
-    } catch (err) {
-      console.warn('Markdown 渲染失败，使用原始内容作为回退:', err)
-      return {
-        ...message,
-        content: response,
-        thinkingContent: thinking,
-        sanitizedContent: response,
-      }
+    }
+    return {
+      ...message,
+      content: response,
+      thinkingContent: thinking,
+      sanitizedContent: sanitized,
+      isStreaming: !!message.isStreaming,
     }
   })
 
@@ -217,47 +199,36 @@ const processSanitizedMessages = async () => {
   const newSanitizedMessages = await Promise.all(processingPromises)
 
   sanitizedMessages.value = newSanitizedMessages
+  // 仅保留当前消息列表对应的缓存，避免缓存无限增长
+  const activeKeys = new Set<string>()
+  newSanitizedMessages.forEach((msg, index) => {
+    const key = `${msg.id ?? `index:${index}`}:${msg.content}`
+    activeKeys.add(key)
+  })
+  if (sanitizationCache.size > activeKeys.size) {
+    for (const key of sanitizationCache.keys()) {
+      if (!activeKeys.has(key)) {
+        sanitizationCache.delete(key)
+      }
+    }
+  }
   // 所有消息的 HTML（包括占位符）都已生成，现在可以安全地注入 SVG
   scheduleMermaidInjection()
-  // 列表完成更新后，滚动到底部，避免消息完成时视图跳动
-  scheduleScrollToBottom()
-}
-
-// 异步处理当前响应
-const processCurrentResponse = async () => {
-  // 为当前响应的渲染也清空一次 map，避免和历史消息冲突
-  getMermaidSvgMap().clear()
-  try {
-    currentResponseSanitized.value = await renderMarkdown(props.currentResponse)
-  } catch (err) {
-    console.warn('当前响应 Markdown 渲染失败，使用原始内容作为回退:', err)
-    currentResponseSanitized.value = props.currentResponse
-  }
-  scheduleMermaidInjection()
-  // 流式更新时也保持滚动到底部
-  scheduleScrollToBottom()
+  // 列表完成更新后，滚动到底部（使用瞬时滚动，避免流式渲染时的抖动）
+  checkAndScroll(true)
 }
 
 // 监听消息变化
 watch(
-  () => props.messages,
-  async (newMessages, oldMessages) => {
+  combinedMessages,
+  () => {
     // 在高频消息更新时，使用 rAF 调度渲染，降低布局抖动风险
     requestAnimationFrame(() => {
       processSanitizedMessages()
     })
-
-    // 当消息数组发生变化时（通常是切换对话），重置所有编辑状态
-    if (newMessages !== oldMessages) {
-      nextTick(() => {
-        resetAllEditStates()
-      })
-    }
   },
   { immediate: true, deep: true }
 )
-
-watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
 
 // 思考内容流式更新时保持滚动到底部，确保“思考过程”可见
 watch(
@@ -266,63 +237,12 @@ watch(
     // 等待 DOM 更新后再滚动，避免高度未更新导致的滚动位置不准确
     await nextTick()
     if (newVal) {
-      scheduleScrollToBottom()
+      // 思考内容流式更新时使用瞬时滚动，保证底部锚定
+      checkAndScroll(true)
     }
   },
   { immediate: true }
 )
-
-// 简单的滚动到底部调度，避免频繁直接操作引起抖动
-let scrollRaf: number | null = null
-const scheduleScrollToBottom = () => {
-  if (scrollRaf !== null) {
-    cancelAnimationFrame(scrollRaf)
-  }
-  scrollRaf = requestAnimationFrame(() => {
-    try {
-      const el = chatScrollContainerRef.value
-      if (el) {
-        el.scrollTop = el.scrollHeight
-      }
-    } finally {
-      scrollRaf = null
-    }
-  })
-}
-
-const copyToClipboard = async (text: string) => {
-  try {
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      await navigator.clipboard.writeText(text)
-    } else {
-      // 回退方案：创建不可见 textarea 并执行复制（在部分环境下有效）
-      const textarea = document.createElement('textarea')
-      textarea.value = text
-      textarea.style.position = 'fixed'
-      textarea.style.opacity = '0'
-      textarea.style.pointerEvents = 'none'
-      document.body.appendChild(textarea)
-      textarea.select()
-      try {
-        document.execCommand('copy')
-      } finally {
-        document.body.removeChild(textarea)
-      }
-    }
-  } catch (err) {
-    console.error('复制失败:', err)
-  }
-}
-
-const handleCopySuccess = (_text: string) => {
-  // 复制成功处理
-  // 可以在这里添加全局通知或其他成功反馈
-}
-
-const handleCopyError = (error: Error) => {
-  console.error('复制失败:', error)
-  // 可以在这里添加全局错误通知
-}
 
 const handleRetry = (messageIndex: number) => {
   emit('retry', messageIndex)
@@ -343,6 +263,10 @@ const handleEditMessage = (messageIndex: number, newContent: string) => {
 onMounted(() => {
   // 设置代码复制功能
   setupCodeCopyFunction()
+  // 初始时将视图锚定到底部，避免首次渲染的跳动
+  requestAnimationFrame(() => {
+    checkAndScroll(true)
+  })
 })
 
 // 组件卸载时的清理
@@ -351,6 +275,16 @@ onBeforeUnmount(() => {
     getMermaidSvgMap().clear()
   } catch (err) {
     console.warn('清除 Mermaid SVG Map 失败:', err)
+  }
+  // 取消仍在排队的 SVG 注入 rAF，防止卸载后仍然尝试操作已销毁的 DOM
+  if (injectionRaf !== null) {
+    try {
+      cancelAnimationFrame(injectionRaf)
+    } catch (_err) {
+      // ignore
+    } finally {
+      injectionRaf = null
+    }
   }
 })
 </script>
@@ -416,5 +350,14 @@ onBeforeUnmount(() => {
   .ai-sidebar.fullscreen .flex-grow {
     padding: 1.25rem 1rem !important;
   }
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
