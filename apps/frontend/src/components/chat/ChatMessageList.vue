@@ -259,6 +259,19 @@ watch(
 
 watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
 
+// 思考内容流式更新时保持滚动到底部，确保“思考过程”可见
+watch(
+  () => props.currentThinking,
+  async (newVal) => {
+    // 等待 DOM 更新后再滚动，避免高度未更新导致的滚动位置不准确
+    await nextTick()
+    if (newVal) {
+      scheduleScrollToBottom()
+    }
+  },
+  { immediate: true }
+)
+
 // 简单的滚动到底部调度，避免频繁直接操作引起抖动
 let scrollRaf: number | null = null
 const scheduleScrollToBottom = () => {
