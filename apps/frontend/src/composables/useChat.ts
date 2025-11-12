@@ -292,7 +292,12 @@ export function useChat() {
                 // clearFileUpload()
               })
             } else {
-              isGenerating.value = false
+              // 仅收到思考内容而无正文时，也需要清理临时状态，避免界面残留“仅思考”的流式消息
+              nextTick(() => {
+                currentAIResponse.value = ''
+                currentThinkingContent.value = ''
+                isGenerating.value = false
+              })
             }
           } else if (chunk === '[ABORTED]') {
             nextTick(() => {
