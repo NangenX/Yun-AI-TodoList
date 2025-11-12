@@ -819,6 +819,13 @@ export function useMarkdown() {
     `
   }
 
+  renderer.strong = function ({ tokens }: { tokens: any }) {
+    const inner = (
+      this as unknown as { parser: { parseInline: (t: any) => string } }
+    ).parser.parseInline(tokens)
+    return `<strong class="ai-md-bold" style="font-weight: 650; color: var(--text-color); background: linear-gradient(transparent 70%, var(--primary-soft) 30%); padding: 0 2px; border-bottom: 2px solid var(--primary-medium); border-radius: 2px;">${inner}</strong>`
+  }
+
   marked.setOptions({
     renderer,
     highlight: function (code: string, lang: string) {
