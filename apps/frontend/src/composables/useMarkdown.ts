@@ -55,9 +55,10 @@ declare global {
     // 缩放按钮点击事件
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement
-      if (target.classList.contains('mermaid-zoom-btn')) {
-        const action = target.getAttribute('data-action') as 'in' | 'out' | 'reset'
-        const container = target.closest('.mermaid-container') as HTMLElement
+      const button = target.closest('.mermaid-zoom-btn') as HTMLElement | null
+      if (button) {
+        const action = button.getAttribute('data-action') as 'in' | 'out' | 'reset'
+        const container = button.closest('.mermaid-container') as HTMLElement
 
         if (!container || !action) {
           console.warn('Mermaid container or action not found')
@@ -101,7 +102,7 @@ declare global {
       const svgElement = target.closest('svg')
       const container = target.closest('.mermaid-container') as HTMLElement
 
-      if (svgElement && container && !target.classList.contains('mermaid-zoom-btn')) {
+      if (svgElement && container && !target.closest('.mermaid-zoom-btn')) {
         isDragging = true
         dragTarget = container
         dragStartX = event.clientX
