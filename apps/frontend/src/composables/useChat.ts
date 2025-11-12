@@ -23,6 +23,40 @@ export function useChat() {
   const lastFailedMessage = ref<string>('')
   const isRegenerating = ref(false)
 
+  // 会话保存节流控制（避免频繁同步写入 localStorage 阻塞主线程）
+  const SAVE_THROTTLE_MS = 500
+  let lastSaveTs = 0
+  let saveTimer: ReturnType<typeof setTimeout> | null = null
+
+  const saveConversationHistoryThrottled = () => {
+    const now = Date.now()
+    const elapsed = now - lastSaveTs
+    // 领先触发一次保存；在限定时间内的后续调用合并到尾部执行
+    if (elapsed >= SAVE_THROTTLE_MS) {
+      lastSaveTs = now
+      saveConversationHistory()
+    } else if (!saveTimer) {
+      const delay = SAVE_THROTTLE_MS - elapsed
+      saveTimer = setTimeout(
+        () => {
+          saveTimer = null
+          lastSaveTs = Date.now()
+          saveConversationHistory()
+        },
+        Math.max(0, delay)
+      )
+    }
+  }
+
+  const flushSaveConversationHistory = () => {
+    if (saveTimer) {
+      clearTimeout(saveTimer)
+      saveTimer = null
+    }
+    lastSaveTs = Date.now()
+    saveConversationHistory()
+  }
+
   // 文件上传相关状态
   const uploadedFileContent = ref<string>('')
   const uploadedFileName = ref<string>('')
@@ -247,7 +281,8 @@ export function useChat() {
               }
 
               chatHistory.value = [...chatHistory.value, aiMsg]
-              saveConversationHistory()
+              // 生成完成，强制刷新保存，避免尾部节流导致丢失最终结果
+              flushSaveConversationHistory()
 
               nextTick(() => {
                 currentAIResponse.value = ''
@@ -267,6 +302,9 @@ export function useChat() {
             })
           } else {
             currentAIResponse.value += chunk
+            // 流式过程中节流保存（仅更新 lastUpdated 与会话排序，不保存临时 currentAIResponse）
+            // 这样可以降低频繁写入带来的阻塞，同时在较长回复时保持会话的“最近更新”状态
+            saveConversationHistoryThrottled()
           }
         },
         async (thinking: string) => {
@@ -357,7 +395,8 @@ export function useChat() {
 
       const aiMsg: ChatMessage = { id: generateId(), role: 'assistant', content: finalContent }
       chatHistory.value.push(aiMsg)
-      saveConversationHistory()
+      // 停止生成时立即保存，避免节流导致的延迟
+      flushSaveConversationHistory()
     }
     // 重置临时内容状态
     currentAIResponse.value = ''
