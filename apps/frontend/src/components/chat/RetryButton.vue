@@ -1,11 +1,15 @@
 <template>
   <button
     class="retry-button"
-    :class="{
-      'retry-loading': isRetrying,
-      'retry-error': hasError,
-    }"
-    :disabled="isRetrying"
+    :class="[
+      `size-${props.size}`,
+      `variant-${props.variant}`,
+      {
+        'retry-loading': isRetrying,
+        'retry-error': hasError,
+      },
+    ]"
+    :disabled="isRetrying || retryCount >= maxRetries"
     :title="buttonTitle"
     @click="handleRetry"
   >

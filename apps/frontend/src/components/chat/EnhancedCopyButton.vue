@@ -1,10 +1,14 @@
 <template>
   <button
     class="enhanced-copy-button"
-    :class="{
-      'copy-success': showSuccess,
-      'copy-error': showError,
-    }"
+    :class="[
+      `size-${props.size}`,
+      `variant-${props.variant}`,
+      {
+        'copy-success': showSuccess,
+        'copy-error': showError,
+      },
+    ]"
     :title="buttonTitle"
     @click="handleCopy"
   >
@@ -185,6 +189,26 @@ defineOptions({
 
 .feedback-icon {
   @apply w-3.5 h-3.5;
+}
+
+/* 尺寸变体 */
+.enhanced-copy-button.size-sm {
+  @apply p-1.5 text-xs;
+}
+
+.enhanced-copy-button.size-lg {
+  @apply p-3 text-base;
+}
+
+/* 样式变体 */
+.enhanced-copy-button.variant-minimal {
+  @apply bg-transparent border-transparent shadow-none;
+  @apply hover:bg-gray-100/60 dark:hover:bg-gray-700/60;
+}
+
+.enhanced-copy-button.variant-floating {
+  @apply shadow-lg;
+  @apply hover:shadow-xl;
 }
 
 /* 响应式调整 */
