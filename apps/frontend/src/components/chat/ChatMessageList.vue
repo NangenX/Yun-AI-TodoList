@@ -95,7 +95,7 @@ const sanitizedMessages = ref<ExtendedMessage[]>([])
 // 缓存 Markdown 渲染结果，避免在流式更新时对整个历史消息重复渲染
 const sanitizationCache = new Map<string, string>()
 const chatScrollContainerRef = ref<HTMLElement | null>(null)
-const { checkAndScroll } = useSmartScroll({
+const { checkAndScroll, scrollToBottom } = useSmartScroll({
   scrollContainer: chatScrollContainerRef,
 })
 
@@ -245,6 +245,10 @@ onMounted(() => {
   requestAnimationFrame(() => {
     checkAndScroll(true)
   })
+})
+
+defineExpose({
+  scrollToBottom,
 })
 
 // 组件卸载时的清理

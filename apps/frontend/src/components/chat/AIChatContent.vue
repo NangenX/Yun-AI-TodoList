@@ -75,7 +75,7 @@
         :uploaded-file-name="uploadedFileName"
         :uploaded-file-size="uploadedFileSize"
         @update:model-value="$emit('update:userMessage', $event)"
-        @send="$emit('send')"
+        @send="handleSend"
         @stop="$emit('stop')"
         @optimize="$emit('optimize')"
         @file-upload="$emit('file-upload', $event)"
@@ -168,6 +168,11 @@ onMounted(() => {
     inputRef.value.focus()
   }
 })
+
+const handleSend = () => {
+  messageListRef.value?.scrollToBottom('auto')
+  _emit('send')
+}
 
 defineExpose({
   messageListRef,
