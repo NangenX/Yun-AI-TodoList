@@ -192,8 +192,13 @@ const processSanitizedMessages = async () => {
   }
   // 所有消息的 HTML（包括占位符）都已生成，现在可以安全地注入 SVG
   scheduleMermaidInjection()
-  // 列表完成更新后，滚动到底部（使用瞬时滚动，避免流式渲染时的抖动）
-  checkAndScroll(true)
+  const lastMsg = newSanitizedMessages[newSanitizedMessages.length - 1]
+  if (lastMsg && lastMsg.role === 'user') {
+    await nextTick()
+    scrollToBottom('auto')
+  } else {
+    checkAndScroll(true)
+  }
 }
 
 // 监听消息变化

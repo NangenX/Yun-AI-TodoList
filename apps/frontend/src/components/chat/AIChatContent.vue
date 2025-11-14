@@ -170,7 +170,6 @@ onMounted(() => {
 })
 
 const handleSend = () => {
-  messageListRef.value?.scrollToBottom('auto')
   _emit('send')
 }
 
