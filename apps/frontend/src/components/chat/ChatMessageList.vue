@@ -190,8 +190,11 @@ const processSanitizedMessages = async () => {
       }
     }
   }
-  // 所有消息的 HTML（包括占位符）都已生成，现在可以安全地注入 SVG
-  scheduleMermaidInjection()
+  // 在流式输出期间避免注入，防止 v-html 刷新导致占位符/容器反复替换产生闪动
+  const hasStreaming = newSanitizedMessages.some((m) => m.isStreaming)
+  if (!hasStreaming) {
+    scheduleMermaidInjection()
+  }
   const lastMsg = newSanitizedMessages[newSanitizedMessages.length - 1]
   if (lastMsg && lastMsg.role === 'user') {
     await nextTick()
@@ -251,6 +254,17 @@ onMounted(() => {
     checkAndScroll(true)
   })
 })
+
+// 在生成完成或重新生成完成后，触发一次 Mermaid 注入，确保占位符替换为最终 SVG 容器
+watch(
+  () => [props.isGenerating, props.isRegenerating],
+  async ([isGen, isRegen]) => {
+    if (!isGen && !isRegen) {
+      await nextTick()
+      scheduleMermaidInjection()
+    }
+  }
+)
 
 defineExpose({
   scrollToBottom,
