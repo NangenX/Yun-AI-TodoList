@@ -139,8 +139,11 @@ const scheduleMermaidInjection = () => {
   })
 }
 
-// 异步处理消息内容
-const processSanitizedMessages = async () => {
+// 通过串行化处理避免并发清空 Mermaid Map
+let isProcessingMessages = false
+let shouldReprocessMessages = false
+
+const processSanitizedMessagesInternal = async () => {
   // 在开始处理整个消息列表前，清空一次 Mermaid Map
   getMermaidSvgMap().clear()
 
@@ -204,13 +207,31 @@ const processSanitizedMessages = async () => {
   }
 }
 
+// 异步处理消息内容
+const processSanitizedMessages = async () => {
+  if (isProcessingMessages) {
+    shouldReprocessMessages = true
+    return
+  }
+
+  isProcessingMessages = true
+  try {
+    do {
+      shouldReprocessMessages = false
+      await processSanitizedMessagesInternal()
+    } while (shouldReprocessMessages)
+  } finally {
+    isProcessingMessages = false
+  }
+}
+
 // 监听消息变化
 watch(
   combinedMessages,
   () => {
     // 在高频消息更新时，使用 rAF 调度渲染，降低布局抖动风险
     requestAnimationFrame(() => {
-      processSanitizedMessages()
+      void processSanitizedMessages()
     })
   },
   { immediate: true, deep: true }
