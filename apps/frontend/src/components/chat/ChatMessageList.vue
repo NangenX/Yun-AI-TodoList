@@ -144,9 +144,6 @@ let isProcessingMessages = false
 let shouldReprocessMessages = false
 
 const processSanitizedMessagesInternal = async () => {
-  // 在开始处理整个消息列表前，清空一次 Mermaid Map
-  getMermaidSvgMap().clear()
-
   // 使用 Promise.all 并行处理所有消息的渲染，提高效率
   const processingPromises = combinedMessages.value.map(async (message, index) => {
     const { thinking, response } = message.isStreaming
@@ -193,11 +190,7 @@ const processSanitizedMessagesInternal = async () => {
       }
     }
   }
-  // 在流式输出期间避免注入，防止 v-html 刷新导致占位符/容器反复替换产生闪动
-  const hasStreaming = newSanitizedMessages.some((m) => m.isStreaming)
-  if (!hasStreaming) {
-    scheduleMermaidInjection()
-  }
+  scheduleMermaidInjection()
   const lastMsg = newSanitizedMessages[newSanitizedMessages.length - 1]
   if (lastMsg && lastMsg.role === 'user') {
     await nextTick()
