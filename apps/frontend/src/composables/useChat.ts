@@ -305,7 +305,7 @@ export function useChat() {
                 const title = it.title || ''
                 const link = it.link || ''
                 const date = it.publish_date ? `\nDate: ${it.publish_date}` : ''
-                const content = (it.content || '').slice(0, 1000)
+                const content = (it.content || '').slice(0, 3000)
                 return `(${i + 1}) ${title}${date}\nURL: ${link}\n${content}`
               })
               .join('\n\n')
