@@ -5,6 +5,7 @@ import { ref } from 'vue'
 import type { AIModel } from './types'
 
 const API_KEY_STORAGE_KEY = 'deepseek_api_key'
+const WEB_SEARCH_API_KEY_STORAGE_KEY = 'web_search_api_key'
 const BASE_URL_STORAGE_KEY = 'deepseek_base_url'
 const HIDE_API_KEY_REMINDER_KEY = 'hide_api_key_reminder'
 const AI_MODEL_STORAGE_KEY = 'deepseek_ai_model'
@@ -14,6 +15,9 @@ const AI_PROVIDER_STORAGE_KEY = 'ai_provider'
 const DEFAULT_BASE_URL = 'https://api.deepseek.com'
 
 export const apiKey = ref<string>(localStorage.getItem(API_KEY_STORAGE_KEY) || '')
+export const webSearchApiKey = ref<string>(
+  localStorage.getItem(WEB_SEARCH_API_KEY_STORAGE_KEY) || ''
+)
 export const baseUrl = ref<string>(localStorage.getItem(BASE_URL_STORAGE_KEY) || DEFAULT_BASE_URL)
 export const aiModel = ref<AIModel>(
   (localStorage.getItem(AI_MODEL_STORAGE_KEY) as AIModel | null) || 'deepseek-chat'
@@ -32,6 +36,20 @@ export function saveApiKey(key: string): void {
 export function clearApiKey(): void {
   apiKey.value = ''
   localStorage.removeItem(API_KEY_STORAGE_KEY)
+}
+
+export function getWebSearchApiKey(): string {
+  return webSearchApiKey.value
+}
+
+export function saveWebSearchApiKey(key: string): void {
+  webSearchApiKey.value = key
+  localStorage.setItem(WEB_SEARCH_API_KEY_STORAGE_KEY, key)
+}
+
+export function clearWebSearchApiKey(): void {
+  webSearchApiKey.value = ''
+  localStorage.removeItem(WEB_SEARCH_API_KEY_STORAGE_KEY)
 }
 
 export function getBaseUrl(): string {

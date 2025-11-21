@@ -112,6 +112,33 @@
           </div>
         </div>
 
+        <!-- Web Search API Key -->
+        <div>
+          <label class="block text-sm font-medium text-text mb-2">网络搜索 API Key</label>
+          <input
+            type="password"
+            :value="localWebSearchApiKey"
+            class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+            :style="{
+              backgroundColor: 'var(--settings-input-bg-enhanced)',
+              borderColor: 'var(--settings-input-border)',
+              color: 'var(--text-color)',
+              '--tw-ring-color': 'var(--settings-primary)',
+              border: '1px solid var(--settings-input-border)',
+            }"
+            placeholder="输入 BigModel Web Search API Key"
+            @input="$emit('update:localWebSearchApiKey', ($event.target as HTMLInputElement).value)"
+            @focus="
+              ($event.target as HTMLInputElement).style.borderColor =
+                'var(--settings-input-focus-border)'
+            "
+            @blur="
+              ($event.target as HTMLInputElement).style.borderColor = 'var(--settings-input-border)'
+            "
+          />
+          <p class="text-xs text-text-secondary mt-1">用于启用网络搜索（open.bigmodel.cn）</p>
+        </div>
+
         <!-- AI 提供商选择 -->
         <div>
           <label class="block text-sm font-medium text-text mb-2">AI 提供商</label>
@@ -500,6 +527,7 @@ import { useI18n } from 'vue-i18n'
 
 interface Props {
   localApiKey: string
+  localWebSearchApiKey: string
   localBaseUrl: string
   localModel: string
   localProvider: string
@@ -508,6 +536,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:localApiKey', value: string): void
+  (e: 'update:localWebSearchApiKey', value: string): void
   (e: 'update:localBaseUrl', value: string): void
   (e: 'update:localModel', value: string): void
   (e: 'update:localProvider', value: string): void

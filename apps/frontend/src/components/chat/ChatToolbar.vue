@@ -129,6 +129,35 @@
         <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
       </svg>
     </button>
+
+    <button
+      :class="[
+        'px-3 py-2.5 text-sm border rounded-lg flex items-center justify-center transition-all duration-200 h-10 w-10 md:py-2 md:h-9 md:w-9',
+        webSearchEnabled
+          ? 'bg-button-bg text-white border-button-bg shadow-[0_2px_8px_rgba(121,180,166,0.3)]'
+          : 'bg-input-bg text-text border-input-border hover:bg-button-hover hover:text-white hover:border-button-bg hover:shadow-[0_2px_8px_rgba(121,180,166,0.2)]',
+      ]"
+      :title="
+        webSearchEnabled
+          ? t('disableWebSearch', '关闭网络搜索')
+          : t('enableWebSearch', '启用网络搜索')
+      "
+      @click="$emit('toggleWebSearch')"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        class="md:w-3.5 md:h-3.5"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+    </button>
   </div>
 </template>
 
@@ -142,12 +171,14 @@ defineProps<{
   hasPreviousConversation?: boolean
   // 当当前会话尚未包含任何消息时置灰新建对话按钮
   isEmptyConversation?: boolean
+  webSearchEnabled?: boolean
 }>()
 
 defineEmits<{
   (e: 'new'): void
   (e: 'toggleDrawer'): void
   (e: 'switchPrevious'): void
+  (e: 'toggleWebSearch'): void
 }>()
 
 const { t } = useI18n()

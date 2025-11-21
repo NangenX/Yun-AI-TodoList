@@ -35,11 +35,13 @@
       <AIProviderPopover
         v-if="showApiKeyPopover"
         :local-api-key="localApiKey"
+        :local-web-search-api-key="localWebSearchApiKey"
         :local-base-url="localBaseUrl"
         :local-model="localModel"
         :local-provider="localProvider"
         :show-api-key="showApiKey"
         @update:local-api-key="localApiKey = $event"
+        @update:local-web-search-api-key="localWebSearchApiKey = $event"
         @update:local-base-url="localBaseUrl = $event"
         @update:local-model="localModel = $event"
         @update:local-provider="localProvider = $event"
@@ -59,6 +61,7 @@ import {
   clearApiKey,
   clearBaseUrl,
   saveApiKey,
+  saveWebSearchApiKey,
   saveBaseUrl,
   saveAIModel,
   saveAIProvider,
@@ -69,6 +72,7 @@ import AIProviderPopover from './components/AIProviderPopover.vue'
 
 interface Props {
   localApiKey: string
+  localWebSearchApiKey: string
   localBaseUrl: string
   localModel: string
   localProvider: string
@@ -78,6 +82,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:localApiKey', value: string): void
+  (e: 'update:localWebSearchApiKey', value: string): void
   (e: 'update:localBaseUrl', value: string): void
   (e: 'update:localModel', value: string): void
   (e: 'update:localProvider', value: string): void
@@ -94,6 +99,11 @@ const { t } = useI18n()
 const localApiKey = computed({
   get: () => props.localApiKey,
   set: (value) => emit('update:localApiKey', value),
+})
+
+const localWebSearchApiKey = computed({
+  get: () => props.localWebSearchApiKey,
+  set: (value) => emit('update:localWebSearchApiKey', value),
 })
 
 const localBaseUrl = computed({
@@ -126,6 +136,7 @@ const showApiKeyPopover = computed({
  */
 const saveAndClosePopover = () => {
   saveApiKey(localApiKey.value)
+  saveWebSearchApiKey(localWebSearchApiKey.value)
   saveBaseUrl(localBaseUrl.value)
   saveAIModel(localModel.value as AIModel)
   saveAIProvider(localProvider.value)
@@ -136,6 +147,7 @@ const saveAndClosePopover = () => {
 const clearAll = () => {
   clearApiKey()
   clearBaseUrl()
+  localWebSearchApiKey.value = ''
   localApiKey.value = ''
   localBaseUrl.value = ''
 }

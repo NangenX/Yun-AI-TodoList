@@ -36,6 +36,7 @@
         <div class="settings-card settings-card-primary" data-category="core">
           <ApiKeySection
             v-model:local-api-key="localApiKey"
+            v-model:local-web-search-api-key="localWebSearchApiKey"
             v-model:local-base-url="localBaseUrl"
             v-model:local-model="localModel"
             v-model:local-provider="localProvider"
@@ -104,6 +105,7 @@ const {
   showApiKey,
   showApiKeyPopover,
   localApiKey,
+  localWebSearchApiKey,
   localBaseUrl,
   localModel,
   localProvider,

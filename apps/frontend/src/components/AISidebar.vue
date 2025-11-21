@@ -191,6 +191,7 @@
         :has-uploaded-file="hasUploadedFile"
         :uploaded-file-name="uploadedFileName"
         :uploaded-file-size="uploadedFileSize"
+        :web-search-enabled="webSearchEnabled"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
         @switch-conversation="handleSwitchConversation"
@@ -199,6 +200,7 @@
         @new-conversation="newConversation"
         @switch-previous-conversation="handleSwitchToPreviousConversation"
         @optimize="optimizeMessage"
+        @toggle-web-search="toggleWebSearch"
         @retry="retry"
         @send="sendMessage"
         @stop="stopGenerating"
@@ -283,6 +285,8 @@ const {
   // 文件上传相关
   handleFileUpload,
   clearFileUpload,
+  webSearchEnabled,
+  toggleWebSearch,
 } = useChat()
 
 // 系统提示词管理

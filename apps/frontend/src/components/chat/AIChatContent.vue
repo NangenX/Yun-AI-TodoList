@@ -61,9 +61,11 @@
         :is-generating="isGenerating"
         :has-previous-conversation="conversationHistory.length > 1"
         :is-empty-conversation="chatHistory.length === 0"
+        :web-search-enabled="webSearchEnabled"
         @new="$emit('newConversation')"
         @toggle-drawer="$emit('toggleDrawer')"
         @switch-previous="$emit('switchPreviousConversation')"
+        @toggle-web-search="$emit('toggleWebSearch')"
       />
 
       <ChatInput
@@ -125,6 +127,7 @@ interface Props {
   uploadedFileName?: string
   uploadedFileSize?: number
   error?: string
+  webSearchEnabled?: boolean
 }
 
 interface ScrollInfo {
@@ -142,6 +145,7 @@ interface Emits {
   (e: 'clearConversations'): void
   (e: 'newConversation'): void
   (e: 'switchPreviousConversation'): void
+  (e: 'toggleWebSearch'): void
   (e: 'optimize'): void
   (e: 'retry', messageIndex: number): void
   (e: 'send'): void

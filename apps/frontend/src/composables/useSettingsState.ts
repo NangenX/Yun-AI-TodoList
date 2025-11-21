@@ -1,10 +1,11 @@
 import { onMounted, ref, watch } from 'vue'
-import { apiKey, baseUrl, aiModel, aiProvider } from '../services/configService'
+import { apiKey, baseUrl, aiModel, aiProvider, webSearchApiKey } from '../services/configService'
 
 export function useSettingsState() {
   const showApiKey = ref(false)
   const showApiKeyPopover = ref(false)
   const localApiKey = ref('')
+  const localWebSearchApiKey = ref('')
   const localBaseUrl = ref('')
   const localModel = ref('')
   const localProvider = ref('deepseek')
@@ -12,6 +13,7 @@ export function useSettingsState() {
 
   const initializeSettings = () => {
     localApiKey.value = apiKey.value
+    localWebSearchApiKey.value = webSearchApiKey.value
     localBaseUrl.value = baseUrl.value
     localModel.value = aiModel.value
     localProvider.value = aiProvider.value
@@ -27,6 +29,10 @@ export function useSettingsState() {
   const setupWatchers = () => {
     watch(apiKey, (newValue) => {
       localApiKey.value = newValue
+    })
+
+    watch(webSearchApiKey, (newValue) => {
+      localWebSearchApiKey.value = newValue
     })
 
     watch(baseUrl, (newValue) => {
@@ -62,6 +68,7 @@ export function useSettingsState() {
     showApiKey,
     showApiKeyPopover,
     localApiKey,
+    localWebSearchApiKey,
     localBaseUrl,
     localModel,
     localProvider,

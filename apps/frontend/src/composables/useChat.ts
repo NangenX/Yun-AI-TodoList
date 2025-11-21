@@ -2,6 +2,7 @@ import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { abortCurrentRequest, getAIStreamResponse, optimizeText } from '../services/deepseekService'
 import type { ChatMessage, Conversation, Message } from '../services/types'
+import { performWebSearch } from '../services/webSearchService'
 
 export function useChat() {
   const generateId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -22,6 +23,7 @@ export function useChat() {
   const isRetrying = ref(false)
   const lastFailedMessage = ref<string>('')
   const isRegenerating = ref(false)
+  const webSearchEnabled = ref(false)
 
   // 会话保存节流控制（避免频繁同步写入 localStorage 阻塞主线程）
   const SAVE_THROTTLE_MS = 500
@@ -261,6 +263,60 @@ export function useChat() {
           role: 'system',
           content: `用户上传了一个文件 "${fileInfo.fileName}"，请基于这个文件内容来回答用户的问题。文件内容如下：\n\n${fileInfo.fileContent}\n\n`,
         })
+      }
+
+      if (webSearchEnabled.value) {
+        try {
+          const opts = {
+            engine: 'search_pro' as const,
+            intent: true,
+            count: 10,
+            contentSize: 'high' as const,
+            recency: 'noLimit' as const,
+          }
+          const first = await performWebSearch(message, opts)
+          const refined = (first.search_intent && first.search_intent[0]?.keywords) || ''
+          let combined = first.search_result || []
+          if (refined && refined.trim() && refined.trim() !== message.trim()) {
+            const second = await performWebSearch(refined.trim(), opts)
+            const seen = new Set<string>()
+            const merged: typeof combined = []
+            ;[...(first.search_result || []), ...(second.search_result || [])].forEach((it) => {
+              const k = it.link || it.title || ''
+              if (!k) return
+              if (seen.has(k)) return
+              seen.add(k)
+              merged.push(it)
+            })
+            combined = merged
+          }
+          if (combined.length) {
+            const toTime = (d: unknown) => {
+              if (!d) return 0
+              const t = Date.parse(String(d))
+              return Number.isNaN(t) ? 0 : t
+            }
+            const sorted = [...combined].sort(
+              (a, b) => toTime(b.publish_date) - toTime(a.publish_date)
+            )
+            const summary = sorted
+              .slice(0, 10)
+              .map((it, i) => {
+                const title = it.title || ''
+                const link = it.link || ''
+                const date = it.publish_date ? `\nDate: ${it.publish_date}` : ''
+                const content = (it.content || '').slice(0, 1000)
+                return `(${i + 1}) ${title}${date}\nURL: ${link}\n${content}`
+              })
+              .join('\n\n')
+            messages.unshift({
+              role: 'system',
+              content: `请根据以下网络搜索结果内容结合自己的理解写一篇最佳博客文章，文章末尾可给出三个参考其内容较多的 URL：\n\n${summary}`,
+            })
+          }
+        } catch {
+          showError(t('webSearchFailed', '网络搜索失败，已直接请求 AI'))
+        }
       }
 
       await getAIStreamResponse(
@@ -534,6 +590,10 @@ export function useChat() {
     error.value = ''
   }
 
+  const toggleWebSearch = () => {
+    webSearchEnabled.value = !webSearchEnabled.value
+  }
+
   return {
     chatHistory,
     currentAIResponse,
@@ -571,5 +631,7 @@ export function useChat() {
     // 编辑相关功能
     editMessage,
     isRegenerating,
+    webSearchEnabled,
+    toggleWebSearch,
   }
 }
