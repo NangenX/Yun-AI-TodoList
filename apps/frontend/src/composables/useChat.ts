@@ -311,7 +311,7 @@ export function useChat() {
               .join('\n\n')
             messages.unshift({
               role: 'system',
-              content: `请根据以下网络搜索结果内容结合自己的理解写一篇最佳博客文章，文章末尾可给出三个参考其内容较多的 URL：\n\n${summary}`,
+              content: `请根据以下网络搜索结果内容结合自己的理解写一篇最佳博客文章：\n\n${summary}`,
             })
           }
         } catch {
