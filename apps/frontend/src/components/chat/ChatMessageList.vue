@@ -192,10 +192,7 @@ const processSanitizedMessagesInternal = async () => {
   }
   scheduleMermaidInjection()
   const lastMsg = newSanitizedMessages[newSanitizedMessages.length - 1]
-  if (lastMsg && lastMsg.role === 'user') {
-    await nextTick()
-    scrollToBottom('auto')
-  } else {
+  if (!(lastMsg && lastMsg.role === 'user')) {
     checkAndScroll(true)
   }
 }
