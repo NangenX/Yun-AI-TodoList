@@ -63,7 +63,7 @@ describe('AI 分析功能综合测试', () => {
         estimatedTime: '30分钟',
         reasoning: '这是一个中等优先级的任务',
       })
-      expect(mockGetAIResponse).toHaveBeenCalledWith(expect.stringContaining('写周报'), 0.3)
+      expect(mockGetAIResponse).toHaveBeenCalledWith(expect.stringContaining('写周报'), 0.2)
     })
 
     it('应该正确分析复杂任务', async () => {
@@ -309,7 +309,7 @@ describe('AI 分析功能综合测试', () => {
       // 验证调用了 AI 分析
       expect(mockGetAIResponse).toHaveBeenCalledWith(
         expect.stringContaining('优化数据库查询性能'),
-        0.3
+        0.2
       )
     })
   })
