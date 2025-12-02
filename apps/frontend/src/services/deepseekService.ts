@@ -200,7 +200,7 @@ export async function getAIStreamResponse(
   messages: Message[],
   onChunk: (chunk: string) => void,
   onThinking?: (thinking: string) => void,
-  temperature = 0.3
+  temperature = 0.2
 ): Promise<void> {
   let buffer = ''
   let isReading = true
@@ -321,7 +321,7 @@ export async function getAIStreamResponse(
   }
 }
 
-export async function getAIResponse(userMessage: string, temperature = 0.3): Promise<string> {
+export async function getAIResponse(userMessage: string, temperature = 0.2): Promise<string> {
   try {
     // 构建包含所有系统提示词的消息列表
     const systemMessages = await getSystemMessages()
@@ -402,7 +402,7 @@ export async function optimizeText(text: string): Promise<string> {
             content: `请优化文本：\n"${text}"`,
           },
         ],
-        temperature: 0.3,
+        temperature: 0.2,
         stream: false,
       }),
     })

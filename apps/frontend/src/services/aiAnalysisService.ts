@@ -60,7 +60,7 @@ export async function analyzeTodo(todoText: string): Promise<AIAnalysisResult> {
   "reasoning": "简短的分析理由"
 }`
 
-    const response = await getAIResponse(prompt, 0.3)
+    const response = await getAIResponse(prompt, 0.2)
 
     // 尝试解析 JSON 响应
     try {
@@ -222,7 +222,7 @@ export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskR
   // 缓存功能已移除，直接进行 AI 分析
 
   try {
-    const response = await getAIResponse(prompt, 0.3)
+    const response = await getAIResponse(prompt, 0.2)
 
     // 定义必需字段
     const requiredFields = ['canSplit', 'subtasks', 'reasoning', 'originalTask']
@@ -322,7 +322,7 @@ ${subtasks.map((task, index) => `${index + 1}. ${task}`).join('\n')}
 }`
 
   try {
-    const response = await getAIResponse(prompt, 0.3)
+    const response = await getAIResponse(prompt, 0.2)
 
     // 定义必需字段
     const requiredFields = ['subtasks']

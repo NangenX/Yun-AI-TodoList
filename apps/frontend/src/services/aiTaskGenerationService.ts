@@ -28,7 +28,7 @@ const DEFAULT_CONFIG: Required<TaskGenerationConfig> & {
   includeSubtasks: false,
   taskComplexity: 'medium',
   model: 'deepseek',
-  temperature: 0.3,
+  temperature: 0.2,
   maxTokens: 2000,
 }
 
