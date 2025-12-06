@@ -11,6 +11,7 @@ export default {
   buildDependenciesFromSource: false,
   nodeGypRebuild: false,
   npmRebuild: false,
+
   directories: {
     output: 'release/${version}',
     buildResources: 'build',
@@ -46,8 +47,10 @@ export default {
     ],
     category: 'public.app-category.productivity',
     darkModeSupport: true,
-    hardenedRuntime: true,
+    hardenedRuntime: false,
     gatekeeperAssess: false,
+    // 明确禁用代码签名
+    identity: null,
     // 根据环境选择不同的 entitlements 文件
     entitlements:
       process.env.NODE_ENV === 'production'
@@ -122,10 +125,11 @@ export default {
         target: 'deb',
         arch: ['x64'],
       },
-      {
-        target: 'rpm',
-        arch: ['x64'],
-      },
+      // 暂时注释掉 RPM 构建，因为需要 rpmbuild 工具
+      // {
+      //   target: 'rpm',
+      //   arch: ['x64'],
+      // },
     ],
     category: 'Office',
     maintainer: 'yunmu <1416900346@qq.com>',
