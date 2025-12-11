@@ -382,7 +382,8 @@ export async function getAIResponse(userMessage: string, temperature = 0.2): Pro
       } else if (error.message === i18n.global.t('invalidAiResponse')) {
         throw error
       } else {
-        throw new Error(i18n.global.t('networkConnectionError'))
+        // 保留原始错误信息，而不是转换为通用错误
+        throw error
       }
     }
     throw new Error(i18n.global.t('unknownError'))

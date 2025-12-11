@@ -53,6 +53,7 @@ vi.mock('../configService', () => ({
   getApiKey: vi.fn().mockReturnValue('test-api-key'),
   getAIModel: vi.fn().mockReturnValue('deepseek-chat'),
   getBaseUrl: vi.fn().mockReturnValue('https://api.deepseek.com'),
+  getAIThinkingMode: vi.fn().mockReturnValue('disabled'),
 }))
 
 vi.mock('@/i18n', () => ({
@@ -315,7 +316,7 @@ describe('deepseekService', () => {
     it('应该处理网络错误', async () => {
       mockFetchFn.mockRejectedValue(new Error('Network error'))
 
-      await expect(getAIResponse('Test message')).rejects.toThrow()
+      await expect(getAIResponse('Test message')).rejects.toThrow('Network error')
     })
 
     it('应该处理超时错误', async () => {
@@ -323,7 +324,7 @@ describe('deepseekService', () => {
         () => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100))
       )
 
-      await expect(getAIResponse('Test message')).rejects.toThrow()
+      await expect(getAIResponse('Test message')).rejects.toThrow('Timeout')
     })
   })
 
