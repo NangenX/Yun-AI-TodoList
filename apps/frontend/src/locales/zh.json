@@ -613,6 +613,9 @@
   "enableTimeEstimationDesc": "使用 AI 估算待办事项的完成时间",
   "enableSubtaskSplitting": "启用 AI 拆分子任务",
   "enableSubtaskSplittingDesc": "添加待办事项时使用 AI 智能拆分为子任务",
+  "enableAIThinking": "启用 AI 思考模式",
+  "enableAIThinkingDesc": "让 AI 展示思考过程，提供更详细的推理分析",
+  "aiThinkingMode": "AI 思考模式",
 
   "aiAnalysisSettings": "AI 分析设置",
   "aiAnalysisConfiguration": "AI 分析配置",

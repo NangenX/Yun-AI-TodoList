@@ -23,6 +23,33 @@
       {{ t('newConversation') }}
     </button>
 
+    <!-- AI 思考模式开关 -->
+    <div class="thinking-mode-toggle-wrapper">
+      <label class="thinking-mode-toggle" :title="t('aiThinkingMode', 'AI 思考模式')">
+        <input
+          type="checkbox"
+          :checked="thinkingEnabled"
+          class="thinking-checkbox"
+          @change="toggleThinkingMode"
+        />
+        <span class="thinking-toggle-slider"></span>
+        <svg
+          class="thinking-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </label>
+    </div>
+
     <button
       :class="[
         'px-3 py-2.5 text-sm border rounded-lg flex items-center justify-center transition-all duration-200 h-10 w-10 md:py-2 md:h-9 md:w-9',
@@ -165,6 +192,8 @@
 import { useTodoSystemPrompt } from '@/composables/useSmartQuestion'
 import { useTodos } from '@/composables/useTodos'
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+import { aiThinkingMode, saveAIThinkingMode } from '@/services/configService'
 
 defineProps<{
   isGenerating?: boolean
@@ -216,11 +245,64 @@ const getButtonTitle = (): string => {
   }
   return isTodoAssistantActive.value
     ? t('todoAssistantActiveTitle', '点击停用 Todo 任务助手')
-    : t('todoAssistantTitle', '点击激活 Todo 任务助手，AI 将了解您的所有任务信息')
+    : t('todoAssistantTitle', '点击激活 Todo 任务助手,AI 将了解您的所有任务信息')
+}
+
+// AI 思考模式开关逻辑
+const thinkingEnabled = computed(() => aiThinkingMode.value === 'enabled')
+
+const toggleThinkingMode = (event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked
+  const mode = checked ? 'enabled' : 'disabled'
+  saveAIThinkingMode(mode)
 }
 </script>
 
 <style scoped>
+/* AI 思考模式开关样式 */
+.thinking-mode-toggle-wrapper {
+  @apply flex items-center flex-shrink-0;
+}
+
+.thinking-mode-toggle {
+  @apply flex items-center gap-1.5 cursor-pointer select-none relative h-10 md:h-9;
+  transition: all 0.2s ease;
+}
+
+.thinking-checkbox {
+  @apply absolute opacity-0 w-0 h-0;
+}
+
+.thinking-toggle-slider {
+  @apply relative inline-block w-10 h-5 rounded-full transition-all duration-300;
+  background: var(--input-border-color);
+  flex-shrink: 0;
+}
+
+.thinking-toggle-slider::before {
+  content: '';
+  @apply absolute h-4 w-4 left-0.5 bottom-0.5 bg-white rounded-full transition-all duration-300;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.thinking-checkbox:checked + .thinking-toggle-slider {
+  background: var(--primary-color);
+}
+
+.thinking-checkbox:checked + .thinking-toggle-slider::before {
+  transform: translateX(1.25rem);
+}
+
+.thinking-icon {
+  @apply w-4 h-4 flex-shrink-0 md:w-3.5 md:h-3.5;
+  color: var(--primary-color);
+  pointer-events: none;
+}
+
+.thinking-mode-toggle:hover .thinking-icon {
+  filter: brightness(1.2);
+}
+
 /* 移动端优化样式 */
 @media (max-width: 639px) {
   .flex {
@@ -228,7 +310,7 @@ const getButtonTitle = (): string => {
   }
 
   /* 缩小新对话按钮 */
-  button:first-child {
+  button:nth-child(1) {
     padding: 0.25rem 0.5rem !important;
     height: 1.75rem !important;
     font-size: 0.7rem !important;
@@ -236,18 +318,41 @@ const getButtonTitle = (): string => {
     gap: 0.25rem !important;
   }
 
-  button:first-child svg {
+  button:nth-child(1) svg {
     width: 0.75rem !important;
     height: 0.75rem !important;
   }
 
-  /* 缩小上一条对话按钮 */
+  /* AI 思考模式开关 - 移动端（现在是第2个元素） */
+  .thinking-mode-toggle-wrapper {
+    @apply flex-shrink-0;
+  }
+
+  .thinking-mode-toggle {
+    @apply gap-1 h-7;
+  }
+
+  .thinking-toggle-slider {
+    @apply w-8 h-4;
+  }
+
+  .thinking-toggle-slider::before {
+    @apply h-3 w-3;
+  }
+
+  .thinking-checkbox:checked + .thinking-toggle-slider::before {
+    transform: translateX(1rem);
+  }
+
+  .thinking-icon {
+    @apply w-3 h-3;
+  }
+
+  /* 网络搜索按钮（现在是第3个按钮） */
   button:nth-child(3) {
-    padding: 0.25rem 0.5rem !important;
+    padding: 0.25rem !important;
     height: 1.75rem !important;
-    font-size: 0.7rem !important;
-    min-width: auto !important;
-    gap: 0.25rem !important;
+    width: 1.75rem !important;
   }
 
   button:nth-child(3) svg {
@@ -255,7 +360,7 @@ const getButtonTitle = (): string => {
     height: 0.75rem !important;
   }
 
-  /* 缩小 Todo 助手按钮（现在是第 4 个） */
+  /* 缩小上一条对话按钮 */
   button:nth-child(4) {
     padding: 0.25rem 0.5rem !important;
     height: 1.75rem !important;
@@ -265,6 +370,20 @@ const getButtonTitle = (): string => {
   }
 
   button:nth-child(4) svg {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+
+  /* 缩小 Todo 助手按钮 */
+  button:nth-child(5) {
+    padding: 0.25rem 0.5rem !important;
+    height: 1.75rem !important;
+    font-size: 0.7rem !important;
+    min-width: auto !important;
+    gap: 0.25rem !important;
+  }
+
+  button:nth-child(5) svg {
     width: 0.75rem !important;
     height: 0.75rem !important;
   }

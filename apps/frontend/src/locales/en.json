@@ -605,6 +605,9 @@
   "enableTimeEstimationDesc": "Use AI to estimate the completion time of todos",
   "enableSubtaskSplitting": "Enable AI subtask splitting",
   "enableSubtaskSplittingDesc": "Use AI to intelligently split todos into subtasks when adding",
+  "enableAIThinking": "Enable AI Thinking Mode",
+  "enableAIThinkingDesc": "Let AI show its thinking process for more detailed reasoning and analysis",
+  "aiThinkingMode": "AI Thinking Mode",
 
   "aiAnalysisSettings": "AI Analysis Settings",
   "aiAnalysisConfiguration": "AI Analysis Configuration",

@@ -2,7 +2,7 @@ import i18n from '../i18n'
 import type { Todo } from '../types/todo'
 import { logger } from '../utils/logger'
 import { TodoValidator } from '../utils/todoValidator'
-import { getAIModel, getApiKey, getBaseUrl } from './configService'
+import { getAIModel, getAIThinkingMode, getApiKey, getBaseUrl } from './configService'
 import { AIStreamResponse, Message, SystemPrompt } from './types'
 
 // 获取系统提示词配置
@@ -231,6 +231,9 @@ export async function getAIStreamResponse(
         messages: messagesWithSystemPrompts,
         temperature,
         stream: true,
+        thinking: {
+          type: getAIThinkingMode(),
+        },
       }),
       signal,
     })
@@ -352,6 +355,9 @@ export async function getAIResponse(userMessage: string, temperature = 0.2): Pro
         messages,
         temperature,
         stream: false,
+        thinking: {
+          type: getAIThinkingMode(),
+        },
       }),
     })
 

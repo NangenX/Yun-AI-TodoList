@@ -10,6 +10,7 @@ const BASE_URL_STORAGE_KEY = 'deepseek_base_url'
 const HIDE_API_KEY_REMINDER_KEY = 'hide_api_key_reminder'
 const AI_MODEL_STORAGE_KEY = 'deepseek_ai_model'
 const AI_PROVIDER_STORAGE_KEY = 'ai_provider'
+const AI_THINKING_MODE_STORAGE_KEY = 'ai_thinking_mode'
 
 // 默认基础 URL
 const DEFAULT_BASE_URL = 'https://api.deepseek.com'
@@ -23,6 +24,9 @@ export const aiModel = ref<AIModel>(
   (localStorage.getItem(AI_MODEL_STORAGE_KEY) as AIModel | null) || 'deepseek-chat'
 )
 export const aiProvider = ref<string>(localStorage.getItem(AI_PROVIDER_STORAGE_KEY) || 'deepseek')
+export const aiThinkingMode = ref<'enabled' | 'disabled'>(
+  (localStorage.getItem(AI_THINKING_MODE_STORAGE_KEY) as 'enabled' | 'disabled') || 'enabled'
+)
 
 export function getApiKey(): string {
   return apiKey.value
@@ -92,4 +96,13 @@ export function shouldShowApiKeyReminder(): boolean {
 
 export function hideApiKeyReminder(): void {
   localStorage.setItem(HIDE_API_KEY_REMINDER_KEY, 'true')
+}
+
+export function getAIThinkingMode(): 'enabled' | 'disabled' {
+  return aiThinkingMode.value
+}
+
+export function saveAIThinkingMode(mode: 'enabled' | 'disabled'): void {
+  aiThinkingMode.value = mode
+  localStorage.setItem(AI_THINKING_MODE_STORAGE_KEY, mode)
 }
