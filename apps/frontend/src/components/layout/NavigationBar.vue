@@ -1,39 +1,7 @@
 <template>
   <div class="nav-bar">
-    <button
-      class="nav-button"
-      :class="{ 'nav-button-active': $route.path === '/' }"
-      :title="t('home')"
-      @click="router.push('/')"
-    >
-      <i class="i-carbon-task text-sm"></i>
-      <span class="nav-text">{{ t('home') }}</span>
-    </button>
-
-    <button
-      class="nav-button"
-      :class="{ 'nav-button-active': $route.path === '/settings' }"
-      :title="t('settings')"
-      @click="router.push('/settings')"
-    >
-      <i class="i-carbon-settings text-sm"></i>
-      <span class="nav-text">{{ t('settings') }}</span>
-    </button>
-
-    <!-- 认证状态按钮 -->
-    <div v-if="!isAuthenticated" class="auth-buttons">
-      <button
-        class="nav-button auth-button"
-        :title="t('auth.login')"
-        @click="router.push('/login')"
-      >
-        <i class="i-carbon-login text-sm"></i>
-        <span class="nav-text">{{ t('auth.login') }}</span>
-      </button>
-    </div>
-
-    <!-- 用户菜单 -->
-    <div v-else ref="userMenuRef" class="user-menu" @click="toggleUserMenu">
+    <!-- 用户菜单（仅登录后显示） -->
+    <div v-if="isAuthenticated" ref="userMenuRef" class="user-menu" @click="toggleUserMenu">
       <button class="nav-button user-button" :title="user?.username || user?.email?.split('@')[0]">
         <i class="i-carbon-user text-sm"></i>
         <span class="nav-text">{{ user?.username || user?.email?.split('@')[0] }}</span>
