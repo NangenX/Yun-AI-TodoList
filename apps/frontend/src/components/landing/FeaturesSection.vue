@@ -94,7 +94,7 @@ defineOptions({
 <style scoped>
 .features-section {
   @apply py-20 relative;
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(121, 180, 166, 0.02) 100%);
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(212, 193, 138, 0.02) 100%);
 }
 
 .features-container {
@@ -142,7 +142,7 @@ defineOptions({
 .feature-card::before {
   content: '';
   @apply absolute inset-0 opacity-0 transition-opacity-300;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.05) 0%, rgba(121, 180, 166, 0.02) 100%);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.05) 0%, rgba(212, 193, 138, 0.02) 100%);
 }
 
 .feature-card:hover::before {
@@ -151,9 +151,9 @@ defineOptions({
 
 .feature-icon {
   @apply w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.1) 0%, rgba(212, 193, 138, 0.05) 100%);
   color: var(--primary-color);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  border: 1px solid rgba(212, 193, 138, 0.2);
 }
 
 .feature-title {
@@ -182,35 +182,35 @@ defineOptions({
 
 /* 特殊卡片样式变体 */
 .feature-card-1 {
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.03) 0%, var(--card-bg-color) 100%);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.03) 0%, var(--card-bg-color) 100%);
 }
 
 .feature-card-2 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.03) 100%);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(212, 193, 138, 0.03) 100%);
 }
 
 .feature-card-3 {
   background: linear-gradient(
     135deg,
-    rgba(121, 180, 166, 0.02) 0%,
+    rgba(212, 193, 138, 0.02) 0%,
     var(--card-bg-color) 50%,
-    rgba(121, 180, 166, 0.02) 100%
+    rgba(212, 193, 138, 0.02) 100%
   );
 }
 
 .feature-card-4 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.03) 100%);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(212, 193, 138, 0.03) 100%);
 }
 
 .feature-card-5 {
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.03) 0%, var(--card-bg-color) 100%);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.03) 0%, var(--card-bg-color) 100%);
 }
 
 .feature-card-6 {
   background: linear-gradient(
     135deg,
     var(--card-bg-color) 0%,
-    rgba(121, 180, 166, 0.02) 50%,
+    rgba(212, 193, 138, 0.02) 50%,
     var(--card-bg-color) 100%
   );
 }

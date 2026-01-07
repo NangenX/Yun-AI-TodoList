@@ -79,11 +79,11 @@ defineOptions({
 
 [data-theme='dark'] .charts-dialog-content {
   background: linear-gradient(135deg, rgba(37, 43, 50, 0.95) 0%, rgba(47, 53, 61, 0.9) 100%);
-  border-color: rgba(121, 180, 166, 0.2);
+  border-color: rgba(212, 193, 138, 0.2);
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.3),
     0 8px 32px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(121, 180, 166, 0.1);
+    0 0 0 1px rgba(212, 193, 138, 0.1);
 }
 
 .charts-dialog-close {
@@ -107,16 +107,16 @@ defineOptions({
 }
 
 [data-theme='dark'] .charts-dialog-close {
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(104, 162, 149, 0.15) 100%);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.1) 0%, rgba(196, 177, 122, 0.15) 100%);
   color: var(--text-secondary-color, #a0aec0);
-  border-color: rgba(121, 180, 166, 0.2);
+  border-color: rgba(212, 193, 138, 0.2);
 }
 
 [data-theme='dark'] .charts-dialog-close:hover {
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.2) 0%, rgba(104, 162, 149, 0.25) 100%);
-  border-color: rgba(121, 180, 166, 0.35);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.2) 0%, rgba(196, 177, 122, 0.25) 100%);
+  border-color: rgba(212, 193, 138, 0.35);
   color: var(--text-color, #f7fafc);
-  box-shadow: 0 4px 12px rgba(121, 180, 166, 0.25);
+  box-shadow: 0 4px 12px rgba(212, 193, 138, 0.25);
 }
 
 .charts-dialog-title {
@@ -125,7 +125,7 @@ defineOptions({
   @apply md:text-lg md:mb-5 md:pr-9;
   @apply sm:text-base sm:mb-4 sm:pr-8;
   color: var(--text-color, #1e293b);
-  background: linear-gradient(135deg, var(--primary-color, #79b4a6), #68a295);
+  background: linear-gradient(135deg, var(--primary-color, #d4c18a), #c4b17a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -134,7 +134,7 @@ defineOptions({
 }
 
 [data-theme='dark'] .charts-dialog-title {
-  background: linear-gradient(135deg, var(--primary-color, #79b4a6), #8cc8b8);
+  background: linear-gradient(135deg, var(--primary-color, #d4c18a), #e4d19a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

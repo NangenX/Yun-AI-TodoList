@@ -108,7 +108,7 @@ defineOptions({
   background: linear-gradient(
     135deg,
     var(--bg-color) 0%,
-    rgba(121, 180, 166, 0.08) 50%,
+    rgba(212, 193, 138, 0.08) 50%,
     var(--bg-color) 100%
   );
 }
@@ -136,7 +136,7 @@ defineOptions({
 
 .title-main {
   @apply block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight;
-  background: linear-gradient(135deg, var(--text-color) 0%, #79b4a6 100%);
+  background: linear-gradient(135deg, var(--text-color) 0%, #d4c18a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -169,15 +169,15 @@ defineOptions({
 
 .feature-tag {
   @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all-300;
-  background: rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.1);
   color: var(--text-color);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  border: 1px solid rgba(212, 193, 138, 0.2);
   backdrop-filter: blur(10px);
 }
 
 .feature-tag:hover {
-  background: rgba(121, 180, 166, 0.15);
-  border-color: rgba(121, 180, 166, 0.3);
+  background: rgba(212, 193, 138, 0.15);
+  border-color: rgba(212, 193, 138, 0.3);
   transform: translateY(-1px);
 }
 
@@ -192,8 +192,8 @@ defineOptions({
 
 .btn-primary {
   @apply inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-medium text-white transition-all-300;
-  background: linear-gradient(135deg, #79b4a6 0%, #68a295 100%);
-  box-shadow: 0 4px 16px rgba(121, 180, 166, 0.3);
+  background: linear-gradient(135deg, #d4c18a 0%, #c4b17a 100%);
+  box-shadow: 0 4px 16px rgba(212, 193, 138, 0.3);
   border: none;
   cursor: pointer;
   text-decoration: none;
@@ -202,23 +202,23 @@ defineOptions({
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(121, 180, 166, 0.4);
+  box-shadow: 0 8px 24px rgba(212, 193, 138, 0.4);
 }
 
 .btn-secondary {
   @apply inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-medium transition-all-300;
   color: var(--text-color);
-  background: rgba(121, 180, 166, 0.1);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: rgba(212, 193, 138, 0.1);
+  border: 1px solid rgba(212, 193, 138, 0.2);
   backdrop-filter: blur(10px);
   text-decoration: none;
   min-height: 48px;
 }
 
 .btn-secondary:hover {
-  background: rgba(121, 180, 166, 0.15);
+  background: rgba(212, 193, 138, 0.15);
   transform: translateY(-2px);
-  border-color: rgba(121, 180, 166, 0.3);
+  border-color: rgba(212, 193, 138, 0.3);
 }
 
 /* 视觉展示区域 */
@@ -244,7 +244,7 @@ defineOptions({
 
 .image-glow {
   @apply absolute inset-0 rounded-3xl opacity-60;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.3) 0%, rgba(121, 180, 166, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.3) 0%, rgba(212, 193, 138, 0.1) 100%);
   filter: blur(30px);
   z-index: -1;
   transform: scale(1.1);
@@ -262,16 +262,16 @@ defineOptions({
 
 .scroll-arrow {
   @apply w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all-300;
-  background: rgba(121, 180, 166, 0.1);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: rgba(212, 193, 138, 0.1);
+  border: 1px solid rgba(212, 193, 138, 0.2);
   backdrop-filter: blur(10px);
   color: var(--primary-color);
   animation: bounce 2s infinite;
 }
 
 .scroll-indicator:hover .scroll-arrow {
-  background: rgba(121, 180, 166, 0.15);
-  border-color: rgba(121, 180, 166, 0.3);
+  background: rgba(212, 193, 138, 0.15);
+  border-color: rgba(212, 193, 138, 0.3);
   transform: scale(1.1);
 }
 

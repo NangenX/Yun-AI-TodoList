@@ -229,13 +229,13 @@ defineOptions({
   background-color: var(--primary-color);
   color: white;
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(121, 180, 166, 0.3);
+  box-shadow: 0 4px 12px rgba(212, 193, 138, 0.3);
 }
 
 .nav-button-active:hover {
   background-color: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(121, 180, 166, 0.4);
+  box-shadow: 0 6px 16px rgba(212, 193, 138, 0.4);
 }
 
 @media (max-width: 768px) {

@@ -363,7 +363,7 @@ export function useMarkdown() {
         computedStyle.getPropertyValue('--text-color').trim() || (isDark ? '#ffffff' : '#000000')
       const backgroundColor =
         computedStyle.getPropertyValue('--bg-color').trim() || (isDark ? '#1a1a1a' : '#ffffff')
-      const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#79b4a6'
+      const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#d4c18a'
       const fontStack =
         '"LXGW WenKai Medium", "LXGW WenKai Lite Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
 

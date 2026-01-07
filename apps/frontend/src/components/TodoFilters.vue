@@ -52,7 +52,7 @@ const setFilter = (newFilter: string) => {
   color: var(--filter-btn-active-text);
   border-color: var(--filter-btn-active-border);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(121, 180, 166, 0.2);
+  box-shadow: 0 2px 4px rgba(212, 193, 138, 0.2);
 }
 
 @media (max-width: 768px) {

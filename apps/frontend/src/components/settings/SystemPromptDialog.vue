@@ -308,7 +308,7 @@ defineOptions({
 .dialog-header {
   @apply flex items-center justify-between p-6 border-b;
   border-color: var(--input-border-color);
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.02) 100%);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(212, 193, 138, 0.02) 100%);
 }
 
 .dialog-title {
@@ -355,7 +355,7 @@ defineOptions({
   outline: none;
   border-color: var(--primary-color);
   box-shadow:
-    0 0 0 3px rgba(121, 180, 166, 0.15),
+    0 0 0 3px rgba(212, 193, 138, 0.15),
     inset 0 1px 3px rgba(0, 0, 0, 0.05);
   transform: translateY(-1px);
 }
@@ -389,7 +389,7 @@ defineOptions({
   outline: none;
   border-color: var(--primary-color);
   box-shadow:
-    0 0 0 3px rgba(121, 180, 166, 0.15),
+    0 0 0 3px rgba(212, 193, 138, 0.15),
     inset 0 1px 3px rgba(0, 0, 0, 0.05);
   transform: translateY(-1px);
 }
@@ -499,7 +499,7 @@ defineOptions({
   @apply flex gap-3 justify-end pt-4 border-t;
   border-color: var(--input-border-color);
   background-color: var(--card-bg-color);
-  background: linear-gradient(180deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.01) 100%);
+  background: linear-gradient(180deg, var(--card-bg-color) 0%, rgba(212, 193, 138, 0.01) 100%);
 }
 
 .btn-primary {

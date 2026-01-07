@@ -186,7 +186,7 @@ defineOptions({
   background: linear-gradient(
     180deg,
     var(--bg-color) 0%,
-    rgba(121, 180, 166, 0.03) 50%,
+    rgba(212, 193, 138, 0.03) 50%,
     var(--bg-color) 100%
   );
 }
@@ -292,9 +292,9 @@ defineOptions({
 
 .screenshot-tag {
   @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
-  background: rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.1);
   color: var(--text-color);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  border: 1px solid rgba(212, 193, 138, 0.2);
 }
 
 /* 重构优化的灯箱样式 */
@@ -422,15 +422,15 @@ defineOptions({
   border-radius: 2rem;
   font-size: 0.8rem;
   font-weight: 500;
-  background: rgba(121, 180, 166, 0.12);
+  background: rgba(212, 193, 138, 0.12);
   color: var(--primary-color);
-  border: 1px solid rgba(121, 180, 166, 0.25);
+  border: 1px solid rgba(212, 193, 138, 0.25);
   transition: all 0.2s ease;
 }
 
 .lightbox-tag:hover {
-  background: rgba(121, 180, 166, 0.18);
-  border-color: rgba(121, 180, 166, 0.4);
+  background: rgba(212, 193, 138, 0.18);
+  border-color: rgba(212, 193, 138, 0.4);
 }
 
 /* 灯箱动画 */

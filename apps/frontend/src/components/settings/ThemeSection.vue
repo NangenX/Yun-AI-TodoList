@@ -166,7 +166,7 @@ defineOptions({
 .theme-option:hover {
   background: var(--settings-primary-ultra-light);
   border-color: var(--settings-primary-ultra-light);
-  box-shadow: 0 1px 3px rgba(121, 180, 166, 0.06);
+  box-shadow: 0 1px 3px rgba(212, 193, 138, 0.06);
 }
 
 .theme-option.active {

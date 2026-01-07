@@ -3,7 +3,7 @@
 /* 基础布局 */
 .auth-container {
   @apply min-h-screen flex items-center justify-center p-4 relative overflow-hidden;
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(121, 180, 166, 0.05) 100%);
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(212, 193, 138, 0.05) 100%);
 }
 
 .auth-card {
@@ -21,7 +21,7 @@
 
 [data-theme='dark'] .auth-card {
   background: rgba(37, 43, 50, 0.95);
-  border-color: rgba(121, 180, 166, 0.2);
+  border-color: rgba(212, 193, 138, 0.2);
 }
 
 /* 头部样式 */

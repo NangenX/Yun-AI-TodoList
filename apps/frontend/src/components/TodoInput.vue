@@ -206,7 +206,7 @@ const addTodo = async () => {
 .todo-input:focus {
   border-color: var(--input-focus-color);
   box-shadow:
-    0 0 8px rgba(121, 180, 166, 0.3),
+    0 0 8px rgba(212, 193, 138, 0.3),
     0 2px 8px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }

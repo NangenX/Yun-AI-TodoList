@@ -108,7 +108,7 @@ onMounted(async () => {
 <style scoped>
 .landing-page {
   @apply min-h-screen;
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(121, 180, 166, 0.05) 100%);
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(212, 193, 138, 0.05) 100%);
   /* 优化渲染性能 */
   contain: layout style paint;
   will-change: auto;
@@ -143,7 +143,7 @@ onMounted(async () => {
   :global(.nav-bar) {
     background-color: rgba(var(--card-bg-color), 0.95);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(121, 180, 166, 0.1);
+    border-bottom: 1px solid rgba(212, 193, 138, 0.1);
   }
 }
 

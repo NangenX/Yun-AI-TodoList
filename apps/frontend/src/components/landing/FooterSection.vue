@@ -105,8 +105,8 @@ onMounted(() => {
 <style scoped>
 .footer-section {
   @apply py-16 relative;
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(121, 180, 166, 0.03) 100%);
-  border-top: 1px solid rgba(121, 180, 166, 0.1);
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(212, 193, 138, 0.03) 100%);
+  border-top: 1px solid rgba(212, 193, 138, 0.1);
 }
 
 .footer-container {
@@ -144,14 +144,14 @@ onMounted(() => {
 
 .social-link {
   @apply w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all-300;
-  background: rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.1);
   color: var(--text-color);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  border: 1px solid rgba(212, 193, 138, 0.2);
   text-decoration: none;
 }
 
 .social-link:hover {
-  background: rgba(121, 180, 166, 0.2);
+  background: rgba(212, 193, 138, 0.2);
   transform: translateY(-2px);
 }
 
@@ -177,12 +177,12 @@ onMounted(() => {
 }
 
 .footer-link:hover {
-  color: #79b4a6;
+  color: #d4c18a;
 }
 
 .footer-bottom {
   @apply flex flex-col md:flex-row items-center justify-between gap-6 pt-8;
-  border-top: 1px solid rgba(121, 180, 166, 0.1);
+  border-top: 1px solid rgba(212, 193, 138, 0.1);
 }
 
 .footer-info {
@@ -208,9 +208,9 @@ onMounted(() => {
 
 .tech-badge {
   @apply px-2 py-1 rounded-md text-xs font-medium;
-  background: rgba(121, 180, 166, 0.1);
-  color: #79b4a6;
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: rgba(212, 193, 138, 0.1);
+  color: #d4c18a;
+  border: 1px solid rgba(212, 193, 138, 0.2);
 }
 
 .footer-actions {
@@ -219,13 +219,13 @@ onMounted(() => {
 
 .back-to-top {
   @apply flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all-300;
-  background: rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.1);
   color: var(--text-color);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  border: 1px solid rgba(212, 193, 138, 0.2);
 }
 
 .back-to-top:hover {
-  background: rgba(121, 180, 166, 0.2);
+  background: rgba(212, 193, 138, 0.2);
   transform: translateY(-2px);
 }
 

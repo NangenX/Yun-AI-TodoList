@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-2 md:gap-2 mobile-controls">
     <button
       v-if="!isGenerating"
-      class="send-btn w-10 h-10 bg-button-bg text-white border-none rounded-xl cursor-pointer flex items-center justify-center hover:bg-button-hover hover:shadow-[0_4px_12px_rgba(121,180,166,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200"
+      class="send-btn w-10 h-10 bg-button-bg text-white border-none rounded-xl cursor-pointer flex items-center justify-center hover:bg-button-hover hover:shadow-[0_4px_12px_rgba(212,193,138,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200"
       :title="t('send')"
       @click="$emit('send')"
     >
@@ -19,7 +19,7 @@
     <button
       class="voice-btn relative w-10 h-10 bg-input-bg text-text border border-input-border rounded-xl cursor-pointer flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-button-hover hover:text-white hover:border-button-bg"
       :class="{
-        'bg-button-bg text-white border-button-bg animate-pulse shadow-[0_4px_12px_rgba(121,180,166,0.3)]':
+        'bg-button-bg text-white border-button-bg animate-pulse shadow-[0_4px_12px_rgba(212,193,138,0.3)]':
           isListening,
         'bg-red-300 text-white border-red-300 shadow-[0_4px_12px_rgba(252,165,165,0.3)]':
           recognitionStatus === 'error',
@@ -106,15 +106,15 @@ defineOptions({
     background: linear-gradient(
       135deg,
       var(--button-bg) 0%,
-      rgba(121, 180, 166, 0.9) 100%
+      rgba(212, 193, 138, 0.9) 100%
     ) !important;
-    box-shadow: 0 2px 12px rgba(121, 180, 166, 0.2);
+    box-shadow: 0 2px 12px rgba(212, 193, 138, 0.2);
   }
 
   .send-btn:hover {
     background: linear-gradient(135deg, var(--button-hover) 0%, var(--button-bg) 100%) !important;
     transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(121, 180, 166, 0.3);
+    box-shadow: 0 4px 16px rgba(212, 193, 138, 0.3);
   }
 
   .stop-btn {
@@ -137,7 +137,7 @@ defineOptions({
     background: linear-gradient(
       135deg,
       var(--button-hover) 0%,
-      rgba(121, 180, 166, 0.9) 100%
+      rgba(212, 193, 138, 0.9) 100%
     ) !important;
     transform: scale(1.05);
     border-color: var(--button-bg) !important;
@@ -147,7 +147,7 @@ defineOptions({
     background: linear-gradient(
       135deg,
       var(--button-bg) 0%,
-      rgba(121, 180, 166, 0.9) 100%
+      rgba(212, 193, 138, 0.9) 100%
     ) !important;
   }
 
@@ -159,7 +159,7 @@ defineOptions({
     background: linear-gradient(
       135deg,
       var(--button-hover) 0%,
-      rgba(121, 180, 166, 0.9) 100%
+      rgba(212, 193, 138, 0.9) 100%
     ) !important;
   }
 

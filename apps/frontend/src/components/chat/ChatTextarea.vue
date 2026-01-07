@@ -4,7 +4,7 @@
       ref="textareaRef"
       :value="modelValue"
       :placeholder="t('askAiAssistant')"
-      class="w-full px-4 py-3 text-sm border border-input-border rounded-xl outline-none bg-input-bg text-text resize-none min-h-[80px] max-h-48 font-inherit leading-[1.6] overflow-y-auto focus:border-button-bg focus:shadow-[0_0_0_3px_rgba(121,180,166,0.1)] transition-all duration-200 placeholder:text-text-secondary md:text-[13px] md:min-h-[72px] max-[639px]:min-h-[40px] max-[639px]:py-1 max-[639px]:px-3 max-[639px]:text-[13px]"
+      class="w-full px-4 py-3 text-sm border border-input-border rounded-xl outline-none bg-input-bg text-text resize-none min-h-[80px] max-h-48 font-inherit leading-[1.6] overflow-y-auto focus:border-button-bg focus:shadow-[0_0_0_3px_rgba(212,193,138,0.1)] transition-all duration-200 placeholder:text-text-secondary md:text-[13px] md:min-h-[72px] max-[639px]:min-h-[40px] max-[639px]:py-1 max-[639px]:px-3 max-[639px]:text-[13px]"
       :style="{ paddingRight: '72px' }"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       @keydown.enter.exact.prevent="$emit('send')"
@@ -348,14 +348,14 @@ defineOptions({
   border-radius: 6px;
   background: linear-gradient(
     135deg,
-    var(--primary-color, #79b4a6) 0%,
-    rgba(121, 180, 166, 0.8) 100%
+    var(--primary-color, #d4c18a) 0%,
+    rgba(212, 193, 138, 0.8) 100%
   );
-  color: white;
+  color: var(--button-text-color, #4a4535);
   border: none;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 4px rgba(121, 180, 166, 0.15);
+  box-shadow: 0 1px 4px rgba(212, 193, 138, 0.15);
   z-index: 10;
   transform: scale(1);
   opacity: 0.8;
@@ -363,25 +363,25 @@ defineOptions({
 
 .enhance-btn:hover:not(:disabled) {
   transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(121, 180, 166, 0.25);
+  box-shadow: 0 2px 8px rgba(212, 193, 138, 0.25);
   background: linear-gradient(
     135deg,
-    rgba(121, 180, 166, 0.9) 0%,
-    var(--primary-color, #79b4a6) 100%
+    rgba(212, 193, 138, 0.9) 0%,
+    var(--primary-color, #d4c18a) 100%
   );
   opacity: 1;
 }
 
 .enhance-btn:active:not(:disabled) {
   transform: scale(0.95);
-  box-shadow: 0 1px 2px rgba(121, 180, 166, 0.3);
+  box-shadow: 0 1px 2px rgba(212, 193, 138, 0.3);
 }
 
 .enhance-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
   transform: scale(1);
-  box-shadow: 0 1px 2px rgba(121, 180, 166, 0.05);
+  box-shadow: 0 1px 2px rgba(212, 193, 138, 0.05);
 }
 
 /* 悬浮提示样式 */

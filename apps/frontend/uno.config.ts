@@ -125,11 +125,11 @@ export default defineConfig({
       '3xl': '1536px', // 超宽屏幕（大桌面）
     },
     colors: {
-      // 基于现有 CSS 变量定义的颜色系统 - 柔和护眼配色
+      // 基于现有 CSS 变量定义的颜色系统 - 柔和护眼配色（淡黄色调）
       primary: {
-        DEFAULT: '#7db3a5',
-        hover: '#6ba092',
-        rgb: '125, 179, 165',
+        DEFAULT: '#d4c18a',
+        hover: '#c4b17a',
+        rgb: '212, 193, 138',
       },
       bg: {
         DEFAULT: 'var(--bg-color)',
@@ -205,9 +205,9 @@ export default defineConfig({
       card: 'var(--card-shadow)',
       custom:
         '0 10px 30px rgba(0, 0, 0, 0.1), 0 1px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-      pomodoro: '0 2px 8px rgba(255, 126, 103, 0.08)',
-      'input-focus': '0 0 8px rgba(121, 180, 166, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1)',
-      button: '0 2px 6px rgba(121, 180, 166, 0.3)',
+      pomodoro: '0 2px 8px rgba(212, 193, 138, 0.08)',
+      'input-focus': '0 0 8px rgba(212, 193, 138, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1)',
+      button: '0 2px 6px rgba(212, 193, 138, 0.3)',
       hover: '0 4px 8px rgba(0, 0, 0, 0.05)',
       nav: '0 -2px 10px rgba(0, 0, 0, 0.1)',
     },

@@ -127,8 +127,8 @@ export function configurePWAThemeColor() {
   // 从 CSS 变量读取当前背景色，避免使用高饱和主色作为状态栏色
   const styles = getComputedStyle(document.documentElement)
   const bgColorVar = styles.getPropertyValue('--bg-color').trim()
-  // 兜底值：暗色用深背景、亮色用温和米白
-  const themeColor = bgColorVar || (isDarkTheme ? '#1a1f24' : '#faf9f7')
+  // 兆底值：暗色用深背景、亮色用温和米白
+  const themeColor = bgColorVar || (isDarkTheme ? '#1f1d18' : '#faf9f5')
 
   // 更新 meta 标签
   let themeColorMeta = document.querySelector('meta[name="theme-color"]')

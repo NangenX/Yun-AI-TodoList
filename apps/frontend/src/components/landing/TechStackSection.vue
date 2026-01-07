@@ -189,7 +189,7 @@ const techCategories: TechCategory[] = [
   background: linear-gradient(
     135deg,
     var(--bg-color) 0%,
-    rgba(121, 180, 166, 0.03) 50%,
+    rgba(212, 193, 138, 0.03) 50%,
     var(--bg-color) 100%
   );
 }
@@ -205,7 +205,7 @@ const techCategories: TechCategory[] = [
 
 .section-title {
   @apply text-4xl lg:text-5xl font-bold text-text mb-6;
-  background: linear-gradient(135deg, var(--text-color) 0%, #79b4a6 100%);
+  background: linear-gradient(135deg, var(--text-color) 0%, #d4c18a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -240,9 +240,9 @@ const techCategories: TechCategory[] = [
 
 .category-icon {
   @apply w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
-  color: #79b4a6;
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.1) 0%, rgba(212, 193, 138, 0.05) 100%);
+  color: #d4c18a;
+  border: 1px solid rgba(212, 193, 138, 0.2);
 }
 
 .category-title {
@@ -259,19 +259,19 @@ const techCategories: TechCategory[] = [
 
 .tech-item {
   @apply flex items-start gap-4 p-4 rounded-2xl transition-all-300;
-  background: rgba(121, 180, 166, 0.03);
-  border: 1px solid rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.03);
+  border: 1px solid rgba(212, 193, 138, 0.1);
 }
 
 .tech-item:hover {
-  background: rgba(121, 180, 166, 0.05);
-  border-color: rgba(121, 180, 166, 0.2);
+  background: rgba(212, 193, 138, 0.05);
+  border-color: rgba(212, 193, 138, 0.2);
 }
 
 .tech-logo {
   @apply w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-lg;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
-  color: #79b4a6;
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.1) 0%, rgba(212, 193, 138, 0.05) 100%);
+  color: #d4c18a;
 }
 
 .tech-info {
@@ -328,9 +328,9 @@ const techCategories: TechCategory[] = [
 
 .arch-items span {
   @apply px-3 py-1 rounded-full text-sm font-medium;
-  background: rgba(121, 180, 166, 0.1);
-  color: #79b4a6;
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: rgba(212, 193, 138, 0.1);
+  color: #d4c18a;
+  border: 1px solid rgba(212, 193, 138, 0.2);
 }
 
 .arch-arrow {
@@ -338,15 +338,15 @@ const techCategories: TechCategory[] = [
 }
 
 .frontend-layer {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.03) 100%);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(212, 193, 138, 0.03) 100%);
 }
 
 .backend-layer {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(104, 162, 149, 0.03) 100%);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(196, 177, 122, 0.03) 100%);
 }
 
 .deployment-layer {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(89, 144, 132, 0.03) 100%);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(180, 161, 106, 0.03) 100%);
 }
 
 /* 响应式设计 */

@@ -207,9 +207,9 @@ onMounted(() => {
   @apply py-20 relative;
   background: linear-gradient(
     135deg,
-    rgba(121, 180, 166, 0.05) 0%,
+    rgba(212, 193, 138, 0.05) 0%,
     var(--bg-color) 50%,
-    rgba(121, 180, 166, 0.05) 100%
+    rgba(212, 193, 138, 0.05) 100%
   );
 }
 
@@ -225,7 +225,7 @@ onMounted(() => {
 
 .section-title {
   @apply text-4xl lg:text-5xl font-bold text-text mb-8;
-  background: linear-gradient(135deg, var(--text-color) 0%, #79b4a6 100%);
+  background: linear-gradient(135deg, var(--text-color) 0%, #d4c18a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -246,16 +246,16 @@ onMounted(() => {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(121, 180, 166, 0.3) 50%,
+    rgba(212, 193, 138, 0.3) 50%,
     transparent 100%
   );
 }
 
 .divider-icon {
   @apply w-8 h-8 rounded-full flex items-center justify-center text-lg;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
-  color: #79b4a6;
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.1) 0%, rgba(212, 193, 138, 0.05) 100%);
+  color: #d4c18a;
+  border: 1px solid rgba(212, 193, 138, 0.2);
   animation: bounce 2s infinite;
 }
 
@@ -281,15 +281,15 @@ onMounted(() => {
   border-radius: 2rem;
   background: linear-gradient(
     135deg,
-    rgba(121, 180, 166, 0.02) 0%,
+    rgba(212, 193, 138, 0.02) 0%,
     transparent 50%,
-    rgba(121, 180, 166, 0.02) 100%
+    rgba(212, 193, 138, 0.02) 100%
   );
 }
 
 .options-background {
   @apply absolute inset-0 rounded-2xl;
-  background: radial-gradient(ellipse at center, rgba(121, 180, 166, 0.05) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(212, 193, 138, 0.05) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -315,15 +315,15 @@ onMounted(() => {
 }
 
 .primary-card {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.08) 100%);
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(212, 193, 138, 0.08) 100%);
+  border: 1px solid rgba(212, 193, 138, 0.2);
   position: relative;
   overflow: hidden;
 }
 
 .primary-card:hover {
   transform: translateY(-10px);
-  border-color: rgba(121, 180, 166, 0.3);
+  border-color: rgba(212, 193, 138, 0.3);
 }
 
 .card-header {
@@ -332,9 +332,9 @@ onMounted(() => {
 
 .card-icon {
   @apply w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
-  color: #79b4a6;
-  border: 1px solid rgba(121, 180, 166, 0.2);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.1) 0%, rgba(212, 193, 138, 0.05) 100%);
+  color: #d4c18a;
+  border: 1px solid rgba(212, 193, 138, 0.2);
 }
 
 .card-title {
@@ -363,28 +363,28 @@ onMounted(() => {
 }
 
 .primary-btn {
-  @apply text-white;
-  background: linear-gradient(135deg, #79b4a6 0%, #68a295 100%);
-  box-shadow: 0 4px 16px rgba(121, 180, 166, 0.3);
+  color: var(--button-text-color, #4a4535);
+  background: linear-gradient(135deg, #d4c18a 0%, #c4b17a 100%);
+  box-shadow: 0 4px 16px rgba(212, 193, 138, 0.3);
 }
 
 .primary-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(121, 180, 166, 0.4);
+  box-shadow: 0 8px 24px rgba(212, 193, 138, 0.4);
 }
 
 .secondary-btn {
-  @apply text-white;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.8) 0%, rgba(104, 162, 149, 0.8) 100%);
-  border: 1px solid rgba(121, 180, 166, 0.3);
+  color: var(--button-text-color, #4a4535);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.8) 0%, rgba(196, 177, 122, 0.8) 100%);
+  border: 1px solid rgba(212, 193, 138, 0.3);
   text-decoration: none;
-  box-shadow: 0 4px 16px rgba(121, 180, 166, 0.2);
+  box-shadow: 0 4px 16px rgba(212, 193, 138, 0.2);
 }
 
 .secondary-btn:hover {
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.9) 0%, rgba(104, 162, 149, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.9) 0%, rgba(196, 177, 122, 0.9) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(121, 180, 166, 0.3);
+  box-shadow: 0 8px 24px rgba(212, 193, 138, 0.3);
 }
 
 /* 部署指南 */
@@ -402,14 +402,14 @@ onMounted(() => {
 
 .guide-item {
   @apply p-6 rounded-2xl text-center;
-  background: rgba(121, 180, 166, 0.03);
-  border: 1px solid rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.03);
+  border: 1px solid rgba(212, 193, 138, 0.1);
 }
 
 .guide-icon {
   @apply w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 text-xl;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
-  color: #79b4a6;
+  background: linear-gradient(135deg, rgba(212, 193, 138, 0.1) 0%, rgba(212, 193, 138, 0.05) 100%);
+  color: #d4c18a;
 }
 
 .guide-item h4 {
@@ -470,14 +470,14 @@ onMounted(() => {
 
 .download-link {
   @apply flex items-center gap-4 p-4 rounded-2xl transition-all-300;
-  background: rgba(121, 180, 166, 0.05);
-  border: 1px solid rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.05);
+  border: 1px solid rgba(212, 193, 138, 0.1);
   text-decoration: none;
   color: var(--text-color);
 }
 
 .download-link:hover:not(.disabled) {
-  background: rgba(121, 180, 166, 0.1);
+  background: rgba(212, 193, 138, 0.1);
 }
 
 .download-link.disabled {
