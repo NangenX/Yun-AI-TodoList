@@ -1,16 +1,10 @@
 <template>
-  <!-- 精致的加载动画 -->
-  <div class="loading-animation">
-    <!-- 主要的脉冲圆圈 -->
-    <div class="pulse-circle pulse-1"></div>
-    <div class="pulse-circle pulse-2"></div>
-    <div class="pulse-circle pulse-3"></div>
-
-    <!-- 中心的 AI 图标 -->
+  <div class="loading-container">
+    <!-- AI 图标 -->
     <div class="ai-icon">
       <svg
-        width="16"
-        height="16"
+        width="18"
+        height="18"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -23,22 +17,24 @@
         <path
           d="M19 15L19.5 17L21.5 17.5L19.5 18L19 20L18.5 18L16.5 17.5L18.5 17L19 15Z"
           fill="currentColor"
-          class="ai-sparkle-1"
+          class="ai-sparkle"
         />
         <path
           d="M5 6L5.5 7.5L7 8L5.5 8.5L5 10L4.5 8.5L3 8L4.5 7.5L5 6Z"
           fill="currentColor"
-          class="ai-sparkle-2"
+          class="ai-sparkle"
         />
       </svg>
     </div>
+    <!-- 流光文字 -->
+    <span class="shimmer-text">{{ t('aiThinking') }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-const { t: _t } = useI18n()
+const { t } = useI18n()
 
 defineOptions({
   name: 'LoadingIndicator',
@@ -46,150 +42,101 @@ defineOptions({
 </script>
 
 <style scoped>
-/* 加载动画容器 */
-.loading-animation {
-  position: relative;
-  width: 32px;
-  height: 32px;
+.loading-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 16px;
+  background: var(--ai-message-bg, rgba(248, 250, 252, 0.8));
+  border: 1px solid var(--ai-message-border, rgba(0, 0, 0, 0.06));
+}
+
+.ai-icon {
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0;
-  z-index: 2;
-}
-
-/* 脉冲圆圈 */
-.pulse-circle {
-  position: absolute;
-  border-radius: 50%;
-  border: 2px solid rgba(var(--primary-color-rgb), 0.3);
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.pulse-1 {
-  width: 32px;
-  height: 32px;
-  animation-delay: 0s;
-}
-
-.pulse-2 {
-  width: 26px;
-  height: 26px;
-  animation-delay: 0.3s;
-  border-color: rgba(var(--primary-color-rgb), 0.4);
-}
-
-.pulse-3 {
-  width: 20px;
-  height: 20px;
-  animation-delay: 0.6s;
-  border-color: rgba(var(--primary-color-rgb), 0.5);
-}
-
-/* AI 图标 */
-.ai-icon {
-  position: relative;
-  z-index: 3;
-  color: var(--primary-color);
-  animation: float 3s ease-in-out infinite;
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .ai-star {
-  animation: rotate 4s linear infinite;
   transform-origin: center;
 }
 
-.ai-sparkle-1 {
-  animation: sparkle 2s ease-in-out infinite;
-  animation-delay: 0.5s;
+.ai-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
 }
 
-.ai-sparkle-2 {
-  animation: sparkle 2s ease-in-out infinite;
-  animation-delay: 1s;
+.ai-sparkle:nth-child(2) {
+  animation-delay: 0.3s;
 }
 
-/* 动画定义 */
-@keyframes pulse {
+.ai-sparkle:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.shimmer-text {
+  font-size: 14px;
+  font-weight: 500;
+  background: linear-gradient(
+    90deg,
+    var(--text-secondary-color) 0%,
+    var(--text-secondary-color) 40%,
+    var(--primary-color) 50%,
+    var(--text-secondary-color) 60%,
+    var(--text-secondary-color) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes shimmer {
   0% {
-    transform: scale(0.8);
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
     opacity: 1;
   }
   50% {
     transform: scale(1.1);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(0.8);
-    opacity: 1;
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-3px) rotate(5deg);
-  }
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+    opacity: 0.8;
   }
 }
 
 @keyframes sparkle {
   0%,
   100% {
-    opacity: 0.3;
-    transform: scale(0.8);
+    opacity: 0.4;
   }
   50% {
     opacity: 1;
-    transform: scale(1.2);
   }
 }
 
-@keyframes float-particle {
-  0%,
-  100% {
-    transform: translateY(0px) translateX(0px);
-    opacity: 0.2;
-  }
-  33% {
-    transform: translateY(-8px) translateX(4px);
-    opacity: 0.4;
-  }
-  66% {
-    transform: translateY(4px) translateX(-2px);
-    opacity: 0.3;
-  }
-}
-
-/* 响应式设计 */
+/* 响应式 */
 @media (max-width: 640px) {
-  .loading-animation {
-    width: 28px;
-    height: 28px;
+  .loading-container {
+    padding: 6px 12px;
+    gap: 6px;
   }
 
-  .pulse-1 {
-    width: 28px;
-    height: 28px;
+  .shimmer-text {
+    font-size: 13px;
   }
 
-  .pulse-2 {
-    width: 22px;
-    height: 22px;
-  }
-
-  .pulse-3 {
+  .ai-icon svg {
     width: 16px;
     height: 16px;
   }

@@ -292,6 +292,7 @@
   "randomMode": "Random Play",
 
   "newConversation": "New Conversation",
+  "aiThinking": "Thinking",
   "previousConversation": "Previous Conversation",
   "switchPreviousConversationTitle": "Switch to previous conversation",
   "noPreviousConversation": "No previous conversation",

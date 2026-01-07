@@ -291,6 +291,7 @@
   "audioError": "音频加载失败",
 
   "newConversation": "新对话",
+  "aiThinking": "思考中",
   "previousConversation": "上一个对话",
   "switchPreviousConversationTitle": "切换到上一次的历史对话",
   "noPreviousConversation": "暂无上一条历史对话",
