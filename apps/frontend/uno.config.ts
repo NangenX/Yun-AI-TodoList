@@ -31,7 +31,6 @@ export default defineConfig({
     'i-carbon-chevron-up',
     'i-carbon-chevron-left',
     'i-carbon-chevron-right',
-    'i-carbon-calendar',
     'i-carbon-close',
     'i-carbon-restart',
     'i-carbon-sync',

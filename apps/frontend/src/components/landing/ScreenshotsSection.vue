@@ -129,13 +129,6 @@ const screenshots: Screenshot[] = [
     image: '/officialWebsite/设置.png',
     tags: ['个性化', '主题切换', '配置管理'],
   },
-  {
-    id: 'calendar',
-    title: '日历视图',
-    description: '直观的日历界面，轻松管理时间和任务安排，提供月视图和日程规划',
-    image: '/officialWebsite/日历.png',
-    tags: ['日历管理', '时间规划', '任务安排'],
-  },
 ]
 
 // 灯箱状态

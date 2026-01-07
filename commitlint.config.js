@@ -25,8 +25,8 @@ export default {
     'subject-empty': [2, 'never'],
     // 类型不能为空
     'type-empty': [2, 'never'],
-    // 主题格式（首字母小写）
-    'subject-case': [2, 'always', 'lower-case'],
+    // 主题格式（禁用大小写检查，允许灵活格式）
+    'subject-case': [0],
     // 头部最大长度
     'header-max-length': [2, 'always', 100],
   },
