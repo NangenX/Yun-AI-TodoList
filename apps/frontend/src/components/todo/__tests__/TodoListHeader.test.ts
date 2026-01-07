@@ -27,19 +27,21 @@ describe('TodoListHeader', () => {
     })
 
     const buttons = wrapper.findAll('.icon-button')
-    // 目前包含：AI 按钮、搜索按钮、布局切换按钮、批量分析按钮、AI 排序按钮 共 5 个
-    expect(buttons).toHaveLength(5)
+    // 目前包含：AI 按钮、搜索按钮、布局切换按钮、批量分析按钮、AI 排序按钮、设置按钮 共 6 个
+    expect(buttons).toHaveLength(6)
 
     expect(wrapper.find('.ai-assistant-button').exists()).toBe(true)
     expect(wrapper.find('.search-button').exists()).toBe(true)
     expect(wrapper.find('.layout-button').exists()).toBe(true)
     expect(wrapper.find('.batch-analyze-button').exists()).toBe(true)
     expect(wrapper.find('.ai-sort-button').exists()).toBe(true)
+    expect(wrapper.find('.settings-button').exists()).toBe(true)
 
     expect(wrapper.find('.ai-assistant-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.search-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.batch-analyze-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.ai-sort-button .button-icon').exists()).toBe(true)
+    expect(wrapper.find('.settings-button .button-icon').exists()).toBe(true)
 
     expect(wrapper.find('.button-text').exists()).toBe(false)
   })
@@ -104,5 +106,10 @@ describe('TodoListHeader', () => {
     expect(aiSortButton.exists()).toBe(true)
     expect(aiSortButton.attributes('width')).toBe('22')
     expect(aiSortButton.attributes('height')).toBe('22')
+
+    const settingsButton = wrapper.find('.settings-button svg')
+    expect(settingsButton.exists()).toBe(true)
+    expect(settingsButton.attributes('width')).toBe('22')
+    expect(settingsButton.attributes('height')).toBe('22')
   })
 })
