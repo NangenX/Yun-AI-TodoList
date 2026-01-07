@@ -51,11 +51,12 @@ export interface PerformanceMetrics {
   aiResponseTime: number[]
   messageRenderTime: number[]
   searchTime: number[]
+  customMetrics: Record<string, number[]>
 }
 
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor
-  private metrics: Partial<PerformanceMetrics> = {}
+  private metrics: Partial<PerformanceMetrics> = { customMetrics: {} }
   private observers: PerformanceObserver[] = []
 
   private constructor() {
@@ -101,8 +102,8 @@ export class PerformanceMonitor {
       ) as PerformanceNavigationTiming[]
       if (navigationEntries.length > 0) {
         const entry = navigationEntries[0]
-        this.metrics.pageLoadTime = entry.loadEventEnd - entry.navigationStart
-        this.metrics.domContentLoadedTime = entry.domContentLoadedEventEnd - entry.navigationStart
+        this.metrics.pageLoadTime = entry.loadEventEnd - entry.startTime
+        this.metrics.domContentLoadedTime = entry.domContentLoadedEventEnd - entry.startTime
       }
     }
   }
@@ -271,6 +272,24 @@ export class PerformanceMonitor {
     // 只保留最近的 50 个记录
     if (this.metrics.searchTime.length > 50) {
       this.metrics.searchTime = this.metrics.searchTime.slice(-50)
+    }
+  }
+
+  /**
+   * 记录自定义性能指标
+   */
+  recordMetric(name: string, value: number, _category?: string): void {
+    if (!this.metrics.customMetrics) {
+      this.metrics.customMetrics = {}
+    }
+    if (!this.metrics.customMetrics[name]) {
+      this.metrics.customMetrics[name] = []
+    }
+    this.metrics.customMetrics[name].push(value)
+
+    // 只保留最近的 100 个记录
+    if (this.metrics.customMetrics[name].length > 100) {
+      this.metrics.customMetrics[name] = this.metrics.customMetrics[name].slice(-100)
     }
   }
 
