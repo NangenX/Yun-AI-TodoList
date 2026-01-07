@@ -95,8 +95,17 @@ const sanitizedMessages = ref<ExtendedMessage[]>([])
 // 缓存 Markdown 渲染结果，避免在流式更新时对整个历史消息重复渲染
 const sanitizationCache = new Map<string, string>()
 const chatScrollContainerRef = ref<HTMLElement | null>(null)
-const { checkAndScroll, scrollToBottom } = useSmartScroll({
+const {
+  checkAndScroll,
+  scrollToBottom,
+  streamingScroll,
+  setStreamingMode,
+  isUserScrolledUp,
+  enableAutoScroll,
+} = useSmartScroll({
   scrollContainer: chatScrollContainerRef,
+  atBottomThreshold: 48, // 稍微增大阈值，提高用户体验
+  streamingInstant: true, // 流式更新时使用瞬时滚动
 })
 
 // 实现 Mermaid SVG 注入逻辑
@@ -193,7 +202,13 @@ const processSanitizedMessagesInternal = async () => {
   scheduleMermaidInjection()
   const lastMsg = newSanitizedMessages[newSanitizedMessages.length - 1]
   if (!(lastMsg && lastMsg.role === 'user')) {
-    checkAndScroll(true)
+    // 根据是否流式更新选择不同的滚动策略
+    const isStreaming = lastMsg?.isStreaming
+    if (isStreaming) {
+      streamingScroll()
+    } else {
+      checkAndScroll('content-change')
+    }
   }
 }
 
@@ -227,16 +242,33 @@ watch(
   { immediate: true, deep: true }
 )
 
-// 思考内容流式更新时保持滚动到底部，确保“思考过程”可见
+// 思考内容流式更新时保持滚动到底部，确保"思考过程"可见
 watch(
   () => props.currentThinking,
-  async (newVal) => {
-    // 等待 DOM 更新后再滚动，避免高度未更新导致的滚动位置不准确
-    await nextTick()
+  (newVal) => {
     if (newVal) {
-      // 思考内容流式更新时使用瞬时滚动，保证底部锚定
-      checkAndScroll(true)
+      // 思考内容流式更新时使用流式滚动，保证底部锚定
+      streamingScroll()
     }
+  }
+)
+
+// 监听流式响应内容变化
+watch(
+  () => props.currentResponse,
+  (newVal) => {
+    if (newVal) {
+      // 响应内容流式更新时使用流式滚动
+      streamingScroll()
+    }
+  }
+)
+
+// 监听生成状态变化，设置流式模式
+watch(
+  () => props.isGenerating,
+  (isGenerating) => {
+    setStreamingMode(!!isGenerating)
   },
   { immediate: true }
 )
@@ -262,7 +294,7 @@ onMounted(() => {
   setupCodeCopyFunction()
   // 初始时将视图锚定到底部，避免首次渲染的跳动
   requestAnimationFrame(() => {
-    checkAndScroll(true)
+    scrollToBottom('instant')
   })
 })
 
@@ -279,6 +311,8 @@ watch(
 
 defineExpose({
   scrollToBottom,
+  enableAutoScroll,
+  isUserScrolledUp,
 })
 
 // 组件卸载时的清理
