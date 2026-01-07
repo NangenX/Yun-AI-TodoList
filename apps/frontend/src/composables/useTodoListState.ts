@@ -101,8 +101,6 @@ export function useTodoListState() {
     isSmallScreen,
     toggleCharts,
     closeCharts,
-    handlePomodoroComplete,
-    checkPomodoroCompletion,
     onKeyDown: originalOnKeyDown,
   } = useUIState()
 
@@ -166,7 +164,6 @@ export function useTodoListState() {
   })
 
   onMounted(() => {
-    document.addEventListener('visibilitychange', checkPomodoroCompletion)
     document.addEventListener('keydown', onKeyDown)
 
     try {
@@ -187,7 +184,6 @@ export function useTodoListState() {
   const instance = getCurrentInstance()
   if (instance) {
     onUnmounted(() => {
-      document.removeEventListener('visibilitychange', checkPomodoroCompletion)
       document.removeEventListener('keydown', onKeyDown)
     })
   }
@@ -245,7 +241,6 @@ export function useTodoListState() {
     toggleSearch,
     closeCharts,
     collapseSearch,
-    handlePomodoroComplete,
 
     onKeyDown,
     handleError,

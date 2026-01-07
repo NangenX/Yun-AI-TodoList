@@ -6,13 +6,6 @@
         'two-column': layoutMode === 'two_column',
       }"
     >
-      <div class="todo-card-header">
-        <PomodoroTimer
-          class="pomodoro-timer-integrated"
-          @pomodoro-complete="handlePomodoroComplete"
-        />
-      </div>
-
       <LoadingOverlay
         :show="
           isLoading ||
@@ -163,8 +156,6 @@ import { useTodoDragSort } from '../composables/useTodoDragSort'
 import { useTodoListState } from '../composables/useTodoListState'
 import { useTodoManagement } from '../composables/useTodoManagement'
 import ConfirmDialog from './ConfirmDialog.vue'
-import PomodoroTimer from './PomodoroTimer.vue'
-
 import LoadingOverlay from './common/LoadingOverlay.vue'
 import { ChartsDialog, TodoListHeader } from './todo'
 
@@ -211,7 +202,6 @@ const {
   toggleSearch,
   closeCharts,
   collapseSearch,
-  handlePomodoroComplete,
   error,
   success,
   layoutMode,
@@ -412,29 +402,6 @@ onUnmounted(() => {
 /* 双列模式下，适当扩大容器宽度，提高每列卡片的有效宽度 */
 .todo-list.two-column {
   max-width: 1000px;
-}
-
-.todo-card-header {
-  @apply mb-4 rounded p-4 mb-3 relative z-10;
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 126, 103, 0.02) 100%);
-  box-shadow: 0 2px 8px rgba(255, 126, 103, 0.08);
-  border-bottom: 1px solid rgba(255, 126, 103, 0.08);
-  border-radius: var(--border-radius);
-}
-
-.todo-card-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 126, 103, 0.3), transparent);
-}
-
-.pomodoro-timer-integrated {
-  @apply w-full m-0 bg-transparent shadow-none p-0;
 }
 
 .todo-grid {

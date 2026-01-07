@@ -1,5 +1,4 @@
 import { useWindowSize } from '@vueuse/core'
-import confetti from 'canvas-confetti'
 import { computed, ref } from 'vue'
 
 export function useUIState() {
@@ -14,33 +13,6 @@ export function useUIState() {
 
   const closeCharts = () => {
     showCharts.value = false
-  }
-
-  const showBigConfetti = () => {
-    confetti({
-      particleCount: 300,
-      spread: 100,
-      origin: { y: 0.6 },
-    })
-  }
-
-  const handlePomodoroComplete = (isBreakStarted: boolean) => {
-    if (isBreakStarted) {
-      showBigConfetti()
-      localStorage.setItem('pomodoroCompleted', 'true')
-    } else {
-      localStorage.removeItem('pomodoroCompleted')
-    }
-  }
-
-  const checkPomodoroCompletion = () => {
-    if (!document.hidden) {
-      const pomodoroCompleted = localStorage.getItem('pomodoroCompleted')
-      if (pomodoroCompleted === 'true') {
-        showBigConfetti()
-        localStorage.removeItem('pomodoroCompleted')
-      }
-    }
   }
 
   const onKeyDown = (event: KeyboardEvent) => {
@@ -66,8 +38,6 @@ export function useUIState() {
     isSmallScreen,
     toggleCharts,
     closeCharts,
-    handlePomodoroComplete,
-    checkPomodoroCompletion,
     onKeyDown,
   }
 }
