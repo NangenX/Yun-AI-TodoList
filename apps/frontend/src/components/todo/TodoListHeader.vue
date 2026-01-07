@@ -72,32 +72,6 @@
         </svg>
       </button>
 
-      <button
-        ref="chartsBtnRef"
-        class="icon-button charts-button"
-        :class="{ active: showCharts }"
-        :title="`${showCharts ? t('closeCharts') : t('openCharts')} (Ctrl+S)`"
-        :aria-label="showCharts ? t('closeCharts') : t('openCharts')"
-        @click="$emit('toggleCharts')"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="22"
-          height="22"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="button-icon"
-        >
-          <line x1="18" y1="20" x2="18" y2="10" />
-          <line x1="12" y1="20" x2="12" y2="4" />
-          <line x1="6" y1="20" x2="6" y2="14" />
-        </svg>
-      </button>
-
       <!-- 布局切换：单列 / 双列 -->
       <button
         ref="layoutBtnRef"
@@ -216,7 +190,6 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 interface Props {
-  showCharts: boolean
   showSearch: boolean
   isLoading?: boolean
   layoutMode?: 'list' | 'two_column'
@@ -230,7 +203,6 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'toggleCharts'): void
   (e: 'toggleSearch'): void
   (e: 'openAiSidebar'): void
   (e: 'toggleLayoutMode'): void
@@ -251,7 +223,6 @@ defineOptions({
 // 引导相关：四个按钮的引用
 const aiBtnRef = ref<HTMLButtonElement | null>(null)
 const searchBtnRef = ref<HTMLButtonElement | null>(null)
-const chartsBtnRef = ref<HTMLButtonElement | null>(null)
 const layoutBtnRef = ref<HTMLButtonElement | null>(null)
 const batchAnalyzeBtnRef = ref<HTMLButtonElement | null>(null)
 const aiSortBtnRef = ref<HTMLButtonElement | null>(null)
@@ -269,14 +240,6 @@ const onboardingSteps = [
     targetRef: searchBtnRef,
     title: t('openSearch'),
     description: t('onboarding.header.searchDesc', '打开搜索栏，按关键字快速过滤待办事项'),
-  },
-  {
-    targetRef: chartsBtnRef,
-    title: t('openCharts'),
-    description: t(
-      'onboarding.header.chartsDesc',
-      '查看统计图表，了解完成率与任务分布（Ctrl+S 快捷键）'
-    ),
   },
   {
     targetRef: layoutBtnRef,

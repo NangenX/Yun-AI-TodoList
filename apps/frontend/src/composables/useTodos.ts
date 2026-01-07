@@ -505,17 +505,6 @@ export function useTodos() {
     }
   }
 
-  const getCompletedTodosByDate = () => {
-    const completedByDate: { [key: string]: number } = {}
-    todos.value.forEach((todo) => {
-      if (todo && todo.completed && todo.completedAt) {
-        const date = new Date(todo.completedAt).toISOString().split('T')[0]
-        completedByDate[date] = (completedByDate[date] || 0) + 1
-      }
-    })
-    return completedByDate
-  }
-
   const updateTodo = async (id: string, updates: UpdateTodoDto): Promise<boolean> => {
     try {
       // 验证 ID 参数
@@ -718,9 +707,6 @@ export function useTodos() {
     // 排序
     updateTodosOrder,
     updateTodosOrderByArray,
-
-    // 查询
-    getCompletedTodosByDate,
 
     // 存储
     saveTodos,

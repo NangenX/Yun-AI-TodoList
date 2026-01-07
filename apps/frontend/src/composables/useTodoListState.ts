@@ -1,13 +1,6 @@
 import type { Todo } from '@/types/todo'
 import { handleError as logError, logger } from '@/utils/logger'
-import {
-  getCurrentInstance,
-  onBeforeMount,
-  onErrorCaptured,
-  onMounted,
-  onUnmounted,
-  ref,
-} from 'vue'
+import { onBeforeMount, onErrorCaptured, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAIAnalysis } from './useAIAnalysis'
 import { useConfirmDialog } from './useConfirmDialog'
@@ -96,17 +89,7 @@ export function useTodoListState() {
     searchQuery.value = ''
   }
 
-  const {
-    showCharts,
-    isSmallScreen,
-    toggleCharts,
-    closeCharts,
-    onKeyDown: originalOnKeyDown,
-  } = useUIState()
-
-  const onKeyDown = (event: KeyboardEvent) => {
-    originalOnKeyDown(event)
-  }
+  const { isSmallScreen } = useUIState()
 
   // 布局模式：'list' | 'two_column'
   const savedLayout = localStorage.getItem('todoLayoutMode')
@@ -164,8 +147,6 @@ export function useTodoListState() {
   })
 
   onMounted(() => {
-    document.addEventListener('keydown', onKeyDown)
-
     try {
       loadTodos()
       logger.debug('Todos loaded', todos.value, 'TodoListState')
@@ -179,14 +160,6 @@ export function useTodoListState() {
       logger.warn(`TodoList render time: ${renderTime}ms`, { renderTime }, 'TodoListState')
     }
   })
-
-  // 只在组件上下文中注册生命周期钩子
-  const instance = getCurrentInstance()
-  if (instance) {
-    onUnmounted(() => {
-      document.removeEventListener('keydown', onKeyDown)
-    })
-  }
 
   return {
     todoListRef,
@@ -234,15 +207,10 @@ export function useTodoListState() {
     toggleLayoutMode,
     setLayoutMode,
 
-    showCharts,
     showSearch,
     isSmallScreen,
-    toggleCharts,
     toggleSearch,
-    closeCharts,
     collapseSearch,
-
-    onKeyDown,
     handleError,
     error,
     success,

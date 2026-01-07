@@ -31,7 +31,6 @@
       />
 
       <TodoListHeader
-        :show-charts="showCharts"
         :show-search="showSearch"
         :layout-mode="layoutMode"
         :is-analyzing="isAnalyzing"
@@ -40,7 +39,6 @@
         :is-generating="isGenerating"
         :has-unanalyzed-todos="hasUnanalyzedTodos"
         :has-active-todos="hasActiveTodos"
-        @toggle-charts="toggleCharts"
         @toggle-search="toggleSearch"
         @open-ai-sidebar="$emit('openAiSidebar')"
         @toggle-layout-mode="toggleLayoutMode"
@@ -136,8 +134,6 @@
         @regenerate="handleSubtaskRegenerate"
       />
     </div>
-
-    <ChartsDialog :show="showCharts" @close="closeCharts" />
   </div>
 </template>
 
@@ -157,7 +153,7 @@ import { useTodoListState } from '../composables/useTodoListState'
 import { useTodoManagement } from '../composables/useTodoManagement'
 import ConfirmDialog from './ConfirmDialog.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
-import { ChartsDialog, TodoListHeader } from './todo'
+import { TodoListHeader } from './todo'
 
 const { t } = useI18n()
 
@@ -195,12 +191,9 @@ const {
   handleUpdateTodo,
   handleAnalyzeTodo,
   // 批量分析相关已移除
-  showCharts,
   showSearch,
   isSmallScreen,
-  toggleCharts,
   toggleSearch,
-  closeCharts,
   collapseSearch,
   error,
   success,

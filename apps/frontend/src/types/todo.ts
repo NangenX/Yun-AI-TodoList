@@ -89,19 +89,6 @@ export interface UserTaskPreferences {
   preferredTaskDuration?: string
   priorityStyle?: 'urgent-first' | 'important-first' | 'balanced'
   taskCategories?: string[]
-  insights?: {
-    completionRate: number
-    averageTaskDuration: string
-    mostProductiveTimeframe: string
-    commonTaskPatterns: string[]
-    recommendedTaskSize: 'small' | 'medium' | 'large'
-    workloadTrend: 'increasing' | 'stable' | 'decreasing'
-  }
-  suggestions?: {
-    taskBreakdown: string
-    priorityStrategy: string
-    timeManagement: string
-  }
 }
 
 // AI 分析相关类型

@@ -58,10 +58,10 @@ const features: Feature[] = [
   },
   {
     id: 'data-visualization',
-    title: '数据可视化',
-    description: '深度生产力洞察，通过直观图表了解工作习惯和效率趋势，优化您的工作方式',
+    title: 'AI 数据分析',
+    description: '智能 AI 分析您的任务，自动评估重要性、时间估算和优先级，让任务管理更加高效',
     icon: 'i-carbon-chart-line',
-    items: ['任务完成趋势分析', '生产力热力图', '时间分布统计', '效率洞察报告'],
+    items: ['AI 智能优先级排序', '任务时间估算', '智能任务拆分', '批量任务分析'],
   },
   {
     id: 'task-management',

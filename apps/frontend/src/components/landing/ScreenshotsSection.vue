@@ -109,13 +109,6 @@ const screenshots: Screenshot[] = [
     tags: ['任务完成', '动画效果', '数据统计'],
   },
   {
-    id: 'productivity-insights',
-    title: '生产力洞察',
-    description: '深度数据分析和可视化图表，帮助您了解工作习惯和效率趋势，优化工作方式',
-    image: '/officialWebsite/生产力洞察.png',
-    tags: ['数据分析', '效率统计', '可视化图表'],
-  },
-  {
     id: 'ai-assistant',
     title: 'AI 助手',
     description: '智能 AI 助手提供任务分析、建议和自动化功能，让任务管理更加智能',

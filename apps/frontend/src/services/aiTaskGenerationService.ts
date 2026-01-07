@@ -401,145 +401,23 @@ export function analyzeUserContext(todos: Todo[]): Partial<UserTaskPreferences> 
 
 /**
  * 高级上下文分析
- * 提供更详细的用户行为分析和个性化建议
+ * 提供用户任务偏好分析
  * @param todos 用户的待办事项列表
- * @returns 详细的上下文分析结果
+ * @returns 用户任务偏好
  */
 export function analyzeAdvancedUserContext(todos: Todo[]): UserTaskPreferences {
-  const now = new Date()
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-
   // 基础分析
   const basePreferences: Partial<UserTaskPreferences> = {
     ...analyzeUserContext(todos),
   }
 
-  // 完成率分析
-  const completedTodos = todos.filter((t) => t.completed)
-  const completionRate = todos.length > 0 ? completedTodos.length / todos.length : 0
-
-  // 时间分析
-  const recentTodos = todos.filter((t) => new Date(t.createdAt) > oneWeekAgo)
-  const olderTodos = todos.filter(
-    (t) => new Date(t.createdAt) <= oneWeekAgo && new Date(t.createdAt) > oneMonthAgo
-  )
-
-  const workloadTrend: 'increasing' | 'stable' | 'decreasing' =
-    recentTodos.length > olderTodos.length * 1.2
-      ? 'increasing'
-      : recentTodos.length < olderTodos.length * 0.8
-        ? 'decreasing'
-        : 'stable'
-
-  // 任务模式分析
-  const taskTitles = todos.map((t) => t.title.toLowerCase())
-  const commonWords = extractCommonWords(taskTitles)
-  const commonTaskPatterns = commonWords.slice(0, 5)
-
-  // 任务大小推荐
-  const avgEstimatedTime = calculateAverageEstimatedTime(todos)
-  const recommendedTaskSize: 'small' | 'medium' | 'large' =
-    avgEstimatedTime < 60 ? 'small' : avgEstimatedTime > 240 ? 'large' : 'medium'
-
-  // 生成建议
-  const suggestions = generateContextualSuggestions(
-    completionRate,
-    workloadTrend,
-    recommendedTaskSize,
-    basePreferences.priorityStyle || 'balanced'
-  )
-
   return {
-    defaultTaskCount: 5, // 确保 defaultTaskCount 属性始终有值
+    defaultTaskCount: 5,
     preferredTopics: [],
     difficulty: 'medium',
     autoGenerateSubtasks: true,
     ...basePreferences,
-    insights: {
-      completionRate: Math.round(completionRate * 100) / 100,
-      averageTaskDuration: formatDuration(avgEstimatedTime),
-      mostProductiveTimeframe: determineMostProductiveTime(completedTodos),
-      commonTaskPatterns,
-      recommendedTaskSize,
-      workloadTrend,
-    },
-    suggestions,
-  } as UserTaskPreferences
-}
-
-/**
- * 提取常见词汇
- */
-function extractCommonWords(texts: string[]): string[] {
-  const wordCount = new Map<string, number>()
-  const stopWords = new Set([
-    '的',
-    '了',
-    '和',
-    '与',
-    '或',
-    '但',
-    '然后',
-    '因为',
-    '所以',
-    '如果',
-    '这个',
-    '那个',
-  ])
-
-  texts.forEach((text) => {
-    const words = text
-      .split(/[\s，。、！？；：""''（）【】]/g)
-      .filter((word) => word.length > 1 && !stopWords.has(word))
-
-    words.forEach((word) => {
-      wordCount.set(word, (wordCount.get(word) || 0) + 1)
-    })
-  })
-
-  return Array.from(wordCount.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([word]) => word)
-}
-
-/**
- * 计算平均预估时间（分钟）
- */
-function calculateAverageEstimatedTime(todos: Todo[]): number {
-  const times = todos
-    .map((t) => t.estimatedTime)
-    .filter((time): time is TimeEstimate => Boolean(time))
-    .map((timeStr) => parseEstimatedTime(timeStr))
-    .filter((t) => t > 0)
-
-  return times.length > 0 ? times.reduce((sum, t) => sum + t, 0) / times.length : 120
-}
-
-/**
- * 解析预估时间字符串为分钟数
- */
-function parseEstimatedTime(timeEstimate: TimeEstimate | string): number {
-  // 处理 undefined 情况
-  if (!timeEstimate) return 0
-
-  // 如果是 TimeEstimate 对象，直接返回分钟数
-  if (typeof timeEstimate === 'object' && timeEstimate.minutes) {
-    return timeEstimate.minutes
   }
-
-  // 如果是字符串，解析字符串
-  const timeStr = typeof timeEstimate === 'string' ? timeEstimate : timeEstimate.text
-  const hourMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*[小时|hour|h]/i)
-  const minuteMatch = timeStr.match(/(\d+)\s*[分钟|minute|min|m]/i)
-  const dayMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*[天|day|d]/i)
-
-  if (dayMatch) return parseFloat(dayMatch[1]) * 8 * 60 // 假设一天工作8小时
-  if (hourMatch) return parseFloat(hourMatch[1]) * 60
-  if (minuteMatch) return parseInt(minuteMatch[1])
-
-  return 0
 }
 
 /**
@@ -549,69 +427,6 @@ function formatDuration(minutes: number): string {
   if (minutes < 60) return `${Math.round(minutes)}分钟`
   if (minutes < 480) return `${Math.round((minutes / 60) * 10) / 10}小时`
   return `${Math.round((minutes / 480) * 10) / 10}天`
-}
-
-/**
- * 确定最高效时间段
- */
-function determineMostProductiveTime(completedTodos: Todo[]): string {
-  const completionTimes = completedTodos
-    .filter((t) => t.completedAt)
-    .map((t) => new Date(t.completedAt as string).getHours())
-
-  if (completionTimes.length === 0) return '全天'
-
-  const timeSlots = {
-    '早晨 (6-9点)': completionTimes.filter((h) => h >= 6 && h < 9).length,
-    '上午 (9-12点)': completionTimes.filter((h) => h >= 9 && h < 12).length,
-    '下午 (12-18点)': completionTimes.filter((h) => h >= 12 && h < 18).length,
-    '晚上 (18-22点)': completionTimes.filter((h) => h >= 18 && h < 22).length,
-  }
-
-  const mostProductive = Object.entries(timeSlots).sort((a, b) => b[1] - a[1])[0]
-
-  return mostProductive[0]
-}
-
-/**
- * 生成上下文建议
- */
-function generateContextualSuggestions(
-  completionRate: number,
-  workloadTrend: string,
-  taskSize: string,
-  priorityStyle: string
-): {
-  taskBreakdown: string
-  priorityStrategy: string
-  timeManagement: string
-} {
-  const taskBreakdown =
-    taskSize === 'large'
-      ? '建议将大任务分解为更小的子任务，提高完成率'
-      : taskSize === 'small'
-        ? '可以适当合并相关的小任务，提高效率'
-        : '当前任务大小适中，保持现有的任务分解方式'
-
-  const priorityStrategy =
-    completionRate < 0.5
-      ? '建议专注于高优先级任务，减少同时进行的任务数量'
-      : priorityStyle === 'urgent-first'
-        ? '继续优先处理紧急任务，但注意平衡重要性'
-        : '当前优先级策略效果良好，建议保持'
-
-  const timeManagement =
-    workloadTrend === 'increasing'
-      ? '工作量呈上升趋势，建议合理安排时间，避免过度承诺'
-      : workloadTrend === 'decreasing'
-        ? '工作量有所减少，可以考虑承担更多挑战性任务'
-        : '工作量保持稳定，建议继续保持当前的时间管理方式'
-
-  return {
-    taskBreakdown,
-    priorityStrategy,
-    timeManagement,
-  }
 }
 
 /**

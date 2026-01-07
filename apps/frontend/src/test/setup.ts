@@ -7,12 +7,40 @@ import { afterEach, vi } from 'vitest'
 import * as Vue from 'vue'
 import { createI18n } from 'vue-i18n'
 
+// 测试用类型定义
+interface MockTodo {
+  id: string
+  title: string
+  completed: boolean
+  order: number
+  createdAt: string
+  updatedAt: string
+  [key: string]: unknown
+}
+
+interface MockNotification {
+  id: string
+  type: string
+  title: string
+  message: string
+  duration: number
+  timestamp: Date
+  persistent?: boolean
+  [key: string]: unknown
+}
+
+interface MockNotificationOptions {
+  duration?: number
+  persistent?: boolean
+  [key: string]: unknown
+}
+
 // 全局注册 Vue API
 Object.assign(global as Record<string, unknown>, Vue)
 
 // 抑制 Vue 警告信息
 const originalWarn = console.warn
-console.warn = (...args: any[]) => {
+console.warn = (...args: unknown[]) => {
   const message = args[0]
   if (typeof message === 'string') {
     if (
@@ -148,23 +176,12 @@ const messages: Record<string, string> = {
   warning: '警告',
   info: '信息',
   newConversation: '新对话',
-  productivityInsights: '生产力洞察',
-  totalTasks: '总任务',
-  completedTasks: '已完成',
-  pendingTasks: '待完成',
-  openCharts: '打开统计图表',
   toggleTheme: '切换主题',
   searchTodos: '搜索待办事项',
   pending: '待完成',
-  completionRate: '完成率',
-  completedTodos: '已完成任务',
-  completionTrend: '完成趋势',
-  task: '任务',
-  tasks: '任务',
   locale: 'zh-CN',
   closeSearch: '关闭搜索',
   openSearch: '打开搜索',
-  closeCharts: '关闭图表',
   aiAssistant: 'AI 助手',
   appTitle: '待办事项',
 }
@@ -314,10 +331,10 @@ vi.mock('../composables/useAuth', () => ({
 vi.mock('@/composables/useStorageMode', () => {
   // 使用全局变量来确保每次测试都能重置
   let globalNextId = 1
-  const globalTodos: any[] = []
+  const globalTodos: MockTodo[] = []
 
   const mockStorageService = {
-    async createTodo(dto: any) {
+    async createTodo(dto: Partial<MockTodo>) {
       // 检查标题是否为空
       if (!dto.title || dto.title.trim() === '') {
         return { success: false, error: 'storage.todoTitleEmpty' }
@@ -325,7 +342,7 @@ vi.mock('@/composables/useStorageMode', () => {
 
       // 检查重复标题（只检查未完成的待办事项）
       const duplicateExists = globalTodos.some(
-        (t: any) => !t.completed && t.title.toLowerCase() === dto.title.toLowerCase()
+        (t: MockTodo) => !t.completed && t.title.toLowerCase() === (dto.title || '').toLowerCase()
       )
       if (duplicateExists) {
         return { success: false, error: 'storage.todoAlreadyExists' }
@@ -354,11 +371,11 @@ vi.mock('@/composables/useStorageMode', () => {
       globalTodos.push(newTodo)
       return { success: true, data: newTodo }
     },
-    async createTodos(dtos: any[]) {
-      const createdTodos = dtos.map((dto: any) => {
-        const newTodo = {
+    async createTodos(dtos: Array<Partial<MockTodo>>) {
+      const createdTodos = dtos.map((dto: Partial<MockTodo>) => {
+        const newTodo: MockTodo = {
           id: `todo-${globalNextId++}`,
-          title: dto.title,
+          title: dto.title || '',
           completed: false,
           order: globalTodos.length,
           createdAt: new Date().toISOString(),
@@ -370,8 +387,8 @@ vi.mock('@/composables/useStorageMode', () => {
       })
       return { success: true, data: createdTodos, successCount: createdTodos.length }
     },
-    async updateTodo(id: string, data: any) {
-      const index = globalTodos.findIndex((t: any) => t.id === id)
+    async updateTodo(id: string, data: Partial<MockTodo>) {
+      const index = globalTodos.findIndex((t: MockTodo) => t.id === id)
       if (index !== -1) {
         globalTodos[index] = { ...globalTodos[index], ...data, updatedAt: new Date().toISOString() }
         return { success: true, data: globalTodos[index] }
@@ -379,7 +396,7 @@ vi.mock('@/composables/useStorageMode', () => {
       return { success: false, error: 'Todo not found' }
     },
     async deleteTodo(id: string) {
-      const index = globalTodos.findIndex((t: any) => t.id === id)
+      const index = globalTodos.findIndex((t: MockTodo) => t.id === id)
       if (index !== -1) {
         globalTodos.splice(index, 1)
         return { success: true }
@@ -392,17 +409,17 @@ vi.mock('@/composables/useStorageMode', () => {
     async reorderTodos(todoIds: string[]) {
       const reorderedTodos = todoIds
         .map((id, index) => {
-          const todo = globalTodos.find((t: any) => t.id === id)
+          const todo = globalTodos.find((t: MockTodo) => t.id === id)
           if (todo) {
             return { ...todo, order: index }
           }
           return null
         })
-        .filter(Boolean)
+        .filter((t): t is MockTodo => t !== null)
       globalTodos.splice(0, globalTodos.length, ...reorderedTodos)
       return { success: true, data: globalTodos }
     },
-    async saveTodos(todoList: any[]) {
+    async saveTodos(todoList: MockTodo[]) {
       globalTodos.splice(0, globalTodos.length, ...todoList)
       return { success: true }
     },
@@ -449,17 +466,20 @@ vi.mock('@/composables/useStorageMode', () => {
 
 // Mock @/composables/useNotifications
 vi.mock('@/composables/useNotifications', () => {
-  const mockNotifications = ref([] as any[])
-  const mockTimers = new Map<string, any>()
+  const mockNotifications = ref([] as MockNotification[])
+  const mockTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
   const mockUseNotifications = () => ({
     notifications: readonly(mockNotifications),
     config: readonly({ maxNotifications: 5, defaultDuration: 4000, position: 'top-right' }),
 
-    addNotification: vi.fn((notification: any) => {
+    addNotification: vi.fn((notification: Partial<MockNotification>) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
-      const newNotification = {
+      const newNotification: MockNotification = {
         id,
+        type: notification.type || 'info',
+        title: notification.title || '',
+        message: notification.message || '',
         timestamp: new Date(),
         duration: notification.duration || 4000,
         ...notification,
@@ -469,7 +489,7 @@ vi.mock('@/composables/useNotifications', () => {
       // 模拟自动移除
       if (!newNotification.persistent && newNotification.duration > 0) {
         const timerId = setTimeout(() => {
-          const index = mockNotifications.value.findIndex((n: any) => n.id === id)
+          const index = mockNotifications.value.findIndex((n: MockNotification) => n.id === id)
           if (index > -1) {
             mockNotifications.value.splice(index, 1)
             mockTimers.delete(id)
@@ -482,7 +502,7 @@ vi.mock('@/composables/useNotifications', () => {
     }),
 
     removeNotification: vi.fn((id: string) => {
-      const index = mockNotifications.value.findIndex((n: any) => n.id === id)
+      const index = mockNotifications.value.findIndex((n: MockNotification) => n.id === id)
       if (index > -1) {
         mockNotifications.value.splice(index, 1)
         const timerId = mockTimers.get(id)
@@ -494,12 +514,12 @@ vi.mock('@/composables/useNotifications', () => {
     }),
 
     clearNotifications: vi.fn(() => {
-      mockTimers.forEach((timerId: any) => clearTimeout(timerId))
+      mockTimers.forEach((timerId) => clearTimeout(timerId))
       mockTimers.clear()
       mockNotifications.value = []
     }),
 
-    success: vi.fn((title: string, message: string, options: any = {}) => {
+    success: vi.fn((title: string, message: string, options: MockNotificationOptions = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -513,7 +533,7 @@ vi.mock('@/composables/useNotifications', () => {
 
       // 检查重复通知
       const isDuplicate = mockNotifications.value.some(
-        (n: any) => n.title === title && n.message === message && n.type === 'success'
+        (n: MockNotification) => n.title === title && n.message === message && n.type === 'success'
       )
       if (isDuplicate) {
         return ''
@@ -523,7 +543,7 @@ vi.mock('@/composables/useNotifications', () => {
 
       if (!notification.persistent && notification.duration > 0) {
         const timerId = setTimeout(() => {
-          const index = mockNotifications.value.findIndex((n: any) => n.id === id)
+          const index = mockNotifications.value.findIndex((n: MockNotification) => n.id === id)
           if (index > -1) {
             mockNotifications.value.splice(index, 1)
             mockTimers.delete(id)
@@ -535,7 +555,7 @@ vi.mock('@/composables/useNotifications', () => {
       return id
     }),
 
-    error: vi.fn((title: string, message: string, options: any = {}) => {
+    error: vi.fn((title: string, message: string, options: MockNotificationOptions = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -550,7 +570,7 @@ vi.mock('@/composables/useNotifications', () => {
       return id
     }),
 
-    warning: vi.fn((title: string, message: string, options: any = {}) => {
+    warning: vi.fn((title: string, message: string, options: MockNotificationOptions = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -565,7 +585,7 @@ vi.mock('@/composables/useNotifications', () => {
       return id
     }),
 
-    info: vi.fn((title: string, message: string, options: any = {}) => {
+    info: vi.fn((title: string, message: string, options: MockNotificationOptions = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -581,7 +601,7 @@ vi.mock('@/composables/useNotifications', () => {
     }),
 
     getDebugInfo: vi.fn(() => ({
-      notifications: mockNotifications.value.map((n: any) => ({
+      notifications: mockNotifications.value.map((n: MockNotification) => ({
         id: n.id.slice(-8),
         title: n.title,
         type: n.type,

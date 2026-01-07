@@ -1,7 +1,6 @@
 {
   "extends": "../../tools/typescript-config/frontend.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
