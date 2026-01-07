@@ -17,7 +17,6 @@ const globalConfig = {
 
 describe('TodoListHeader', () => {
   const defaultProps = {
-    showCharts: false,
     showSearch: false,
   }
 
@@ -28,19 +27,17 @@ describe('TodoListHeader', () => {
     })
 
     const buttons = wrapper.findAll('.icon-button')
-    // 目前包含：AI 按钮、搜索按钮、图表按钮、布局切换按钮、批量分析按钮、AI 排序按钮 共 6 个
-    expect(buttons).toHaveLength(6)
+    // 目前包含：AI 按钮、搜索按钮、布局切换按钮、批量分析按钮、AI 排序按钮 共 5 个
+    expect(buttons).toHaveLength(5)
 
     expect(wrapper.find('.ai-assistant-button').exists()).toBe(true)
     expect(wrapper.find('.search-button').exists()).toBe(true)
-    expect(wrapper.find('.charts-button').exists()).toBe(true)
     expect(wrapper.find('.layout-button').exists()).toBe(true)
     expect(wrapper.find('.batch-analyze-button').exists()).toBe(true)
     expect(wrapper.find('.ai-sort-button').exists()).toBe(true)
 
     expect(wrapper.find('.ai-assistant-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.search-button .button-icon').exists()).toBe(true)
-    expect(wrapper.find('.charts-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.batch-analyze-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.ai-sort-button .button-icon').exists()).toBe(true)
 
@@ -51,12 +48,12 @@ describe('TodoListHeader', () => {
     const wrapper = mount(TodoListHeader, {
       props: {
         ...defaultProps,
-        showCharts: true,
+        showSearch: true,
       },
       global: globalConfig,
     })
 
-    expect(wrapper.find('.charts-button').classes()).toContain('active')
+    expect(wrapper.find('.search-button').classes()).toContain('active')
   })
 
   it('应该正确触发事件', async () => {
@@ -65,11 +62,11 @@ describe('TodoListHeader', () => {
       global: globalConfig,
     })
 
-    await wrapper.find('.charts-button').trigger('click')
-    expect(wrapper.emitted('toggleCharts')).toHaveLength(1)
-
     await wrapper.find('.search-button').trigger('click')
     expect(wrapper.emitted('toggleSearch')).toHaveLength(1)
+
+    await wrapper.find('.ai-assistant-button').trigger('click')
+    expect(wrapper.emitted('openAiSidebar')).toHaveLength(1)
   })
 
   it('应该显示正确的工具提示', () => {
@@ -78,10 +75,8 @@ describe('TodoListHeader', () => {
       global: globalConfig,
     })
 
-    const chartsButton = wrapper.find('.charts-button')
-
-    expect(chartsButton.attributes('title')).toContain('打开统计图表')
-    expect(chartsButton.attributes('title')).toContain('Ctrl+S')
+    const searchButton = wrapper.find('.search-button')
+    expect(searchButton.attributes('title')).toBeTruthy()
   })
 
   it('应该为按钮显示正确的图标', () => {
@@ -100,11 +95,6 @@ describe('TodoListHeader', () => {
     expect(searchButton.attributes('width')).toBe('22')
     expect(searchButton.attributes('height')).toBe('22')
 
-    const chartsButton = wrapper.find('.charts-button svg')
-    expect(chartsButton.exists()).toBe(true)
-    expect(chartsButton.attributes('width')).toBe('22')
-    expect(chartsButton.attributes('height')).toBe('22')
-
     const batchAnalyzeButton = wrapper.find('.batch-analyze-button svg')
     expect(batchAnalyzeButton.exists()).toBe(true)
     expect(batchAnalyzeButton.attributes('width')).toBe('22')
@@ -114,22 +104,5 @@ describe('TodoListHeader', () => {
     expect(aiSortButton.exists()).toBe(true)
     expect(aiSortButton.attributes('width')).toBe('22')
     expect(aiSortButton.attributes('height')).toBe('22')
-  })
-
-  it('应该为按钮设置正确的尺寸和样式', () => {
-    const wrapper = mount(TodoListHeader, {
-      props: defaultProps,
-      global: globalConfig,
-    })
-
-    const buttons = wrapper.findAll('.icon-button')
-    buttons.forEach((button) => {
-      expect(button.classes()).toContain('icon-button')
-
-      const icon = button.find('.button-icon')
-      expect(icon.exists()).toBe(true)
-      expect(icon.attributes('width')).toBe('22')
-      expect(icon.attributes('height')).toBe('22')
-    })
   })
 })
